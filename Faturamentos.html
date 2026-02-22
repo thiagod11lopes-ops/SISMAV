@@ -226,15 +226,6 @@
         <div class="form-card">
             <h2 style="margin-bottom: 20px; color: var(--dark-gray);"><i class="fas fa-plus-circle"></i> Adicionar Faturamento</h2>
             
-            <!-- Aviso sobre tamanho de arquivos -->
-            <div style="background: #fff3cd; border-left: 4px solid #fbbf24; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
-                <p style="margin: 0; color: #856404; font-size: 14px;">
-                    <i class="fas fa-exclamation-triangle" style="color: #fbbf24;"></i>
-                    <strong>Importante:</strong> Use arquivos PDF menores que <strong>3 MB</strong> para evitar problemas de armazenamento.
-                    <span id="espacoInfo" style="display: block; margin-top: 5px; font-size: 12px;"></span>
-                </p>
-            </div>
-            
             <div class="form-grid">
                 <div class="form-group">
                     <label for="numeroFaturamento"><i class="fas fa-hashtag"></i> Número do Faturamento</label>
@@ -314,40 +305,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             carregarTabela();
             popularFiltroAno();
-            atualizarInfoEspaco();
         });
-        
-        function atualizarInfoEspaco() {
-            try {
-                const faturamentos = getData();
-                let tamanhoTotal = 0;
-                
-                faturamentos.forEach(fat => {
-                    if (fat.pdf) {
-                        tamanhoTotal += fat.pdf.length;
-                    }
-                });
-                
-                const tamanhoMB = (tamanhoTotal / 1024 / 1024).toFixed(2);
-                const limiteEstimado = 5; // MB
-                const percentual = ((tamanhoTotal / (limiteEstimado * 1024 * 1024)) * 100).toFixed(1);
-                
-                const espacoInfo = document.getElementById('espacoInfo');
-                if (espacoInfo) {
-                    let cor = '#28a745'; // Verde
-                    if (percentual > 70) cor = '#fbbf24'; // Amarelo
-                    if (percentual > 90) cor = '#dc3545'; // Vermelho
-                    
-                    espacoInfo.innerHTML = `
-                        <i class="fas fa-database"></i> 
-                        Espaço usado: <strong style="color: ${cor}">${tamanhoMB} MB</strong> 
-                        de ~${limiteEstimado} MB (${percentual}%)
-                    `;
-                }
-            } catch (error) {
-                console.error('Erro ao calcular espaço:', error);
-            }
-        }
 
         function popularFiltroAno() {
             const faturamentos = getData();
@@ -556,7 +514,6 @@
                     // Recarregar tabela
                     carregarTabela();
                     popularFiltroAno();
-                    atualizarInfoEspaco();
                     
                     // Limpar formulário
                     document.getElementById('numeroFaturamento').value = '';
@@ -644,7 +601,6 @@
             setData(faturamentos);
             popularFiltroAno();
             carregarTabela();
-            atualizarInfoEspaco();
             
             alert('✅ Faturamento excluído com sucesso!');
         }
