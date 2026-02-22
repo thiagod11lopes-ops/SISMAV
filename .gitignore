@@ -19,3 +19,6 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Cópia de backup do projeto (evita duplicar no GitHub e no GitHub Pages)
+Backup de dados/
