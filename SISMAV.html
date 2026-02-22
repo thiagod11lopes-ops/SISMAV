@@ -627,7 +627,7 @@
                 <h3><i class="fas fa-database"></i> Backup de dados</h3>
                 <button type="button" class="modal-backup-dados-fechar" onclick="fecharModalBackupDados()" title="Fechar">&times;</button>
             </div>
-            <p class="modal-backup-dados-desc">Faça o download de um backup completo ou restaure a partir de um arquivo.</p>
+            <p class="modal-backup-dados-desc">Faça o download de um backup completo, restaure a partir de um arquivo ou do backup na nuvem (Firebase).</p>
             <div class="modal-backup-dados-buttons">
                 <button type="button" class="btn-modal-backup btn-fazer" onclick="executarBackupNoModal()">
                     <i class="fas fa-download"></i> Fazer backup
@@ -635,6 +635,9 @@
                 <label for="input-carregar-backup" class="btn-modal-backup btn-carregar">
                     <i class="fas fa-upload"></i> Carregar backup
                 </label>
+                <button type="button" class="btn-modal-backup btn-restaurar-firebase" onclick="restaurarDoFirebase()" title="Trazer o último backup salvo no Firebase para este computador. Use em outro PC ou quando perder os dados locais.">
+                    <i class="fas fa-cloud-download-alt"></i> Restaurar do Firebase
+                </button>
                 <button type="button" class="btn-modal-backup btn-remover-pdfs" onclick="removerAnexosPdfServicosNoModal()" title="Remove os PDFs anexados dos serviços. Os dados (OS, NF, valores) são mantidos. O sistema ficará mais leve.">
                     <i class="fas fa-file-pdf"></i> Remover anexos PDF dos serviços
                 </button>
@@ -1507,6 +1510,110 @@
                 alert('Erro ao remover anexos: ' + (err && err.message ? err.message : err));
             }
         }
+        /** Aplica os dados de um backup (usado por Carregar backup e Restaurar do Firebase). */
+        async function executarRestauracaoDados(dadosRestaurar) {
+            const setData = window.setData;
+            if (!setData) {
+                alert('setData não disponível. Recarregue a página.');
+                return;
+            }
+            try {
+                if (window.indexedDBService && typeof window.indexedDBService.ensureInit === 'function') {
+                    await window.indexedDBService.ensureInit();
+                }
+            } catch (errInit) {
+                console.warn('IndexedDB ensureInit:', errInit);
+            }
+            var list = [
+                ['manutencoesCadastradas', Array.isArray(dadosRestaurar.manutencoesCadastradas) ? dadosRestaurar.manutencoesCadastradas : []],
+                ['viaturasCadastradas', Array.isArray(dadosRestaurar.viaturasCadastradas) ? dadosRestaurar.viaturasCadastradas : []],
+                ['valoresCadastrados', Array.isArray(dadosRestaurar.valoresCadastrados) ? dadosRestaurar.valoresCadastrados : []],
+                ['empenhos', Array.isArray(dadosRestaurar.empenhos) ? dadosRestaurar.empenhos : []],
+                ['solemps', Array.isArray(dadosRestaurar.solemps) ? dadosRestaurar.solemps : []],
+                ['fainas_pendentes', Array.isArray(dadosRestaurar.fainas_pendentes) ? dadosRestaurar.fainas_pendentes : []],
+                ['fainas_andamento', Array.isArray(dadosRestaurar.fainas_andamento) ? dadosRestaurar.fainas_andamento : []],
+                ['fainas_finalizadas', Array.isArray(dadosRestaurar.fainas_finalizadas) ? dadosRestaurar.fainas_finalizadas : []],
+                ['fainas_anotacoes', Array.isArray(dadosRestaurar.fainas_anotacoes) ? dadosRestaurar.fainas_anotacoes : []],
+                ['viaturasOficina', Array.isArray(dadosRestaurar.viaturasOficina) ? dadosRestaurar.viaturasOficina : []]
+            ];
+            for (var i = 0; i < list.length; i++) {
+                var key = list[i][0];
+                var value = list[i][1];
+                await setData(key, value);
+                try {
+                    if (value === null || value === undefined) localStorage.removeItem(key);
+                    else localStorage.setItem(key, JSON.stringify(value));
+                } catch (syncErr) { console.warn('Erro ao sincronizar localStorage para', key, syncErr); }
+            }
+            var orcP = dadosRestaurar.orcamentos_pagamentos || [];
+            var orcC = dadosRestaurar.orcamentos_compras || [];
+            if (Array.isArray(dadosRestaurar.orcamentosCadastrados) && dadosRestaurar.orcamentosCadastrados.length > 0) {
+                dadosRestaurar.orcamentosCadastrados.forEach(function(item) {
+                    if (item.os || item.data) orcP.push(item);
+                    else if (item.item) orcC.push(item);
+                });
+            }
+            orcP.forEach(function(item) { if (item.valor && item.valor > 100000) item.valor = item.valor / 100; });
+            orcC.forEach(function(item) { if (item.valor && item.valor > 100000) item.valor = item.valor / 100; });
+            await setData('orcamentos_pagamentos', orcP);
+            await setData('orcamentos_compras', orcC);
+            await setData('faturamentos', Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos : []);
+            try {
+                localStorage.setItem('orcamentos_pagamentos', JSON.stringify(orcP));
+                localStorage.setItem('orcamentos_compras', JSON.stringify(orcC));
+                localStorage.setItem('faturamentos', JSON.stringify(Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos : []));
+            } catch (eSyncOrc) { console.warn('Erro ao sincronizar orçamentos/faturamentos no localStorage:', eSyncOrc); }
+            if (dadosRestaurar.sismavActiveTab != null) {
+                await setData('sismavActiveTab', dadosRestaurar.sismavActiveTab);
+                try { localStorage.setItem('sismavActiveTab', dadosRestaurar.sismavActiveTab); } catch (_) {}
+            }
+            if (dadosRestaurar.sismavVersao != null) {
+                await setData('sismavVersao', dadosRestaurar.sismavVersao);
+                try { localStorage.setItem('sismavVersao', dadosRestaurar.sismavVersao); } catch (_) {}
+            }
+            if (dadosRestaurar.sismavUltimoBackup != null) {
+                await setData('sismavUltimoBackup', dadosRestaurar.sismavUltimoBackup);
+                try { localStorage.setItem('sismavUltimoBackup', dadosRestaurar.sismavUltimoBackup); } catch (_) {}
+            }
+            fecharModalBackupDados();
+            try { sessionStorage.setItem('sismavRestauroRecente', '1'); } catch (_) {}
+            var resumo = 'Manutenções: ' + (list[0][1].length || 0) + '\nViaturas: ' + (list[1][1].length || 0) + '\nContratos: ' + (list[3][1].length || 0) + '\nPagamentos: ' + (orcP.length || 0) + '\nCompras: ' + (orcC.length || 0) + '\nFaturamentos: ' + (Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos.length : 0) + '\n';
+            setTimeout(function() {
+                alert('Backup restaurado.\n\n' + resumo + '\nA página será recarregada.');
+                window.location.reload();
+            }, 700);
+        }
+
+        /** Restaura o último backup salvo no Firebase (use em outro computador ou quando perder os dados locais). */
+        async function restaurarDoFirebase() {
+            if (!window.firestoreDb) {
+                alert('Firebase não está conectado. Verifique a internet e recarregue a página.');
+                return;
+            }
+            try {
+                var ref = window.firestoreDb.collection('sismav_backups').doc('ultimo');
+                var snap = await ref.get();
+                if (!snap.exists || !snap.data().backup) {
+                    alert('Nenhum backup encontrado no Firebase.\n\nFaça um backup primeiro (em outro computador ou aqui) para que ele fique disponível na nuvem.');
+                    return;
+                }
+                var backup = JSON.parse(snap.data().backup);
+                var dados = backup.dados || backup.data || {};
+                if (typeof dados !== 'object' || dados === null) {
+                    alert('Backup no Firebase está em formato inválido.');
+                    return;
+                }
+                var dataBackup = backup.dataBackup || snap.data().dataBackup || '';
+                if (!confirm('Restaurar o backup do Firebase?\n\nData do backup: ' + (dataBackup ? new Date(dataBackup).toLocaleString('pt-BR') : '—') + '\n\nOs dados atuais deste computador serão substituídos.')) {
+                    return;
+                }
+                await executarRestauracaoDados(dados);
+            } catch (err) {
+                console.error('Erro ao restaurar do Firebase:', err);
+                alert('Erro ao restaurar do Firebase: ' + (err && err.message ? err.message : err));
+            }
+        }
+
         function carregarBackupNoModal(evt) {
             const file = evt.target.files[0];
             if (!file) return;
@@ -1524,119 +1631,12 @@
                         evt.target.value = '';
                         return;
                     }
-
-                    // Função assíncrona separada para conseguir capturar erros de restauração
-                    async function restaurarBackup(dadosRestaurar, evtOriginal) {
-                        try {
-                            const setData = window.setData;
-                            if (!setData) {
-                                alert('setData não disponível. Recarregue a página.');
-                                return;
-                            }
-
-                            // Garantir IndexedDB inicializado
-                            try {
-                                if (window.indexedDBService && typeof window.indexedDBService.ensureInit === 'function') {
-                                    await window.indexedDBService.ensureInit();
-                                }
-                            } catch (errInit) {
-                                console.warn('IndexedDB ensureInit:', errInit);
-                            }
-
-                            var list = [
-                                ['manutencoesCadastradas', Array.isArray(dadosRestaurar.manutencoesCadastradas) ? dadosRestaurar.manutencoesCadastradas : []],
-                                ['viaturasCadastradas', Array.isArray(dadosRestaurar.viaturasCadastradas) ? dadosRestaurar.viaturasCadastradas : []],
-                                ['valoresCadastrados', Array.isArray(dadosRestaurar.valoresCadastrados) ? dadosRestaurar.valoresCadastrados : []],
-                                ['empenhos', Array.isArray(dadosRestaurar.empenhos) ? dadosRestaurar.empenhos : []],
-                                ['solemps', Array.isArray(dadosRestaurar.solemps) ? dadosRestaurar.solemps : []],
-                                ['fainas_pendentes', Array.isArray(dadosRestaurar.fainas_pendentes) ? dadosRestaurar.fainas_pendentes : []],
-                                ['fainas_andamento', Array.isArray(dadosRestaurar.fainas_andamento) ? dadosRestaurar.fainas_andamento : []],
-                                ['fainas_finalizadas', Array.isArray(dadosRestaurar.fainas_finalizadas) ? dadosRestaurar.fainas_finalizadas : []],
-                                ['fainas_anotacoes', Array.isArray(dadosRestaurar.fainas_anotacoes) ? dadosRestaurar.fainas_anotacoes : []],
-                                ['viaturasOficina', Array.isArray(dadosRestaurar.viaturasOficina) ? dadosRestaurar.viaturasOficina : []]
-                            ];
-
-                            for (var i = 0; i < list.length; i++) {
-                                var key = list[i][0];
-                                var value = list[i][1];
-                                await setData(key, value);
-                                // Sincronizar também com localStorage para telas antigas que ainda leem de lá
-                                try {
-                                    if (value === null || value === undefined) {
-                                        localStorage.removeItem(key);
-                                    } else {
-                                        localStorage.setItem(key, JSON.stringify(value));
-                                    }
-                                } catch (syncErr) {
-                                    console.warn('Erro ao sincronizar localStorage para', key, syncErr);
-                                }
-                            }
-
-                            var orcP = dadosRestaurar.orcamentos_pagamentos || [];
-                            var orcC = dadosRestaurar.orcamentos_compras || [];
-                            if (Array.isArray(dadosRestaurar.orcamentosCadastrados) && dadosRestaurar.orcamentosCadastrados.length > 0) {
-                                dadosRestaurar.orcamentosCadastrados.forEach(function(item) {
-                                    if (item.os || item.data) orcP.push(item);
-                                    else if (item.item) orcC.push(item);
-                                });
-                            }
-                            orcP.forEach(function(item) { if (item.valor && item.valor > 100000) item.valor = item.valor / 100; });
-                            orcC.forEach(function(item) { if (item.valor && item.valor > 100000) item.valor = item.valor / 100; });
-
-                            await setData('orcamentos_pagamentos', orcP);
-                            await setData('orcamentos_compras', orcC);
-                            await setData('faturamentos', Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos : []);
-
-                            try {
-                                localStorage.setItem('orcamentos_pagamentos', JSON.stringify(orcP));
-                                localStorage.setItem('orcamentos_compras', JSON.stringify(orcC));
-                                localStorage.setItem('faturamentos', JSON.stringify(Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos : []));
-                            } catch (eSyncOrc) {
-                                console.warn('Erro ao sincronizar orçamentos/faturamentos no localStorage:', eSyncOrc);
-                            }
-
-                            if (dadosRestaurar.sismavActiveTab != null) {
-                                await setData('sismavActiveTab', dadosRestaurar.sismavActiveTab);
-                                try { localStorage.setItem('sismavActiveTab', dadosRestaurar.sismavActiveTab); } catch (_) {}
-                            }
-                            if (dadosRestaurar.sismavVersao != null) {
-                                await setData('sismavVersao', dadosRestaurar.sismavVersao);
-                                try { localStorage.setItem('sismavVersao', dadosRestaurar.sismavVersao); } catch (_) {}
-                            }
-                            if (dadosRestaurar.sismavUltimoBackup != null) {
-                                await setData('sismavUltimoBackup', dadosRestaurar.sismavUltimoBackup);
-                                try { localStorage.setItem('sismavUltimoBackup', dadosRestaurar.sismavUltimoBackup); } catch (_) {}
-                            }
-
-                            fecharModalBackupDados();
-
-                            // Sinalizar que houve restauro (sessionStorage não é migrado para IndexedDB): ao recarregar, a aba Serviços limpa filtros automaticamente
-                            try { sessionStorage.setItem('sismavRestauroRecente', '1'); } catch (_) {}
-
-                            // Pequeno resumo para o usuário (quantidade de registros principais)
-                            var resumo = ''
-                                + 'Manutenções: ' + (list[0][1].length || 0) + '\n'
-                                + 'Viaturas: ' + (list[1][1].length || 0) + '\n'
-                                + 'Contratos: ' + (list[3][1].length || 0) + '\n'
-                                + 'Pagamentos: ' + (orcP.length || 0) + '\n'
-                                + 'Compras: ' + (orcC.length || 0) + '\n'
-                                + 'Faturamentos: ' + ((Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos.length : 0)) + '\n';
-
-                            setTimeout(function() {
-                                alert('Backup restaurado (IndexedDB + localStorage).\n\n' + resumo + '\nA página será recarregada.');
-                                window.location.reload();
-                            }, 700);
-                        } catch (errRestore) {
-                            console.error('Erro ao restaurar backup:', errRestore);
-                            alert('Erro ao restaurar backup: ' + (errRestore && errRestore.message ? errRestore.message : errRestore));
-                        } finally {
-                            if (evtOriginal && evtOriginal.target) {
-                                evtOriginal.target.value = '';
-                            }
-                        }
-                    }
-
-                    restaurarBackup(dados, evt);
+                    executarRestauracaoDados(dados).catch(function(errRestore) {
+                        console.error('Erro ao restaurar backup:', errRestore);
+                        alert('Erro ao restaurar backup: ' + (errRestore && errRestore.message ? errRestore.message : errRestore));
+                    }).finally(function() {
+                        evt.target.value = '';
+                    });
                 } catch (err) {
                     console.error('Erro ao carregar backup (JSON):', err);
                     alert('Erro ao carregar backup: ' + (err && err.message ? err.message : err));
