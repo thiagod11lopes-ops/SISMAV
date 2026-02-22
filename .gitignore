@@ -1,0 +1,21 @@
+# Dependências
+node_modules/
+backend/node_modules/
+
+# Dados locais do backend (não versionar)
+backend/data/
+
+# Logs e ambiente
+*.log
+.env
+.env.local
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

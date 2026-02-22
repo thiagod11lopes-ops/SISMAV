@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela de Faturamentos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --secondary-blue: #1e40af;
+            --dark-gray: #1f2937;
+            --light-gray: #f3f4f6;
+            --white: #ffffff;
+            --black: #111827;
+            --delete-red: #ef4444;
+            --success-green: #10b981;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 30px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 32px;
+            color: var(--primary-blue);
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 800;
+        }
+        
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+        
+        .form-group select,
+        .form-group input {
+            padding: 12px 15px;
+            border: 2px solid rgba(37, 99, 235, 0.2);
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(37, 99, 235, 0.6);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(239, 68, 68, 0.6);
+        }
+        
+        .table-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+        }
+        
+        thead th {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+        
+        thead th:first-child {
+            border-top-left-radius: 10px;
+        }
+        
+        thead th:last-child {
+            border-top-right-radius: 10px;
+        }
+        
+        tbody tr {
+            transition: all 0.3s;
+        }
+        
+        tbody tr:hover {
+            background: rgba(37, 99, 235, 0.05);
+            transform: scale(1.01);
+        }
+        
+        tbody td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+        }
+        
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            margin: 0 5px;
+        }
+        
+        .btn-download {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-file-invoice-dollar"></i> Tabela de Faturamentos</h1>
+        
+        <!-- Formulário -->
+        <div class="form-card">
+            <h2 style="margin-bottom: 20px; color: var(--dark-gray);"><i class="fas fa-plus-circle"></i> Adicionar Faturamento</h2>
+            
+            <!-- Aviso sobre tamanho de arquivos -->
+            <div style="background: #fff3cd; border-left: 4px solid #fbbf24; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
+                <p style="margin: 0; color: #856404; font-size: 14px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #fbbf24;"></i>
+                    <strong>Importante:</strong> Use arquivos PDF menores que <strong>3 MB</strong> para evitar problemas de armazenamento.
+                    <span id="espacoInfo" style="display: block; margin-top: 5px; font-size: 12px;"></span>
+                </p>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="numeroFaturamento"><i class="fas fa-hashtag"></i> Número do Faturamento</label>
+                    <select id="numeroFaturamento">
+                        <option value="">Selecione...</option>
+                        <option value="1° Faturamento">1° Faturamento</option>
+                        <option value="2° Faturamento">2° Faturamento</option>
+                        <option value="3° Faturamento">3° Faturamento</option>
+                        <option value="4° Faturamento">4° Faturamento</option>
+                        <option value="5° Faturamento">5° Faturamento</option>
+                        <option value="6° Faturamento">6° Faturamento</option>
+                        <option value="7° Faturamento">7° Faturamento</option>
+                        <option value="8° Faturamento">8° Faturamento</option>
+                        <option value="9° Faturamento">9° Faturamento</option>
+                        <option value="10° Faturamento">10° Faturamento</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dataFaturamento"><i class="fas fa-calendar-alt"></i> Data do Faturamento</label>
+                    <input type="date" id="dataFaturamento">
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <input type="file" id="pdfInput" accept=".pdf" onchange="processarPDF()">
+                <button class="btn btn-primary" onclick="abrirSeletorPDF()">
+                    <i class="fas fa-paperclip"></i> Fixar Faturamento
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tabela -->
+        <div class="table-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: var(--dark-gray);"><i class="fas fa-table"></i> Faturamentos Cadastrados</h2>
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label for="filtroAno" style="font-weight: 600; color: var(--dark-gray);">
+                        <i class="fas fa-filter"></i> Filtrar por Ano:
+                    </label>
+                    <select id="filtroAno" onchange="aplicarFiltro()" style="padding: 10px 15px; border: 2px solid rgba(37, 99, 235, 0.2); border-radius: 8px; font-size: 14px; cursor: pointer;">
+                        <option value="">Todos os Anos</option>
+                    </select>
+                    <button onclick="limparFiltro()" class="btn btn-secondary" style="padding: 10px 20px; background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+                        <i class="fas fa-times"></i> Limpar
+                    </button>
+                </div>
+            </div>
+            <table id="tabelaFaturamentos">
+                <thead>
+                    <tr>
+                        <th>Número do Faturamento</th>
+                        <th>Data do Faturamento</th>
+                        <th>PDF Anexado</th>
+                        <th style="text-align: center;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="corpoTabela">
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum faturamento cadastrado ainda.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Carregar dados do localStorage
+        const getData = () => JSON.parse(localStorage.getItem('faturamentos')) || [];
+        const setData = (data) => localStorage.setItem('faturamentos', JSON.stringify(data));
+
+        // Carregar tabela ao iniciar
+        window.addEventListener('DOMContentLoaded', () => {
+            carregarTabela();
+            popularFiltroAno();
+            atualizarInfoEspaco();
+        });
+        
+        function atualizarInfoEspaco() {
+            try {
+                const faturamentos = getData();
+                let tamanhoTotal = 0;
+                
+                faturamentos.forEach(fat => {
+                    if (fat.pdf) {
+                        tamanhoTotal += fat.pdf.length;
+                    }
+                });
+                
+                const tamanhoMB = (tamanhoTotal / 1024 / 1024).toFixed(2);
+                const limiteEstimado = 5; // MB
+                const percentual = ((tamanhoTotal / (limiteEstimado * 1024 * 1024)) * 100).toFixed(1);
+                
+                const espacoInfo = document.getElementById('espacoInfo');
+                if (espacoInfo) {
+                    let cor = '#28a745'; // Verde
+                    if (percentual > 70) cor = '#fbbf24'; // Amarelo
+                    if (percentual > 90) cor = '#dc3545'; // Vermelho
+                    
+                    espacoInfo.innerHTML = `
+                        <i class="fas fa-database"></i> 
+                        Espaço usado: <strong style="color: ${cor}">${tamanhoMB} MB</strong> 
+                        de ~${limiteEstimado} MB (${percentual}%)
+                    `;
+                }
+            } catch (error) {
+                console.error('Erro ao calcular espaço:', error);
+            }
+        }
+
+        function popularFiltroAno() {
+            const faturamentos = getData();
+            const anos = new Set();
+            
+            faturamentos.forEach(fat => {
+                const ano = new Date(fat.data + 'T00:00:00').getFullYear();
+                anos.add(ano);
+            });
+            
+            const anosOrdenados = Array.from(anos).sort((a, b) => b - a);
+            const select = document.getElementById('filtroAno');
+            
+            // Limpar opções existentes (exceto "Todos")
+            select.innerHTML = '<option value="">Todos os Anos</option>';
+            
+            // Adicionar anos
+            anosOrdenados.forEach(ano => {
+                const option = document.createElement('option');
+                option.value = ano;
+                option.textContent = ano;
+                select.appendChild(option);
+            });
+        }
+
+        function carregarTabela(anoFiltro = '') {
+            const todosFaturamentos = getData();
+            let faturamentos = todosFaturamentos;
+            
+            console.log('📊 Carregando tabela...');
+            console.log('Total de faturamentos:', todosFaturamentos.length);
+            console.log('Filtro de ano:', anoFiltro || 'Nenhum');
+            
+            // Aplicar filtro de ano se selecionado
+            if (anoFiltro) {
+                faturamentos = faturamentos.filter(fat => {
+                    const ano = new Date(fat.data + 'T00:00:00').getFullYear();
+                    return ano.toString() === anoFiltro;
+                });
+                console.log('Faturamentos após filtro:', faturamentos.length);
+            }
+            
+            const tbody = document.getElementById('corpoTabela');
+            
+            if (faturamentos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Nenhum faturamento cadastrado ainda.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = faturamentos.map((fat) => {
+                // Encontrar índice real no array completo
+                const indiceReal = todosFaturamentos.findIndex(f => f.numero === fat.numero && f.data === fat.data);
+                
+                const dataFormatada = new Date(fat.data + 'T00:00:00').toLocaleDateString('pt-BR');
+                const temPdf = fat.pdf ? 'Sim' : 'Não';
+                const btnDownload = fat.pdf 
+                    ? `<button class="action-btn btn-download" onclick="baixarPDF(${indiceReal})" title="Baixar PDF">
+                        <i class="fas fa-download"></i>
+                       </button>`
+                    : '';
+                
+                return `
+                    <tr>
+                        <td><strong>${fat.numero}</strong></td>
+                        <td>${dataFormatada}</td>
+                        <td>${temPdf}</td>
+                        <td style="text-align: center;">
+                            ${btnDownload}
+                            <button class="action-btn btn-delete" onclick="excluirFaturamento(${indiceReal})" title="Excluir">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            console.log('✅ Tabela carregada com sucesso!');
+        }
+
+        function abrirSeletorPDF() {
+            const numero = document.getElementById('numeroFaturamento').value;
+            const data = document.getElementById('dataFaturamento').value;
+            
+            // Validações
+            if (!numero) {
+                alert('❌ Por favor, selecione o número do faturamento!');
+                return;
+            }
+            
+            if (!data) {
+                alert('❌ Por favor, selecione a data do faturamento!');
+                return;
+            }
+            
+            // Abrir seletor de arquivos
+            document.getElementById('pdfInput').click();
+        }
+        
+        function processarPDF() {
+            console.log('📎 Processando PDF...');
+            
+            const numero = document.getElementById('numeroFaturamento').value;
+            const data = document.getElementById('dataFaturamento').value;
+            const pdfInput = document.getElementById('pdfInput');
+            
+            console.log('Número:', numero);
+            console.log('Data:', data);
+            console.log('Arquivo selecionado:', pdfInput.files[0] ? pdfInput.files[0].name : 'Nenhum');
+            
+            if (!pdfInput.files[0]) {
+                console.log('❌ Nenhum arquivo selecionado');
+                return;
+            }
+            
+            // Verificar se já existe
+            const faturamentos = getData();
+            console.log('Faturamentos existentes:', faturamentos.length);
+            
+            const existe = faturamentos.some(f => f.numero === numero && f.data === data);
+            
+            if (existe) {
+                console.log('⚠️ Faturamento já existe');
+                const confirmar = confirm('⚠️ Já existe um faturamento com este número e data. Deseja substituir?');
+                if (!confirmar) {
+                    pdfInput.value = '';
+                    console.log('❌ Usuário cancelou substituição');
+                    return;
+                }
+                
+                // Remover o existente
+                const index = faturamentos.findIndex(f => f.numero === numero && f.data === data);
+                faturamentos.splice(index, 1);
+                console.log('✅ Faturamento existente removido');
+            }
+            
+            // Ler PDF
+            console.log('📖 Lendo arquivo PDF...');
+            const reader = new FileReader();
+            
+            reader.onerror = function(error) {
+                console.error('❌ Erro ao ler arquivo:', error);
+                alert('❌ Erro ao ler arquivo PDF!');
+            };
+            
+            reader.onload = function(e) {
+                console.log('✅ Arquivo lido com sucesso');
+                const pdfBase64 = e.target.result;
+                const tamanhoMB = (pdfBase64.length / 1024 / 1024).toFixed(2);
+                console.log('Tamanho do PDF (base64):', pdfBase64.length, 'caracteres');
+                console.log('Tamanho do PDF:', tamanhoMB, 'MB');
+                
+                // Verificar tamanho do arquivo
+                if (pdfBase64.length > 5000000) { // ~5MB
+                    const continuar = confirm(
+                        `⚠️ AVISO: Arquivo Grande!\n\n` +
+                        `O arquivo selecionado tem ${tamanhoMB} MB.\n` +
+                        `Arquivos muito grandes podem:\n` +
+                        `• Exceder o limite do navegador\n` +
+                        `• Tornar o sistema lento\n` +
+                        `• Causar erros ao salvar\n\n` +
+                        `Recomendamos usar arquivos menores que 3 MB.\n\n` +
+                        `Deseja continuar mesmo assim?`
+                    );
+                    
+                    if (!continuar) {
+                        pdfInput.value = '';
+                        console.log('❌ Usuário cancelou devido ao tamanho');
+                        return;
+                    }
+                }
+                
+                // Adicionar faturamento
+                const novoFaturamento = {
+                    numero: numero,
+                    data: data,
+                    pdf: pdfBase64
+                };
+                
+                faturamentos.push(novoFaturamento);
+                console.log('✅ Faturamento adicionado ao array');
+                
+                // Ordenar por número
+                faturamentos.sort((a, b) => {
+                    const numA = parseInt(a.numero.match(/\d+/)[0]);
+                    const numB = parseInt(b.numero.match(/\d+/)[0]);
+                    return numA - numB;
+                });
+                console.log('✅ Faturamentos ordenados');
+                
+                // Salvar no localStorage com tratamento de erro
+                try {
+                    setData(faturamentos);
+                    console.log('✅ Dados salvos no localStorage');
+                    
+                    // Verificar se foi salvo
+                    const verificacao = getData();
+                    console.log('Verificação - Total após salvar:', verificacao.length);
+                    
+                    // Recarregar tabela
+                    carregarTabela();
+                    popularFiltroAno();
+                    atualizarInfoEspaco();
+                    
+                    // Limpar formulário
+                    document.getElementById('numeroFaturamento').value = '';
+                    document.getElementById('dataFaturamento').value = '';
+                    pdfInput.value = '';
+                    
+                    console.log('✅ Processo concluído!');
+                    alert('✅ Faturamento fixado com sucesso!');
+                    
+                } catch (error) {
+                    console.error('❌ Erro ao salvar:', error);
+                    
+                    // Remover o faturamento que não foi salvo
+                    const index = faturamentos.findIndex(f => f.numero === numero && f.data === data);
+                    if (index !== -1) {
+                        faturamentos.splice(index, 1);
+                    }
+                    
+                    if (error.name === 'QuotaExceededError') {
+                        alert(
+                            `❌ ERRO: Espaço Insuficiente!\n\n` +
+                            `O arquivo é muito grande (${tamanhoMB} MB) e excedeu o limite de armazenamento do navegador.\n\n` +
+                            `SOLUÇÕES:\n` +
+                            `1. Use um arquivo PDF menor (recomendado: < 3 MB)\n` +
+                            `2. Comprima o PDF antes de anexar\n` +
+                            `3. Remova faturamentos antigos para liberar espaço\n` +
+                            `4. Faça backup e limpe dados antigos\n\n` +
+                            `DICA: Use ferramentas online para comprimir PDFs:\n` +
+                            `• ilovepdf.com\n` +
+                            `• smallpdf.com`
+                        );
+                    } else {
+                        alert(`❌ Erro ao salvar faturamento: ${error.message}`);
+                    }
+                    
+                    pdfInput.value = '';
+                }
+            };
+            
+            reader.readAsDataURL(pdfInput.files[0]);
+        }
+
+        function aplicarFiltro() {
+            const anoSelecionado = document.getElementById('filtroAno').value;
+            carregarTabela(anoSelecionado);
+        }
+
+        function limparFiltro() {
+            document.getElementById('filtroAno').value = '';
+            carregarTabela();
+        }
+
+        function baixarPDF(index) {
+            const faturamentos = getData();
+            const faturamento = faturamentos[index];
+            
+            if (!faturamento.pdf) {
+                alert('❌ Este faturamento não possui PDF anexado!');
+                return;
+            }
+            
+            // Criar link de download
+            const link = document.createElement('a');
+            link.href = faturamento.pdf;
+            link.download = `${faturamento.numero.replace(' ', '_')}_${faturamento.data}.pdf`;
+            link.click();
+            
+            alert('✅ PDF baixado com sucesso!');
+        }
+
+        function excluirFaturamento(index) {
+            const faturamentos = getData();
+            const faturamento = faturamentos[index];
+            
+            const confirmar = confirm(
+                `⚠️ EXCLUIR FATURAMENTO\n\n` +
+                `Número: ${faturamento.numero}\n` +
+                `Data: ${new Date(faturamento.data + 'T00:00:00').toLocaleDateString('pt-BR')}\n\n` +
+                `Deseja realmente excluir este faturamento?`
+            );
+            
+            if (!confirmar) return;
+            
+            faturamentos.splice(index, 1);
+            setData(faturamentos);
+            popularFiltroAno();
+            carregarTabela();
+            atualizarInfoEspaco();
+            
+            alert('✅ Faturamento excluído com sucesso!');
+        }
+    </script>
+</body>
+</html>

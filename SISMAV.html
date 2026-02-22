@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISMAV - Sistema de Manutenção de Viaturas</title>
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --secondary-blue: #1e40af;
+            --dark-gray: #1f2937;
+            --light-gray: #f3f4f6;
+            --white: #ffffff;
+            --black: #111827;
+            --delete-red: #ef4444;
+            --edit-orange: #f59e0b;
+            --success-green: #10b981;
+            --warning-yellow: #fbbf24;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            width: 100vw;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 50%, #2563eb 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            width: 100vw;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(37,99,235,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+            z-index: 0;
+            pointer-events: none;
+        }
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .main-title {
+            font-size: 36px;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--black) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 900;
+            margin: 0;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+        }
+        main {
+            flex-grow: 1;
+            margin: 0;
+            padding: 20px;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        .tabs-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 150px 15px 15px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .tabs-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .storage-indicator {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%) translateZ(0);
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            white-space: nowrap;
+            z-index: 1;
+        }
+        .storage-indicator-btn {
+            cursor: pointer;
+            border: none;
+            background: inherit;
+            font: inherit;
+        }
+        
+        .storage-indicator:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-50%) translateY(-2px) translateZ(0);
+        }
+        
+        .storage-indicator i {
+            font-size: 14px;
+        }
+        
+        .storage-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .storage-type-badge.indexeddb {
+            background: rgba(16, 185, 129, 0.3);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+        
+        .storage-type-badge.localstorage {
+            background: rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.5);
+        }
+        
+        .storage-indicator.warning {
+            background: rgba(251, 191, 36, 0.3);
+            border-color: rgba(251, 191, 36, 0.5);
+            color: #fbbf24;
+        }
+        
+        .storage-indicator.danger {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs-container {
+                padding: 15px;
+            }
+            
+            .storage-indicator {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 100%;
+                justify-content: center;
+                margin-top: 10px;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .storage-type-badge {
+                margin-left: 0;
+            }
+        }
+        
+        .tab-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(0);
+        }
+        
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: transform 0.4s ease;
+            transform: translateX(0) translateZ(0);
+        }
+        
+        .tab-button:hover::before {
+            transform: translateX(200%) translateZ(0);
+        }
+        
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px) translateZ(0);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            color: var(--white);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.5);
+            transform: translateY(-2px) translateZ(0);
+        }
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            flex-grow: 1;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .iframe-container {
+            width: 100%;
+            max-width: 100%;
+            height: calc(100vh - 240px);
+            border: none;
+            box-sizing: border-box;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        /* Modal de Backup Diário */
+        .backup-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .backup-modal.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .backup-modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            position: relative;
+            transform: translateY(20px) translateZ(0);
+            opacity: 0;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        
+        .backup-modal.show .backup-modal-content {
+            transform: translateY(0) translateZ(0);
+            opacity: 1;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px) translateZ(0);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) translateZ(0);
+                opacity: 1;
+            }
+        }
+        
+        .backup-modal-content h2 {
+            color: var(--primary-blue);
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .backup-modal-content h2 i {
+            font-size: 32px;
+        }
+        
+        .backup-modal-content p {
+            color: var(--dark-gray);
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .backup-modal-content .backup-info {
+            background: rgba(37, 99, 235, 0.1);
+            border-left: 4px solid var(--primary-blue);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .backup-modal-content .backup-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+        
+        .backup-modal-content .backup-info strong {
+            color: var(--primary-blue);
+        }
+        
+        .backup-modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .backup-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateZ(0);
+        }
+        
+        .backup-btn-download {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+        }
+        
+        .backup-btn-download:hover {
+            transform: translateY(-2px) translateZ(0);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .backup-btn-skip {
+            background: rgba(156, 163, 175, 0.2);
+            color: var(--dark-gray);
+        }
+        
+        .backup-btn-skip:hover {
+            background: rgba(156, 163, 175, 0.3);
+        }
+        
+        /* Modal Backup de dados (botão IndexedDB) */
+        .modal-backup-dados {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-backup-dados.show {
+            display: flex;
+        }
+        .modal-backup-dados-content {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+        .modal-backup-dados-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .modal-backup-dados-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--primary-blue);
+        }
+        .modal-backup-dados-header h3 i {
+            margin-right: 8px;
+        }
+        .modal-backup-dados-fechar {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            line-height: 1;
+            padding: 0 4px;
+        }
+        .modal-backup-dados-fechar:hover {
+            color: #111;
+        }
+        .modal-backup-dados-desc {
+            color: #4b5563;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        .modal-backup-dados-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-modal-backup {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            transform: translateZ(0);
+        }
+        .btn-modal-backup:hover {
+            transform: translateY(-1px) translateZ(0);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-modal-backup.btn-fazer {
+            background: var(--success-green);
+            color: #fff;
+        }
+        .btn-modal-backup.btn-carregar {
+            background: var(--edit-orange);
+            color: #fff;
+        }
+        .btn-modal-backup.btn-remover-pdfs {
+            background: #6b7280;
+            color: #fff;
+        }
+        .btn-modal-backup.btn-remover-pdfs:hover {
+            background: #4b5563;
+        }
+    </style>
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- IndexedDB Service - Armazenamento de Dados -->
+    <script src="indexeddb-service.js"></script>
+</head>
+<body>
+    <!-- Modal de Backup Diário -->
+    <div id="backup-modal" class="backup-modal">
+        <div class="backup-modal-content">
+            <h2>
+                <i class="fas fa-database"></i>
+                Backup Diário
+            </h2>
+            <p>É recomendado fazer backup dos seus dados diariamente para garantir que nenhuma informação seja perdida.</p>
+            
+            <div class="backup-info">
+                <p><strong>📅 Último backup:</strong> <span id="last-backup-date">Nunca</span></p>
+                <p><strong>💾 O backup inclui:</strong></p>
+                <p style="margin-left: 20px;">• Todos os serviços cadastrados<br>• Viaturas e seus dados<br>• Valores financeiros<br>• Orçamentos<br>• Fainas<br>• Configurações do sistema</p>
+            </div>
+            
+            <div class="backup-modal-buttons">
+                <button class="backup-btn backup-btn-download" onclick="fazerBackup()">
+                    <i class="fas fa-download"></i>
+                    Fazer Backup Agora
+                </button>
+                <button class="backup-btn backup-btn-skip" onclick="pularBackup()">
+                    <i class="fas fa-times"></i>
+                    Lembrar Depois
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <header>
+        <h1 class="main-title">SISMAV - Sistema de Manutenção de Viaturas</h1>
+    </header>
+
+    <main>
+        <div class="tabs-container">
+            <div class="tabs-wrapper">
+                <button class="tab-button active" data-tab="servicos" onclick="openTab(event, 'servicos')">Manutenções</button>
+                <button class="tab-button" data-tab="valores" onclick="openTab(event, 'valores')">Controle Financeiro</button>
+                <button class="tab-button" data-tab="faturamentos" onclick="openTab(event, 'faturamentos')">Tabela de Faturamentos</button>
+                <button class="tab-button" data-tab="orcamentos" onclick="openTab(event, 'orcamentos')">Orçamentos</button>
+                <button class="tab-button" data-tab="viaturas" onclick="openTab(event, 'viaturas')">Viaturas</button>
+                <button class="tab-button" data-tab="fainas" onclick="openTab(event, 'fainas')">Fainas</button>
+                <button class="tab-button" data-tab="balanco" onclick="openTab(event, 'balanco')">Balanço</button>
+            </div>
+            <button type="button" id="storage-indicator" class="storage-indicator storage-indicator-btn" title="Dados (IndexedDB) – Clique para backup" onclick="abrirModalBackupDados()">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-database"></i>
+                    <span id="storage-text">Calculando...</span>
+                </div>
+                <span id="storage-type-badge" class="storage-type-badge" style="display: none;">
+                    <i class="fas fa-circle" style="font-size: 6px;"></i>
+                    <span id="storage-type-text">-</span>
+                </span>
+            </button>
+        </div>
+
+        <div id="servicos" class="tab-content active">
+            <iframe id="iframe-servicos" class="iframe-container"></iframe>
+        </div>
+
+        <div id="valores" class="tab-content">
+            <iframe id="iframe-valores" class="iframe-container"></iframe>
+        </div>
+
+        <div id="faturamentos" class="tab-content">
+            <iframe id="iframe-faturamentos" class="iframe-container"></iframe>
+        </div>
+
+        <div id="orcamentos" class="tab-content">
+            <iframe id="iframe-orcamentos" class="iframe-container"></iframe>
+        </div>
+
+        <div id="viaturas" class="tab-content">
+            <iframe id="iframe-viaturas" class="iframe-container"></iframe>
+        </div>
+
+        <div id="fainas" class="tab-content">
+            <iframe id="iframe-fainas" class="iframe-container"></iframe>
+        </div>
+
+        <div id="balanco" class="tab-content">
+            <iframe id="iframe-balanco" class="iframe-container"></iframe>
+        </div>
+    </main>
+
+    <!-- Modal Backup (aberto pelo botão IndexedDB) -->
+    <div id="modal-backup-dados" class="modal-backup-dados" onclick="if(event.target===this)fecharModalBackupDados()">
+        <div class="modal-backup-dados-content" onclick="event.stopPropagation()">
+            <div class="modal-backup-dados-header">
+                <h3><i class="fas fa-database"></i> Backup de dados</h3>
+                <button type="button" class="modal-backup-dados-fechar" onclick="fecharModalBackupDados()" title="Fechar">&times;</button>
+            </div>
+            <p class="modal-backup-dados-desc">Faça o download de um backup completo ou restaure a partir de um arquivo.</p>
+            <div class="modal-backup-dados-buttons">
+                <button type="button" class="btn-modal-backup btn-fazer" onclick="executarBackupNoModal()">
+                    <i class="fas fa-download"></i> Fazer backup
+                </button>
+                <label for="input-carregar-backup" class="btn-modal-backup btn-carregar">
+                    <i class="fas fa-upload"></i> Carregar backup
+                </label>
+                <button type="button" class="btn-modal-backup btn-remover-pdfs" onclick="removerAnexosPdfServicosNoModal()" title="Remove os PDFs anexados dos serviços. Os dados (OS, NF, valores) são mantidos. O sistema ficará mais leve.">
+                    <i class="fas fa-file-pdf"></i> Remover anexos PDF dos serviços
+                </button>
+                <input type="file" id="input-carregar-backup" accept=".json,application/json,*" style="display: none;" onchange="carregarBackupNoModal(event)">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Função para formatar bytes
+        function formatarBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const tamanhos = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + tamanhos[i];
+        }
+        
+        // Função para verificar qual método de armazenamento está sendo usado
+        async function verificarMetodoArmazenamento() {
+            try {
+                // Verificar se IndexedDB está disponível e funcionando
+                if (window.indexedDBService) {
+                    await window.indexedDBService.ensureInit();
+                    
+                    // Verificar se há dados no IndexedDB ou se o serviço está funcionando
+                    if (window.indexedDBService.db) {
+                        // Tentar obter chaves para verificar se está funcionando
+                        try {
+                            const testKeys = await window.indexedDBService.getAllKeys();
+                            // Se conseguiu obter as chaves (mesmo que vazio), está usando IndexedDB
+                            return 'indexeddb';
+                        } catch (e) {
+                            // Se falhou, está usando localStorage
+                            return 'localstorage';
+                        }
+                    }
+                }
+                
+                // Verificar se getData está usando IndexedDB ou localStorage
+                // Se window.getData existe e usa IndexedDB, retornar indexeddb
+                if (window.getData && window.indexedDBService) {
+                    return 'indexeddb';
+                }
+                
+                return 'localstorage';
+            } catch (e) {
+                console.error('Erro ao verificar método de armazenamento:', e);
+                return 'localstorage';
+            }
+        }
+
+        // Função para calcular o uso do IndexedDB
+        async function calcularUsoIndexedDB() {
+            try {
+                if (!window.indexedDBService) {
+                    // Fallback para localStorage se IndexedDB não estiver disponível
+                    return {
+                        ...calcularUsoLocalStorageFallback(),
+                        metodo: 'localstorage'
+                    };
+                }
+
+                await window.indexedDBService.ensureInit();
+                const estimate = await window.indexedDBService.getStorageEstimate();
+                const allKeys = await window.indexedDBService.getAllKeys();
+
+                return {
+                    usado: estimate.used,
+                    limite: estimate.quota,
+                    percentual: estimate.percentage,
+                    chaves: allKeys.length,
+                    metodo: 'indexeddb'
+                };
+            } catch (e) {
+                console.error('Erro ao calcular uso do IndexedDB:', e);
+                return {
+                    ...calcularUsoLocalStorageFallback(),
+                    metodo: 'localstorage'
+                };
+            }
+        }
+
+        // Função fallback para calcular uso do localStorage (caso IndexedDB não esteja disponível)
+        function calcularUsoLocalStorageFallback() {
+            let total = 0;
+            let chaves = [];
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const chave = localStorage.key(i);
+                if (chave) {
+                    const valor = localStorage.getItem(chave);
+                    const tamanho = new Blob([chave + (valor || '')]).size;
+                    total += tamanho;
+                    chaves.push({ chave, tamanho });
+                }
+            }
+            
+            const limitePadrao = 10 * 1024 * 1024; // 10MB
+            
+            return {
+                usado: total,
+                limite: limitePadrao,
+                percentual: (total / limitePadrao) * 100,
+                chaves: chaves.length,
+                metodo: 'localstorage'
+            };
+        }
+        
+        // Função para atualizar o indicador de armazenamento
+        async function atualizarIndicadorArmazenamento() {
+            const indicador = document.getElementById('storage-indicator');
+            const texto = document.getElementById('storage-text');
+            const badge = document.getElementById('storage-type-badge');
+            const badgeText = document.getElementById('storage-type-text');
+            
+            if (!indicador || !texto) return;
+            
+            try {
+                // Adicionar timeout para evitar que trave
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Timeout')), 5000)
+                );
+                
+                const calcularPromise = (async () => {
+                    return await calcularUsoIndexedDB();
+                })();
+                
+                const info = await Promise.race([calcularPromise, timeoutPromise]);
+                const metodo = info.metodo || await verificarMetodoArmazenamento();
+                const usadoFormatado = formatarBytes(info.usado);
+                const limiteFormatado = formatarBytes(info.limite);
+                const percentualReal = Math.min(100, info.percentual);
+                
+                // Texto principal: usado com explicação
+                texto.textContent = `${usadoFormatado} usado`;
+                
+                // Atualizar badge com o método de armazenamento
+                if (badge && badgeText) {
+                    if (metodo === 'indexeddb') {
+                        badge.className = 'storage-type-badge indexeddb';
+                        badgeText.textContent = 'IndexedDB';
+                        badge.style.display = 'inline-flex';
+                    } else {
+                        badge.className = 'storage-type-badge localstorage';
+                        badgeText.textContent = 'LocalStorage';
+                        badge.style.display = 'inline-flex';
+                    }
+                }
+                
+                // Tooltip explicativo detalhado
+                const metodoNome = metodo === 'indexeddb' ? 'IndexedDB' : 'LocalStorage';
+                const metodoDesc = metodo === 'indexeddb' 
+                    ? 'O IndexedDB permite armazenar muito mais dados que o localStorage (geralmente GBs).'
+                    : 'O LocalStorage tem limite de aproximadamente 5-10MB. Considere migrar para IndexedDB para mais capacidade.';
+                
+                const tooltipText = `💾 USO DO ${metodoNome.toUpperCase()}\n\n` +
+                    `📊 Espaço Usado: ${usadoFormatado}\n` +
+                    `📦 Limite Disponível: ${limiteFormatado}\n` +
+                    `📈 Percentual Usado: ${percentualReal.toFixed(2)}%\n\n` +
+                    `📝 O QUE SIGNIFICA:\n` +
+                    `Este valor mostra quanto espaço está sendo usado no ${metodoNome} do navegador.\n\n` +
+                    `${metodoDesc}\n\n` +
+                    `Este espaço é usado para salvar:\n` +
+                    `• Serviços cadastrados\n` +
+                    `• Viaturas\n` +
+                    `• Valores financeiros\n` +
+                    `• Orçamentos\n` +
+                    `• PDFs e documentos anexados\n` +
+                    `• Configurações do sistema\n\n` +
+                    `⚠️ RECOMENDAÇÃO:\n` +
+                    `Se o espaço estiver acima de 70%, considere fazer backup e limpar dados antigos.\n\n` +
+                    `🔑 Total de itens salvos: ${info.chaves}`;
+                
+                indicador.title = tooltipText;
+                texto.title = tooltipText;
+                
+                // Adicionar classes de aviso baseado no percentual
+                indicador.classList.remove('warning', 'danger');
+                if (percentualReal >= 90) {
+                    indicador.classList.add('danger');
+                } else if (percentualReal >= 70) {
+                    indicador.classList.add('warning');
+                }
+            } catch (e) {
+                texto.textContent = 'Calculando...';
+                // Não logar erro de timeout para não poluir o console
+                if (e.message !== 'Timeout') {
+                    console.error('Erro ao calcular uso do armazenamento:', e);
+                }
+                // Não tentar novamente automaticamente para evitar loops
+            }
+        }
+        
+        // ==================== SISTEMA DE BACKUP DIÁRIO ====================
+        
+        // Verificar se precisa mostrar modal de backup
+        async function verificarBackupDiario() {
+            try {
+                // Obter data do último backup
+                let ultimoBackup = null;
+                if (window.getData) {
+                    try {
+                        ultimoBackup = await window.getData('sismavUltimoBackup');
+                    } catch (e) {
+                        ultimoBackup = localStorage.getItem('sismavUltimoBackup');
+                    }
+                } else {
+                    ultimoBackup = localStorage.getItem('sismavUltimoBackup');
+                }
+                
+                // Obter data de hoje (formato: YYYY-MM-DD)
+                const hoje = new Date().toISOString().split('T')[0];
+                
+                // Se não há último backup ou o último backup não foi hoje, mostrar modal
+                if (!ultimoBackup || ultimoBackup !== hoje) {
+                    mostrarModalBackup(ultimoBackup);
+                }
+            } catch (e) {
+                console.error('Erro ao verificar backup diário:', e);
+            }
+        }
+        
+        // Mostrar modal de backup
+        function mostrarModalBackup(ultimaData) {
+            const modal = document.getElementById('backup-modal');
+            const lastBackupSpan = document.getElementById('last-backup-date');
+            
+            if (ultimaData) {
+                const data = new Date(ultimaData);
+                lastBackupSpan.textContent = data.toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } else {
+                lastBackupSpan.textContent = 'Nunca';
+            }
+            
+            modal.classList.add('show');
+        }
+        
+        // Fazer backup de todos os dados
+        async function fazerBackup() {
+            try {
+                // Usar a função de backup geral que já existe no sistema
+                // Isso garante consistência e inclui todos os dados corretamente
+                const resultado = await executarBackupGeralNaJanelaPrincipal();
+                
+                if (resultado && resultado.sucesso) {
+                    // Salvar data do backup
+                    const hoje = new Date().toISOString().split('T')[0];
+                    if (window.setData) {
+                        await window.setData('sismavUltimoBackup', hoje);
+                    } else {
+                        localStorage.setItem('sismavUltimoBackup', hoje);
+                    }
+                    
+                    // Fechar modal
+                    fecharModalBackup();
+                    
+                    // Mostrar mensagem de sucesso
+                    alert(`✅ Backup realizado com sucesso!\n\nArquivo: ${resultado.nomeArquivo}\nLocal: ${resultado.local}`);
+                } else {
+                    throw new Error('Erro ao executar backup geral');
+                }
+            } catch (e) {
+                console.error('Erro ao fazer backup:', e);
+                alert('❌ Erro ao fazer backup. Por favor, tente novamente.');
+            }
+        }
+        
+        // Pular backup (lembrar depois)
+        async function pularBackup() {
+            // Não salvar data, apenas fechar o modal
+            // O modal aparecerá novamente no próximo dia
+            fecharModalBackup();
+        }
+        
+        // Fechar modal de backup
+        function fecharModalBackup() {
+            const modal = document.getElementById('backup-modal');
+            modal.classList.remove('show');
+        }
+        
+        // ==================== FIM DO SISTEMA DE BACKUP DIÁRIO ====================
+        
+        // Versão atual do sistema
+        const VERSAO_SISTEMA = '3.0';
+        let diretorioHandleBackup = null; // Handle da pasta de backup na janela principal (mantido enquanto a página estiver aberta)
+        
+        // Função para salvar backup usando Origin Private File System (OPFS)
+        async function salvarBackupNoOPFS(jsonString, nomeArquivo) {
+            try {
+                // Verificar se a API está disponível
+                if (!('storage' in navigator) || !navigator.storage.getDirectory) {
+                    console.warn('OPFS não disponível neste navegador');
+                    return false;
+                }
+
+                // Obter o diretório raiz do OPFS
+                const root = await navigator.storage.getDirectory();
+                
+                // Criar diretório de backups se não existir
+                let backupsDir;
+                try {
+                    backupsDir = await root.getDirectoryHandle('backups', { create: true });
+                } catch (e) {
+                    console.error('Erro ao criar/acessar diretório de backups:', e);
+                    return false;
+                }
+
+                // Salvar o arquivo
+                const fileHandle = await backupsDir.getFileHandle(nomeArquivo, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(jsonString);
+                await writable.close();
+
+                console.log('✅ Backup salvo no OPFS:', nomeArquivo);
+                return true;
+            } catch (error) {
+                console.error('Erro ao salvar backup no OPFS:', error);
+                return false;
+            }
+        }
+
+        // Função para executar backup geral diretamente na janela principal
+        // Usa getData (IndexedDB) para garantir que todas as alterações feitas no sistema sejam incluídas
+        async function executarBackupGeralNaJanelaPrincipal() {
+            try {
+                const getData = window.getData || (async (k) => { const v = localStorage.getItem(k); if (v == null) return null; try { return JSON.parse(v); } catch (_) { return v; } });
+                // Coletar todos os dados do armazenamento atual (IndexedDB ou fallback)
+                const backup = {
+                    versao: '3.0',
+                    dataBackup: new Date().toISOString(),
+                    dados: {
+                        manutencoesCadastradas: (await getData('manutencoesCadastradas')) || [],
+                        viaturasCadastradas: (await getData('viaturasCadastradas')) || [],
+                        empenhos: (await getData('empenhos')) || [],
+                        solemps: (await getData('solemps')) || [],
+                        valoresCadastrados: (await getData('valoresCadastrados')) || [],
+                        orcamentos_pagamentos: (await getData('orcamentos_pagamentos')) || [],
+                        orcamentos_compras: (await getData('orcamentos_compras')) || [],
+                        faturamentos: (await getData('faturamentos')) || [],
+                        fainas_pendentes: (await getData('fainas_pendentes')) || [],
+                        fainas_andamento: (await getData('fainas_andamento')) || [],
+                        fainas_finalizadas: (await getData('fainas_finalizadas')) || [],
+                        fainas_anotacoes: (await getData('fainas_anotacoes')) || [],
+                        viaturasOficina: (await getData('viaturasOficina')) || [],
+                        sismavActiveTab: (await getData('sismavActiveTab')) || 'servicos',
+                        sismavVersao: (await getData('sismavVersao')) || null,
+                        sismavUltimoBackup: (await getData('sismavUltimoBackup')) || null
+                    }
+                };
+
+                // Converter para JSON
+                const jsonString = JSON.stringify(backup, null, 2);
+                
+                // Nome do arquivo com data e hora
+                const dataAtual = new Date();
+                const dataFormatada = dataAtual.toISOString().slice(0, 19).replace(/:/g, '-');
+                const nomeArquivo = `SISMAV_Backup_${dataFormatada}.json`;
+
+                // Prioridade 1: Se um diretório foi escolhido pelo usuário, salvar lá
+                if (diretorioHandleBackup) {
+                    try {
+                        console.log('Salvando backup na pasta escolhida:', diretorioHandleBackup.name);
+                        const fileHandle = await diretorioHandleBackup.getFileHandle(nomeArquivo, { create: true });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(jsonString);
+                        await writable.close();
+                        console.log('✅ Backup salvo com sucesso na pasta:', diretorioHandleBackup.name);
+                        
+                        // Também salvar no OPFS como backup adicional
+                        await salvarBackupNoOPFS(jsonString, nomeArquivo);
+                        
+                        return {
+                            sucesso: true,
+                            nomeArquivo: nomeArquivo,
+                            local: 'Pasta escolhida pelo usuário',
+                            caminho: `Pasta: ${diretorioHandleBackup.name}`
+                        };
+                    } catch (error) {
+                        console.warn('Erro ao salvar no diretório escolhido:', error);
+                        console.log('Tentando salvar no OPFS...');
+                        diretorioHandleBackup = null;
+                    }
+                }
+                
+                // Prioridade 2: Salvar no OPFS (automático, sem necessidade de escolher pasta)
+                console.log('Salvando backup no Origin Private File System (OPFS)...');
+                const salvoNoOPFS = await salvarBackupNoOPFS(jsonString, nomeArquivo);
+                
+                if (salvoNoOPFS) {
+                    console.log('✅ Backup salvo automaticamente no OPFS');
+                    // Também fazer download para facilitar acesso
+                    const blob = new Blob([jsonString], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = nomeArquivo;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    console.log('✅ Backup também disponível para download');
+                    
+                    return {
+                        sucesso: true,
+                        nomeArquivo: nomeArquivo,
+                        local: 'OPFS',
+                        caminho: 'Origin Private File System (OPFS) → sismav_backups/'
+                    };
+                }
+                
+                // Prioridade 3: Fallback para download tradicional
+                console.log('Fazendo download do backup...');
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nomeArquivo;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                console.log('✅ Backup salvo via download');
+                
+                return {
+                    sucesso: true,
+                    nomeArquivo: nomeArquivo,
+                    local: 'Download',
+                    caminho: 'Pasta de Downloads do navegador'
+                };
+            } catch (error) {
+                console.error('Erro ao executar backup:', error);
+                throw error;
+            }
+        }
+        
+        // Função para atualizar versão do sistema
+        async function atualizarVersaoSistema() {
+            try {
+                // Verificar versão anterior para detectar atualizações
+                let versaoAnterior = null;
+                
+                if (window.getData) {
+                    try {
+                        versaoAnterior = await window.getData('sismavVersao');
+                    } catch (e) {
+                        versaoAnterior = localStorage.getItem('sismavVersao');
+                    }
+                } else {
+                    versaoAnterior = localStorage.getItem('sismavVersao');
+                }
+                
+                // Atualizar versão salva
+                if (window.setData) {
+                    await window.setData('sismavVersao', VERSAO_SISTEMA);
+                } else {
+                    localStorage.setItem('sismavVersao', VERSAO_SISTEMA);
+                }
+                
+                // Log se houve atualização
+                if (versaoAnterior && versaoAnterior !== VERSAO_SISTEMA) {
+                    console.log(`✅ Sistema atualizado de ${versaoAnterior} para ${VERSAO_SISTEMA}`);
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar versão:', error);
+            }
+        }
+        
+        // Escutar mensagens do iframe Backup sobre pasta escolhida
+        window.addEventListener('message', async function(event) {
+            try {
+                if (event.data && event.data.type === 'SOLICITAR_ESCOLHER_PASTA_BACKUP') {
+                    // O Backup.html (em iframe) está solicitando que a janela principal escolha a pasta
+                    // Isso permite que o handle seja mantido na janela principal
+                    console.log('Backup.html solicitou que a janela principal escolha a pasta...');
+                    
+                    if (window.showDirectoryPicker) {
+                        try {
+                            console.log('Abrindo seletor de pastas na janela principal...');
+                            diretorioHandleBackup = await window.showDirectoryPicker();
+                            console.log('✅ Pasta escolhida na janela principal:', diretorioHandleBackup.name);
+                            
+                            // Atualizar localStorage
+                            localStorage.setItem('sismavPastaBackup', JSON.stringify({
+                                nome: diretorioHandleBackup.name,
+                                timestamp: Date.now()
+                            }));
+                            
+                            // Responder ao Backup.html com sucesso
+                            // Tentar identificar a origem da mensagem
+                            if (event.source) {
+                                event.source.postMessage({
+                                    type: 'PASTA_BACKUP_ESCOLHIDA_RESPOSTA',
+                                    sucesso: true,
+                                    nomePasta: diretorioHandleBackup.name
+                                }, '*');
+                            }
+                            
+                            // Também notificar o iframe Backup se disponível
+                            const iframeBackup = document.getElementById('iframe-backup');
+                            if (iframeBackup && iframeBackup.contentWindow) {
+                                iframeBackup.contentWindow.postMessage({
+                                    type: 'PASTA_BACKUP_ESCOLHIDA_RESPOSTA',
+                                    sucesso: true,
+                                    nomePasta: diretorioHandleBackup.name
+                                }, '*');
+                            }
+                        } catch (error) {
+                            if (error.name === 'AbortError') {
+                                console.log('Usuário cancelou a seleção de pasta');
+                                // Responder ao Backup.html
+                                if (event.source) {
+                                    event.source.postMessage({
+                                        type: 'PASTA_BACKUP_ESCOLHIDA_RESPOSTA',
+                                        sucesso: false,
+                                        motivo: 'cancelado'
+                                    }, '*');
+                                }
+                            } else {
+                                console.error('Erro ao escolher pasta na janela principal:', error);
+                                if (event.source) {
+                                    event.source.postMessage({
+                                        type: 'PASTA_BACKUP_ESCOLHIDA_RESPOSTA',
+                                        sucesso: false,
+                                        motivo: error.message || 'Erro desconhecido'
+                                    }, '*');
+                                }
+                            }
+                        }
+                    } else {
+                        console.warn('File System Access API não disponível');
+                        if (event.source) {
+                            event.source.postMessage({
+                                type: 'PASTA_BACKUP_ESCOLHIDA_RESPOSTA',
+                                sucesso: false,
+                                motivo: 'File System Access API não disponível'
+                            }, '*');
+                        }
+                    }
+                } else if (event.data && event.data.type === 'PASTA_BACKUP_ESCOLHIDA') {
+                    // Quando uma pasta for escolhida no Backup.html (quando não está em iframe)
+                    console.log('Pasta de backup escolhida:', event.data.nomePasta);
+                    // Se já temos o handle, não é necessário obter novamente
+                    if (!diretorioHandleBackup && window.showDirectoryPicker) {
+                        try {
+                            console.log('Obtendo handle da pasta na janela principal para backups automáticos...');
+                            diretorioHandleBackup = await window.showDirectoryPicker();
+                            console.log('✅ Handle obtido e armazenado na janela principal:', diretorioHandleBackup.name);
+                            
+                            // Atualizar localStorage
+                            localStorage.setItem('sismavPastaBackup', JSON.stringify({
+                                nome: diretorioHandleBackup.name,
+                                timestamp: Date.now()
+                            }));
+                        } catch (error) {
+                            if (error.name === 'AbortError') {
+                                console.log('Usuário cancelou ao tentar obter handle na janela principal');
+                            } else {
+                                console.warn('Erro ao obter handle na janela principal:', error);
+                            }
+                        }
+                    } else if (diretorioHandleBackup) {
+                        console.log('✅ Handle já está armazenado na janela principal.');
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao processar mensagem de pasta:', error);
+            }
+        });
+        
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Atualizar versão do sistema
+                await atualizarVersaoSistema();
+                
+                // Verificar backup diário
+                await verificarBackupDiario();
+                
+            // Aguardar IndexedDB inicializar
+            if (window.indexedDBService) {
+                try {
+                    await window.indexedDBService.ensureInit();
+                } catch (e) {
+                    console.error('Erro ao inicializar IndexedDB:', e);
+                }
+            }
+
+            // Atualizar indicador de armazenamento
+            await atualizarIndicadorArmazenamento();
+            
+            // Atualizar a cada 5 segundos
+            setInterval(async () => {
+                await atualizarIndicadorArmazenamento();
+            }, 5000);
+            
+            // Atualizar quando o usuário voltar para a página
+            window.addEventListener('focus', async () => {
+                await atualizarIndicadorArmazenamento();
+            });
+            
+            // Abrir aba inicial (backup não é mais aba)
+            let lastActiveTab = 'servicos';
+            if (window.getData) {
+                try {
+                    lastActiveTab = await window.getData('sismavActiveTab') || 'servicos';
+                } catch (e) {
+                    lastActiveTab = localStorage.getItem('sismavActiveTab') || 'servicos';
+                }
+            } else {
+                lastActiveTab = localStorage.getItem('sismavActiveTab') || 'servicos';
+            }
+            if (lastActiveTab === 'backup') lastActiveTab = 'servicos';
+            
+            const initialTabButton = document.querySelector(`.tab-button[data-tab='${lastActiveTab}']`);
+            if (initialTabButton) {
+                await openTab({ currentTarget: initialTabButton }, lastActiveTab);
+            } else {
+                document.querySelector('.tab-button').click();
+            }
+            
+            } catch (error) {
+                console.error('Erro ao inicializar:', error);
+            }
+        });
+
+        async function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove("active");
+                tab.style.display = "none";
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove("active"));
+            
+            const targetTab = document.getElementById(tabName);
+            if (targetTab) {
+                targetTab.style.display = "block";
+                targetTab.classList.add("active");
+            }
+            
+            const activeButton = document.querySelector(`.tab-button[data-tab='${tabName}']`);
+            if (activeButton) activeButton.classList.add("active");
+            
+            // Salvar no IndexedDB
+            if (window.setData) {
+                await window.setData('sismavActiveTab', tabName);
+            } else {
+                localStorage.setItem('sismavActiveTab', tabName);
+            }
+        }
+
+        async function openTab(evt, tabName) {
+            await showTab(tabName);
+            
+            const iframe = document.getElementById('iframe-' + tabName);
+            let fileName = '';
+
+            if (tabName === 'servicos') fileName = 'GerenciarServicos.html';
+            else if (tabName === 'valores') fileName = 'Valores.html';
+            else if (tabName === 'faturamentos') fileName = 'Faturamentos.html';
+            else if (tabName === 'orcamentos') fileName = 'Orcamentos.html';
+            else if (tabName === 'viaturas') fileName = 'Viaturas.html';
+            else if (tabName === 'fainas') fileName = 'Fainas.html';
+            else if (tabName === 'balanco') fileName = 'Balanco.html';
+            if (iframe) {
+                // Verificar se o iframe já tem o arquivo carregado
+                const currentSrc = iframe.src || '';
+                const needsLoad = !currentSrc || !currentSrc.includes(fileName);
+                
+                if (needsLoad) {
+                    // Adicionar tratamento de erro para arquivos não encontrados
+                    iframe.onload = function() {
+                        // Verificar se o conteúdo foi carregado corretamente
+                        try {
+                            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                            if (!iframeDoc || iframeDoc.body.innerHTML.includes('404') || iframeDoc.body.innerHTML.includes('Not Found')) {
+                                throw new Error('Arquivo não encontrado');
+                            }
+                        } catch (e) {
+                            // Se houver erro de acesso (CORS), assumir que carregou
+                            console.log('Iframe carregado (possível restrição CORS)');
+                        }
+                    };
+                    
+                    iframe.onerror = function() {
+                        console.error('Erro ao carregar:', fileName);
+                        iframe.srcdoc = `
+                            <html>
+                                <head><style>body { font-family: Arial; padding: 40px; text-align: center; background: #f3f4f6; }</style></head>
+                                <body>
+                                    <h2 style="color: #ef4444;">⚠️ Erro ao carregar arquivo</h2>
+                                    <p>O arquivo <strong>${fileName}</strong> não foi encontrado.</p>
+                                    <p>Verifique se o arquivo existe na mesma pasta do SISMAV.html</p>
+                                </body>
+                            </html>
+                        `;
+                    };
+                    
+                    iframe.src = fileName;
+                }
+            }
+        }
+
+        function abrirModalBackupDados() {
+            document.getElementById('modal-backup-dados').classList.add('show');
+        }
+        function fecharModalBackupDados() {
+            document.getElementById('modal-backup-dados').classList.remove('show');
+        }
+        async function executarBackupNoModal() {
+            try {
+                const result = await executarBackupGeralNaJanelaPrincipal();
+                if (result && result.sucesso) {
+                    alert('Backup concluído com sucesso.');
+                    fecharModalBackupDados();
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Erro ao fazer backup. Tente novamente.');
+            }
+        }
+
+        /** Remove os anexos PDF de todos os serviços (manutencoesCadastradas). Mantém OS, NF, valores, etc. Reduz tamanho do banco e deixa o sistema mais rápido. */
+        async function removerAnexosPdfServicosNoModal() {
+            if (!confirm('Remover os anexos PDF de todos os serviços?\n\nOs dados das ordens de serviço, notas fiscais e valores são mantidos. Apenas o conteúdo do PDF anexado será removido. O sistema ficará mais leve.')) return;
+            try {
+                var getData = window.getData;
+                var setData = window.setData;
+                if (!getData || !setData) {
+                    alert('Funções de dados não disponíveis. Recarregue a página.');
+                    return;
+                }
+                if (window.indexedDBService && typeof window.indexedDBService.ensureInit === 'function') {
+                    await window.indexedDBService.ensureInit();
+                }
+                var servicos = await getData('manutencoesCadastradas');
+                if (!Array.isArray(servicos)) servicos = [];
+                var removidos = 0;
+                for (var i = 0; i < servicos.length; i++) {
+                    if (servicos[i] && (servicos[i].pdfBase64 != null && servicos[i].pdfBase64 !== '')) {
+                        servicos[i].pdfBase64 = null;
+                        removidos++;
+                    }
+                }
+                await setData('manutencoesCadastradas', servicos);
+                try {
+                    localStorage.setItem('manutencoesCadastradas', JSON.stringify(servicos));
+                } catch (eLocal) {
+                    console.warn('Erro ao sincronizar localStorage:', eLocal);
+                }
+                fecharModalBackupDados();
+                alert('Concluído.\n\n' + removidos + ' anexo(s) PDF removido(s) dos serviços. O sistema deve responder mais rápido.');
+            } catch (err) {
+                console.error('Erro ao remover anexos PDF:', err);
+                alert('Erro ao remover anexos: ' + (err && err.message ? err.message : err));
+            }
+        }
+        function carregarBackupNoModal(evt) {
+            const file = evt.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backup = JSON.parse(e.target.result);
+                    const dados = backup.dados || backup.data || {};
+                    if (typeof dados !== 'object' || dados === null) {
+                        alert('Arquivo de backup inválido.');
+                        evt.target.value = '';
+                        return;
+                    }
+                    if (!confirm('Restaurar este backup? Os dados atuais serão substituídos.')) {
+                        evt.target.value = '';
+                        return;
+                    }
+
+                    // Função assíncrona separada para conseguir capturar erros de restauração
+                    async function restaurarBackup(dadosRestaurar, evtOriginal) {
+                        try {
+                            const setData = window.setData;
+                            if (!setData) {
+                                alert('setData não disponível. Recarregue a página.');
+                                return;
+                            }
+
+                            // Garantir IndexedDB inicializado
+                            try {
+                                if (window.indexedDBService && typeof window.indexedDBService.ensureInit === 'function') {
+                                    await window.indexedDBService.ensureInit();
+                                }
+                            } catch (errInit) {
+                                console.warn('IndexedDB ensureInit:', errInit);
+                            }
+
+                            var list = [
+                                ['manutencoesCadastradas', Array.isArray(dadosRestaurar.manutencoesCadastradas) ? dadosRestaurar.manutencoesCadastradas : []],
+                                ['viaturasCadastradas', Array.isArray(dadosRestaurar.viaturasCadastradas) ? dadosRestaurar.viaturasCadastradas : []],
+                                ['valoresCadastrados', Array.isArray(dadosRestaurar.valoresCadastrados) ? dadosRestaurar.valoresCadastrados : []],
+                                ['empenhos', Array.isArray(dadosRestaurar.empenhos) ? dadosRestaurar.empenhos : []],
+                                ['solemps', Array.isArray(dadosRestaurar.solemps) ? dadosRestaurar.solemps : []],
+                                ['fainas_pendentes', Array.isArray(dadosRestaurar.fainas_pendentes) ? dadosRestaurar.fainas_pendentes : []],
+                                ['fainas_andamento', Array.isArray(dadosRestaurar.fainas_andamento) ? dadosRestaurar.fainas_andamento : []],
+                                ['fainas_finalizadas', Array.isArray(dadosRestaurar.fainas_finalizadas) ? dadosRestaurar.fainas_finalizadas : []],
+                                ['fainas_anotacoes', Array.isArray(dadosRestaurar.fainas_anotacoes) ? dadosRestaurar.fainas_anotacoes : []],
+                                ['viaturasOficina', Array.isArray(dadosRestaurar.viaturasOficina) ? dadosRestaurar.viaturasOficina : []]
+                            ];
+
+                            for (var i = 0; i < list.length; i++) {
+                                var key = list[i][0];
+                                var value = list[i][1];
+                                await setData(key, value);
+                                // Sincronizar também com localStorage para telas antigas que ainda leem de lá
+                                try {
+                                    if (value === null || value === undefined) {
+                                        localStorage.removeItem(key);
+                                    } else {
+                                        localStorage.setItem(key, JSON.stringify(value));
+                                    }
+                                } catch (syncErr) {
+                                    console.warn('Erro ao sincronizar localStorage para', key, syncErr);
+                                }
+                            }
+
+                            var orcP = dadosRestaurar.orcamentos_pagamentos || [];
+                            var orcC = dadosRestaurar.orcamentos_compras || [];
+                            if (Array.isArray(dadosRestaurar.orcamentosCadastrados) && dadosRestaurar.orcamentosCadastrados.length > 0) {
+                                dadosRestaurar.orcamentosCadastrados.forEach(function(item) {
+                                    if (item.os || item.data) orcP.push(item);
+                                    else if (item.item) orcC.push(item);
+                                });
+                            }
+                            orcP.forEach(function(item) { if (item.valor && item.valor > 100000) item.valor = item.valor / 100; });
+                            orcC.forEach(function(item) { if (item.valor && item.valor > 100000) item.valor = item.valor / 100; });
+
+                            await setData('orcamentos_pagamentos', orcP);
+                            await setData('orcamentos_compras', orcC);
+                            await setData('faturamentos', Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos : []);
+
+                            try {
+                                localStorage.setItem('orcamentos_pagamentos', JSON.stringify(orcP));
+                                localStorage.setItem('orcamentos_compras', JSON.stringify(orcC));
+                                localStorage.setItem('faturamentos', JSON.stringify(Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos : []));
+                            } catch (eSyncOrc) {
+                                console.warn('Erro ao sincronizar orçamentos/faturamentos no localStorage:', eSyncOrc);
+                            }
+
+                            if (dadosRestaurar.sismavActiveTab != null) {
+                                await setData('sismavActiveTab', dadosRestaurar.sismavActiveTab);
+                                try { localStorage.setItem('sismavActiveTab', dadosRestaurar.sismavActiveTab); } catch (_) {}
+                            }
+                            if (dadosRestaurar.sismavVersao != null) {
+                                await setData('sismavVersao', dadosRestaurar.sismavVersao);
+                                try { localStorage.setItem('sismavVersao', dadosRestaurar.sismavVersao); } catch (_) {}
+                            }
+                            if (dadosRestaurar.sismavUltimoBackup != null) {
+                                await setData('sismavUltimoBackup', dadosRestaurar.sismavUltimoBackup);
+                                try { localStorage.setItem('sismavUltimoBackup', dadosRestaurar.sismavUltimoBackup); } catch (_) {}
+                            }
+
+                            fecharModalBackupDados();
+
+                            // Sinalizar que houve restauro (sessionStorage não é migrado para IndexedDB): ao recarregar, a aba Serviços limpa filtros automaticamente
+                            try { sessionStorage.setItem('sismavRestauroRecente', '1'); } catch (_) {}
+
+                            // Pequeno resumo para o usuário (quantidade de registros principais)
+                            var resumo = ''
+                                + 'Manutenções: ' + (list[0][1].length || 0) + '\n'
+                                + 'Viaturas: ' + (list[1][1].length || 0) + '\n'
+                                + 'Contratos: ' + (list[3][1].length || 0) + '\n'
+                                + 'Pagamentos: ' + (orcP.length || 0) + '\n'
+                                + 'Compras: ' + (orcC.length || 0) + '\n'
+                                + 'Faturamentos: ' + ((Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos.length : 0)) + '\n';
+
+                            setTimeout(function() {
+                                alert('Backup restaurado (IndexedDB + localStorage).\n\n' + resumo + '\nA página será recarregada.');
+                                window.location.reload();
+                            }, 700);
+                        } catch (errRestore) {
+                            console.error('Erro ao restaurar backup:', errRestore);
+                            alert('Erro ao restaurar backup: ' + (errRestore && errRestore.message ? errRestore.message : errRestore));
+                        } finally {
+                            if (evtOriginal && evtOriginal.target) {
+                                evtOriginal.target.value = '';
+                            }
+                        }
+                    }
+
+                    restaurarBackup(dados, evt);
+                } catch (err) {
+                    console.error('Erro ao carregar backup (JSON):', err);
+                    alert('Erro ao carregar backup: ' + (err && err.message ? err.message : err));
+                    evt.target.value = '';
+                }
+            };
+            reader.onerror = function() { alert('Erro ao ler o arquivo.'); evt.target.value = ''; };
+            reader.readAsText(file);
+        }
+        
+    </script>
+
+</body>
+</html>

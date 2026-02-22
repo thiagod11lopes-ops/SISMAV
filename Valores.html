@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Valores</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- IndexedDB Service - mesmo armazenamento usado na aba Serviços -->
+    <script src="indexeddb-service.js"></script>
+    <style>
+        :root { --primary-blue: #667eea; --secondary-blue: #764ba2; --dark-gray: #2d3748; --light-gray: #f7fafc; --white: #ffffff; --delete-red: #f56565; --success-green: #48bb78; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 30px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%); color: var(--dark-gray); min-height: 100vh; }
+        .card { background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(247,250,252,0.95) 100%); padding: 30px; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.1); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1); backdrop-filter: blur(10px); margin-bottom: 25px; }
+        .card-title { font-size: 22px; background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800; margin-top: 0; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; font-size: 14px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 15px; box-sizing: border-box; border: 2px solid rgba(102, 126, 234, 0.2); border-radius: 10px; font-size: 14px; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; background: white; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 5px 15px rgba(102, 126, 234, 0.2); transform: translateY(-2px) translateZ(0); }
+        .btn { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%); color: white; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700; width: 100%; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4); transform: translateZ(0); }
+        .btn:hover { transform: translateY(-3px) translateZ(0); box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6); }
+        .btn-success { background: linear-gradient(135deg, var(--success-green) 0%, #38a169 100%); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 15px; background-color: var(--white); border-radius: 15px; overflow: hidden; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); }
+        th, td { border: none; border-bottom: 1px solid rgba(102, 126, 234, 0.1); padding: 15px 12px; text-align: left; font-size: 14px; }
+        tbody tr { transition: background-color 0.2s ease, transform 0.2s ease; transform: translateZ(0); }
+        tbody tr:hover { background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%); transform: scale(1.01) translateZ(0); }
+        th { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%); color: white; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 18px 12px; }
+        .actions-cell { text-align: center; width: 140px; }
+        .action-btn { border: none; color: var(--white); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 0 3px; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); transform: translateZ(0); }
+        .action-btn:hover { transform: translateY(-2px) translateZ(0); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); }
+        .delete-btn { background: linear-gradient(135deg, var(--delete-red) 0%, #e53e3e 100%); }
+        .edit-btn { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); }
+        .currency { text-align: right; font-weight: 600; }
+        hr { border: 0; border-top: 2px solid rgba(102, 126, 234, 0.2); margin: 30px 0; }
+        .sub-tabs-container { display: flex; gap: 10px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(10px); padding: 10px; border-radius: 15px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); }
+        .sub-tab-button { padding: 15px 25px; cursor: pointer; border: none; font-size: 15px; font-weight: 700; background: rgba(255, 255, 255, 0.5); color: var(--dark-gray); border-radius: 10px; transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease; transform: translateZ(0); }
+        .sub-tab-button:hover { background: rgba(255, 255, 255, 0.8); transform: translateY(-2px) translateZ(0); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); }
+        .sub-tab-button.active { background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%); color: var(--primary-blue); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3); transform: translateY(-2px) translateZ(0); }
+        .sub-tab-content { display: none; }
+        .sub-tab-content.active { display: block; animation: fadeInUp 0.5s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .table-controls { display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(247,250,252,0.8) 100%); border-radius: 15px; margin-bottom: 15px; align-items: flex-end; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); }
+        .control-group { display: flex; flex-direction: column; }
+        .control-group label { font-weight: 700; margin-bottom: 8px; font-size: 13px; }
+        .control-group select, .control-group input { padding: 10px 12px; border-radius: 10px; border: 2px solid rgba(102, 126, 234, 0.2); font-size: 14px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .control-group select:focus, .control-group input:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .search-group { display: flex; align-items: center; }
+        .search-group input { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+        .search-group button { padding: 11px 16px; border: none; background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%); color: white; cursor: pointer; border-top-right-radius: 10px; border-bottom-right-radius: 10px; font-weight: 600; transition: transform 0.2s ease, box-shadow 0.2s ease; transform: translateZ(0); }
+        .search-group button:hover { transform: translateX(2px) translateZ(0); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .btn-clear { background: none; border: none; color: var(--dark-gray); cursor: pointer; margin-left: 8px; font-size: 18px; transition: color 0.2s ease, transform 0.2s ease; transform: translateZ(0); }
+        .btn-clear:hover { color: var(--delete-red); transform: scale(1.2) translateZ(0); }
+        .modal-edit { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-edit.show { display: flex; }
+        .modal-edit-content { background: white; padding: 30px; border-radius: 15px; max-width: 450px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .modal-edit-content h3 { margin: 0 0 20px 0; color: var(--primary-blue); }
+        .modal-edit-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-edit-buttons .btn { width: auto; padding: 12px 24px; }
+        .modal-edit-buttons .btn-cancel { background: #718096; }
+    </style>
+</head>
+<body>
+    <div class="sub-tabs-container">
+        <button class="sub-tab-button active" onclick="openSubTab('controle')">Controle de Contratos e Solemp</button>
+        <button class="sub-tab-button" onclick="openSubTab('faturamento')">Faturamento de Serviços</button>
+        <button class="sub-tab-button" onclick="openSubTab('resumo')">Resumo Financeiro</button>
+    </div>
+
+    <div id="controle" class="sub-tab-content active">
+        <div class="card">
+            <h2 class="card-title">Adicionar Contrato</h2>
+            <form id="empenhoForm"><div class="form-group"><label for="empenhoNumero">Número do Contrato</label><input type="text" id="empenhoNumero" placeholder="Ex: 2025NE00123" required></div><div class="form-group"><label for="empenhoData">Data do Contrato</label><input type="date" id="empenhoData" required></div><div class="form-group"><label for="empenhoValor">Valor Total do Contrato</label><input type="text" id="empenhoValor" placeholder="R$ 0,00" required></div><button type="submit" class="btn">Adicionar Contrato</button></form>
+        </div>
+        <div class="card" style="margin-top: 20px;">
+            <h2 class="card-title">Adicionar Solemp</h2>
+            <form id="solempForm"><div class="form-group"><label for="solempEmpenho">Adicionar Solemp ao Contrato:</label><select id="solempEmpenho" required></select></div><div class="form-group"><label for="solempNumero">Número da Solemp</label><input type="text" id="solempNumero" placeholder="Ex: 2025SL00456" required></div><div class="form-group"><label for="solempData">Data da Solemp</label><input type="date" id="solempData" required></div><div class="form-group"><label for="solempValor">Valor da Solemp</label><input type="text" id="solempValor" placeholder="R$ 0,00" required></div><button type="submit" class="btn">Adicionar Solemp</button></form>
+        </div>
+    </div>
+
+    <div id="faturamento" class="sub-tab-content">
+        <div class="card">
+            <h2 class="card-title">Gerar Faturamento de Serviços</h2>
+            <div class="form-group">
+                <label for="faturamentoPago">Faturamento a ser pago:</label>
+                <select id="faturamentoPago">
+                    <option value="" disabled selected>-- Selecione o faturamento --</option>
+                    <option value="1° Faturamento">1° Faturamento</option>
+                    <option value="2° Faturamento">2° Faturamento</option>
+                    <option value="3° Faturamento">3° Faturamento</option>
+                    <option value="4° Faturamento">4° Faturamento</option>
+                    <option value="5° Faturamento">5° Faturamento</option>
+                    <option value="6° Faturamento">6° Faturamento</option>
+                    <option value="7° Faturamento">7° Faturamento</option>
+                    <option value="8° Faturamento">8° Faturamento</option>
+                    <option value="9° Faturamento">9° Faturamento</option>
+                    <option value="10° Faturamento">10° Faturamento</option>
+                    <option value="Não Aprovados">Não Aprovados</option>
+                </select>
+            </div>
+            <p id="totalPendenteContainer">Valor total dos serviços marcados na coluna Faturar: <strong id="totalPendente" style="color: #2d3748;">Selecione um faturamento acima</strong></p>
+            <div class="form-group"><label for="faturarSolemp">Usar saldo da Solemp:</label><select id="faturarSolemp"><option value="">-- Selecione a Solemp --</option></select></div>
+            <button class="btn btn-success" id="btnGerarFaturamento"><i class="fas fa-file-invoice-dollar"></i> Gerar Faturamento (<span id="proximoFaturamento"></span>)</button>
+        </div>
+    </div>
+
+    <div id="resumo" class="sub-tab-content">
+        <div class="card">
+            <h2 class="card-title">Resumo Financeiro Completo</h2>
+            
+            <h3>Contratos</h3>
+            <div class="table-controls">
+                <div class="control-group"><label for="empenhoAno">Ano</label><select id="empenhoAno"><option value="">Todos</option></select></div>
+                <div class="control-group"><label for="empenhoMes">Mês</label><select id="empenhoMes"><option value="">Todos</option><option value="1">Jan</option><option value="2">Fev</option><option value="3">Mar</option><option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option><option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option></select></div>
+                <div class="control-group"><label for="empenhoSearch">Localizar</label><div class="search-group"><input type="text" id="empenhoSearch" placeholder="Digite para buscar..."><button id="empenhoSearchBtn"><i class="fas fa-search"></i></button></div></div>
+                <button class="btn-clear" id="empenhoClearBtn" title="Limpar filtros"><i class="fas fa-times"></i> Limpar</button>
+            </div>
+            <table id="empenhosTable"><thead><tr><th>Número</th><th>Data</th><th>Valor Total</th><th>Valor Gasto</th><th>Saldo</th><th class="actions-cell">Ações</th></tr></thead><tbody></tbody></table>
+            
+            <h3 style="margin-top: 20px;">Solemps</h3>
+            <div class="table-controls">
+                <div class="control-group"><label for="solempAno">Ano</label><select id="solempAno"><option value="">Todos</option></select></div>
+                <div class="control-group"><label for="solempMes">Mês</label><select id="solempMes"><option value="">Todos</option><option value="1">Jan</option><option value="2">Fev</option><option value="3">Mar</option><option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option><option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option></select></div>
+                <div class="control-group"><label for="solempSearch">Localizar</label><div class="search-group"><input type="text" id="solempSearch" placeholder="Digite para buscar..."><button id="solempSearchBtn"><i class="fas fa-search"></i></button></div></div>
+                <button class="btn-clear" id="solempClearBtn" title="Limpar filtros"><i class="fas fa-times"></i> Limpar</button>
+            </div>
+            <table id="solempsTable"><thead><tr><th>Nº Solemp</th><th>Nº Contrato</th><th>Data</th><th>Valor Total</th><th>Valor Gasto</th><th>Saldo</th><th class="actions-cell">Ações</th></tr></thead><tbody></tbody></table>
+            
+            <h3 style="margin-top: 20px;">Faturamentos</h3>
+            <div class="table-controls">
+                <div class="control-group"><label for="faturamentoAno">Ano</label><select id="faturamentoAno"><option value="">Todos</option></select></div>
+                <div class="control-group"><label for="faturamentoMes">Mês</label><select id="faturamentoMes"><option value="">Todos</option><option value="1">Jan</option><option value="2">Fev</option><option value="3">Mar</option><option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option><option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option></select></div>
+                <div class="control-group"><label for="faturamentoSearch">Localizar</label><div class="search-group"><input type="text" id="faturamentoSearch" placeholder="Digite para buscar..."><button id="faturamentoSearchBtn"><i class="fas fa-search"></i></button></div></div>
+                 <button class="btn-clear" id="faturamentoClearBtn" title="Limpar filtros"><i class="fas fa-times"></i> Limpar</button>
+            </div>
+            <table id="faturamentosTable"><thead><tr><th>Número</th><th>Data</th><th>Valor</th><th>Solemp Utilizada</th><th class="actions-cell">Ações</th></tr></thead><tbody></tbody></table>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div id="editModal" class="modal-edit">
+        <div class="modal-edit-content">
+            <h3 id="editModalTitle">Editar</h3>
+            <div id="editModalBody"></div>
+            <div class="modal-edit-buttons">
+                <button type="button" class="btn" id="editModalSave"><i class="fas fa-save"></i> Salvar</button>
+                <button type="button" class="btn btn-cancel" id="editModalCancel"><i class="fas fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const empenhoForm = document.getElementById('empenhoForm');
+        const solempForm = document.getElementById('solempForm');
+        const btnGerarFaturamento = document.getElementById('btnGerarFaturamento');
+        const valorEmpenhoInput = document.getElementById('empenhoValor');
+        const valorSolempInput = document.getElementById('solempValor');
+
+        // =========================
+        // AUTOSAVE FORMULÁRIOS EMPENHO / SOLEMP
+        // =========================
+        const EMPENHO_FORM_DRAFT_KEY = 'valores_empenho_form_draft';
+        const SOLEMP_FORM_DRAFT_KEY = 'valores_solemp_form_draft';
+        let valoresAutosaveTimeout = null;
+
+        function salvarNoStorageChaveValor(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+            } catch (e) {
+                console.error('Erro ao salvar rascunho em Valores:', e);
+            }
+        }
+
+        function carregarDoStorageChaveValor(key) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch (e) {
+                console.error('Erro ao carregar rascunho em Valores:', e);
+                return null;
+            }
+        }
+
+        function agendarAutosaveValores(callback) {
+            if (valoresAutosaveTimeout) {
+                clearTimeout(valoresAutosaveTimeout);
+            }
+            valoresAutosaveTimeout = setTimeout(() => {
+                callback();
+            }, 800);
+        }
+
+        function salvarRascunhoEmpenho() {
+            if (!empenhoForm) return;
+            const draft = {
+                numero: document.getElementById('empenhoNumero')?.value || '',
+                data: document.getElementById('empenhoData')?.value || '',
+                valor: valorEmpenhoInput ? valorEmpenhoInput.value : ''
+            };
+            salvarNoStorageChaveValor(EMPENHO_FORM_DRAFT_KEY, draft);
+        }
+
+        function salvarRascunhoSolemp() {
+            if (!solempForm) return;
+            const draft = {
+                empenhoId: document.getElementById('solempEmpenho')?.value || '',
+                numero: document.getElementById('solempNumero')?.value || '',
+                data: document.getElementById('solempData')?.value || '',
+                valor: valorSolempInput ? valorSolempInput.value : ''
+            };
+            salvarNoStorageChaveValor(SOLEMP_FORM_DRAFT_KEY, draft);
+        }
+
+        function restaurarRascunhoEmpenho() {
+            const draft = carregarDoStorageChaveValor(EMPENHO_FORM_DRAFT_KEY);
+            if (!draft || typeof draft !== 'object') return;
+
+            const numero = document.getElementById('empenhoNumero');
+            const data = document.getElementById('empenhoData');
+
+            if (numero && draft.numero) numero.value = draft.numero;
+            if (data && draft.data) data.value = draft.data;
+            if (valorEmpenhoInput && draft.valor) valorEmpenhoInput.value = draft.valor;
+        }
+
+        function restaurarRascunhoSolemp() {
+            const draft = carregarDoStorageChaveValor(SOLEMP_FORM_DRAFT_KEY);
+            if (!draft || typeof draft !== 'object') return;
+
+            const empenho = document.getElementById('solempEmpenho');
+            const numero = document.getElementById('solempNumero');
+            const data = document.getElementById('solempData');
+
+            if (empenho && draft.empenhoId) empenho.value = draft.empenhoId;
+            if (numero && draft.numero) numero.value = draft.numero;
+            if (data && draft.data) data.value = draft.data;
+            if (valorSolempInput && draft.valor) valorSolempInput.value = draft.valor;
+        }
+
+        function limparRascunhoEmpenho() {
+            salvarNoStorageChaveValor(EMPENHO_FORM_DRAFT_KEY, null);
+        }
+
+        function limparRascunhoSolemp() {
+            salvarNoStorageChaveValor(SOLEMP_FORM_DRAFT_KEY, null);
+        }
+
+        // Restaurar rascunhos ao abrir a tela
+        restaurarRascunhoEmpenho();
+        restaurarRascunhoSolemp();
+
+        // Autosave em tempo real
+        const empenhoNumero = document.getElementById('empenhoNumero');
+        const empenhoData = document.getElementById('empenhoData');
+        const solempEmpenho = document.getElementById('solempEmpenho');
+        const solempNumero = document.getElementById('solempNumero');
+        const solempData = document.getElementById('solempData');
+
+        [empenhoNumero, empenhoData, valorEmpenhoInput].forEach(campo => {
+            if (!campo) return;
+            campo.addEventListener('input', () => agendarAutosaveValores(salvarRascunhoEmpenho));
+            campo.addEventListener('change', () => agendarAutosaveValores(salvarRascunhoEmpenho));
+        });
+
+        [solempEmpenho, solempNumero, solempData, valorSolempInput].forEach(campo => {
+            if (!campo) return;
+            campo.addEventListener('input', () => agendarAutosaveValores(salvarRascunhoSolemp));
+            campo.addEventListener('change', () => agendarAutosaveValores(salvarRascunhoSolemp));
+        });
+        
+        // Elementos dos filtros e busca
+        const filters = {
+            empenho: { ano: document.getElementById('empenhoAno'), mes: document.getElementById('empenhoMes'), search: document.getElementById('empenhoSearch'), searchBtn: document.getElementById('empenhoSearchBtn'), clearBtn: document.getElementById('empenhoClearBtn') },
+            solemp: { ano: document.getElementById('solempAno'), mes: document.getElementById('solempMes'), search: document.getElementById('solempSearch'), searchBtn: document.getElementById('solempSearchBtn'), clearBtn: document.getElementById('solempClearBtn') },
+            faturamento: { ano: document.getElementById('faturamentoAno'), mes: document.getElementById('faturamentoMes'), search: document.getElementById('faturamentoSearch'), searchBtn: document.getElementById('faturamentoSearchBtn'), clearBtn: document.getElementById('faturamentoClearBtn') }
+        };
+
+        const formatCurrency = value => typeof value === 'number' ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00';
+        const parseCurrency = str => parseFloat(String(str).replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+        const formatDate = dateStr => dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A';
+        const formatFaturamentoNumero = num => {
+            if (!num) return 'N/A';
+            if (String(num).includes('°/')) return num;
+            const m = String(num).match(/^(\d+)\/(\d{4})$/);
+            return m ? `${m[1]}°/${m[2]}` : num;
+        };
+        const getData = async (key) => {
+            const fn = window.getData || (window.parent && window.parent !== window && window.parent.getData) || null;
+            if (typeof fn === 'function') {
+                try {
+                    const v = await fn(key);
+                    return Array.isArray(v) ? v : (v != null ? v : []);
+                } catch (e) { console.warn('getData:', e); }
+            }
+            try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : []; } catch (_) { return []; }
+        };
+        const setData = async (key, data) => {
+            const fn = window.setData || (window.parent && window.parent !== window && window.parent.setData) || null;
+            if (typeof fn === 'function') {
+                try { await fn(key, data); return; } catch (e) { console.warn('setData:', e); }
+            }
+            localStorage.setItem(key, JSON.stringify(data));
+        };
+
+        window.openSubTab = (tabName) => {
+            document.querySelectorAll('.sub-tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sub-tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.sub-tab-button[onclick*="'${tabName}'"]`).classList.add('active');
+            if (tabName === 'resumo') {
+                populateYearFilters().then(() => renderResumoTables()).catch(e => console.warn(e));
+            } else if (tabName === 'faturamento') {
+                loadAll().then(() => atualizarTotalPendentePorFaturamento()).catch(e => console.warn(e));
+            }
+        };
+
+        [valorEmpenhoInput, valorSolempInput].forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                e.target.value = formatCurrency(value / 100);
+            });
+        });
+
+        async function atualizarTotalPendentePorFaturamento() {
+            const faturamentoSelecionado = document.getElementById('faturamentoPago')?.value;
+            const totalEl = document.getElementById('totalPendente');
+            const proxEl = document.getElementById('proximoFaturamento');
+            if (!totalEl) return;
+            if (!faturamentoSelecionado) {
+                totalEl.textContent = 'Selecione um faturamento acima';
+                if (proxEl) proxEl.textContent = '—';
+                return;
+            }
+            const anoAtual = new Date().getFullYear();
+            const matchNum = String(faturamentoSelecionado).match(/(\d+)/);
+            const parteNumero = matchNum ? matchNum[1] + '°' : 'N.A.';
+            if (proxEl) proxEl.textContent = `${parteNumero}/${anoAtual}`;
+            try {
+                const servicos = await getData('manutencoesCadastradas');
+                if (!Array.isArray(servicos)) { totalEl.textContent = 'R$ 0,00'; return; }
+                const servicosFiltrados = servicos.filter(s => !s.faturado && (s.selecionadoParaFaturar === true || s.selecionadoParaFaturar === 'sim') && (s.faturamento || '') === faturamentoSelecionado);
+                const total = servicosFiltrados.reduce((acc, s) => acc + parseCurrency(s.valor), 0);
+                totalEl.textContent = formatCurrency(total);
+            } catch (e) {
+                console.warn('atualizarTotalPendentePorFaturamento:', e);
+                totalEl.textContent = 'Erro ao carregar';
+            }
+        }
+
+        async function loadAll() {
+            const servicosArr = await getData('manutencoesCadastradas');
+            const empenhosArr = await getData('empenhos');
+            const solempsArr = await getData('solemps');
+            const faturamentosArr = await getData('faturamentos');
+            populateSelectsSync(empenhosArr, solempsArr);
+            await atualizarTotalPendentePorFaturamento();
+        }
+        
+        async function populateYearFilters() {
+            const [empenhos, solemps, faturamentos] = await Promise.all([getData('empenhos'), getData('solemps'), getData('faturamentos')]);
+            const allData = [...(empenhos||[]), ...(solemps||[]), ...(faturamentos||[])];
+            const years = [...new Set(allData.map(item => item.data ? new Date(item.data + 'T00:00:00').getFullYear() : null))].filter(Boolean).sort((a,b) => b-a);
+            
+            [filters.empenho.ano, filters.solemp.ano, filters.faturamento.ano].forEach(select => {
+                if (!select) return;
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Todos</option>';
+                years.forEach(year => {
+                    select.innerHTML += `<option value="${year}" ${currentValue == year ? 'selected' : ''}>${year}</option>`;
+                });
+            });
+        }
+
+        async function renderResumoTables() {
+            const empenhos = await getData('empenhos');
+            const solemps = await getData('solemps');
+            const faturamentos = await getData('faturamentos');
+
+            // Atualiza gastos para exibição correta
+            empenhos.forEach(emp => {
+                const solempsDoEmpenho = solemps.filter(s => s.empenhoId === emp.id);
+                emp.valorGasto = solempsDoEmpenho.reduce((acc, s) => acc + (s.valorGasto || 0), 0);
+            });
+
+            const applyFilters = (data, filterGroup, textSearchFields) => {
+                const ano = filterGroup.ano.value;
+                const mes = filterGroup.mes.value;
+                const searchTerm = filterGroup.search.value.toLowerCase();
+                
+                return data.filter(item => {
+                    const dataItem = new Date(item.data + 'T00:00:00');
+                    if (ano && dataItem.getFullYear() != ano) return false;
+                    if (mes && (dataItem.getMonth() + 1) != mes) return false;
+                    if (searchTerm) {
+                        const itemText = textSearchFields(item).join(' ').toLowerCase();
+                        if (!itemText.includes(searchTerm)) return false;
+                    }
+                    return true;
+                });
+            };
+
+            const filteredEmpenhos = applyFilters(empenhos, filters.empenho, item => [item.numero, formatDate(item.data), item.valorTotal, item.valorGasto]);
+            const filteredSolemps = applyFilters(solemps, filters.solemp, item => {
+                const empPai = empenhos.find(e => e.id === item.empenhoId);
+                return [item.numero, empPai ? empPai.numero : '', formatDate(item.data), item.valorTotal, item.valorGasto];
+            });
+            const filteredFaturamentos = applyFilters(faturamentos, filters.faturamento, item => {
+                const solPai = solemps.find(s => s.id === item.solempId);
+                return [item.numero, formatDate(item.data), item.valor, solPai ? solPai.numero : ''];
+            });
+
+            populateTables(filteredEmpenhos, filteredSolemps, filteredFaturamentos, empenhos, solemps);
+        }
+
+        function populateTables(empenhosFilt, solempsFilt, faturamentosFilt, allEmpenhos, allSolemps) {
+            allEmpenhos = allEmpenhos || empenhosFilt || [];
+            allSolemps = allSolemps || solempsFilt || [];
+            const empenhosTbody = document.querySelector('#empenhosTable tbody');
+            empenhosTbody.innerHTML = '';
+            (empenhosFilt || []).forEach(emp => { empenhosTbody.innerHTML += `<tr><td>${emp.numero}</td><td>${formatDate(emp.data)}</td><td class="currency">${formatCurrency(emp.valorTotal)}</td><td class="currency">${formatCurrency(emp.valorGasto)}</td><td class="currency">${formatCurrency(emp.valorTotal - emp.valorGasto)}</td><td class="actions-cell"><button onclick="window.handleEdit('empenho', '${emp.id}')" class="action-btn edit-btn" title="Editar"><i class="fas fa-edit"></i></button><button onclick="window.handleDelete('empenho', '${emp.id}')" class="action-btn delete-btn" title="Excluir"><i class="fas fa-trash-alt"></i></button></td></tr>`; });
+            
+            const solempsTbody = document.querySelector('#solempsTable tbody');
+            solempsTbody.innerHTML = '';
+            (solempsFilt || []).forEach(sol => {
+                const empPai = allEmpenhos.find(e => e.id === sol.empenhoId);
+                solempsTbody.innerHTML += `<tr><td>${sol.numero}</td><td>${empPai ? empPai.numero : 'N/A'}</td><td>${formatDate(sol.data)}</td><td class="currency">${formatCurrency(sol.valorTotal)}</td><td class="currency">${formatCurrency(sol.valorGasto)}</td><td class="currency">${formatCurrency(sol.valorTotal - sol.valorGasto)}</td><td class="actions-cell"><button onclick="window.handleEdit('solemp', '${sol.id}')" class="action-btn edit-btn" title="Editar"><i class="fas fa-edit"></i></button><button onclick="window.handleDelete('solemp', '${sol.id}')" class="action-btn delete-btn" title="Excluir"><i class="fas fa-trash-alt"></i></button></td></tr>`;
+            });
+
+            const faturamentosTbody = document.querySelector('#faturamentosTable tbody');
+            faturamentosTbody.innerHTML = '';
+            (faturamentosFilt || []).forEach(fat => {
+                 const solPai = allSolemps.find(s => s.id === fat.solempId);
+                 faturamentosTbody.innerHTML += `<tr><td>${formatFaturamentoNumero(fat.numero)}</td><td>${formatDate(fat.data)}</td><td class="currency">${formatCurrency(fat.valor)}</td><td>${solPai ? solPai.numero : 'N/A'}</td><td class="actions-cell"><button onclick="window.handleEdit('faturamento', '${fat.id}')" class="action-btn edit-btn" title="Editar"><i class="fas fa-edit"></i></button><button onclick="window.handleDelete('faturamento', '${fat.id}')" class="action-btn delete-btn" title="Reverter Faturamento"><i class="fas fa-undo"></i></button></td></tr>`;
+            });
+        }
+        
+        function populateSelectsSync(empenhos, solemps) {
+            empenhos = empenhos || [];
+            solemps = solemps || [];
+            const selectEmpenho = document.getElementById('solempEmpenho');
+            const selectSolemp = document.getElementById('faturarSolemp');
+            if (selectEmpenho) {
+                selectEmpenho.innerHTML = '<option value="">-- Selecione --</option>';
+                empenhos.forEach(emp => { selectEmpenho.innerHTML += `<option value="${emp.id}">${emp.numero} (${formatCurrency(emp.valorTotal - (emp.valorGasto || 0))} de saldo)</option>`; });
+            }
+            if (selectSolemp) {
+                selectSolemp.innerHTML = '<option value="">-- Selecione a Solemp --</option>';
+                const solempsComSaldo = solemps.filter(s => (parseFloat(s.valorTotal) || 0) - (parseFloat(s.valorGasto) || 0) > 0);
+                solempsComSaldo.forEach(sol => {
+                    const saldo = (parseFloat(sol.valorTotal) || 0) - (parseFloat(sol.valorGasto) || 0);
+                    selectSolemp.innerHTML += `<option value="${sol.id}">${sol.numero || 'N/A'} (${formatCurrency(saldo)} de saldo)</option>`;
+                });
+            }
+        }
+
+        async function populateSelects() {
+            const empenhos = await getData('empenhos');
+            const solemps = await getData('solemps');
+            populateSelectsSync(empenhos, solemps);
+        }
+        
+        empenhoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const empenhos = await getData('empenhos');
+            empenhos.push({ id: `emp_${Date.now()}`, numero: document.getElementById('empenhoNumero').value, data: document.getElementById('empenhoData').value, valorTotal: parseCurrency(valorEmpenhoInput.value), valorGasto: 0 });
+            await setData('empenhos', empenhos);
+            empenhoForm.reset();
+            valorEmpenhoInput.value = '';
+            limparRascunhoEmpenho();
+            await loadAll();
+            await populateYearFilters();
+        });
+
+        solempForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const solemps = await getData('solemps');
+            solemps.push({ id: `sol_${Date.now()}`, empenhoId: document.getElementById('solempEmpenho').value, numero: document.getElementById('solempNumero').value, data: document.getElementById('solempData').value, valorTotal: parseCurrency(valorSolempInput.value), valorGasto: 0 });
+            await setData('solemps', solemps);
+            solempForm.reset();
+            valorSolempInput.value = '';
+            limparRascunhoSolemp();
+            await loadAll();
+            await populateYearFilters();
+        });
+
+        document.getElementById('faturamentoPago').addEventListener('change', atualizarTotalPendentePorFaturamento);
+
+        btnGerarFaturamento.addEventListener('click', async () => {
+            let servicos = await getData('manutencoesCadastradas');
+            let solemps = await getData('solemps');
+            let faturamentos = await getData('faturamentos');
+            const faturamentoSelecionado = document.getElementById('faturamentoPago').value;
+            if (!faturamentoSelecionado) { alert("Por favor, selecione o faturamento a ser pago."); return; }
+            const servicosAFaturar = servicos.filter(s => !s.faturado && (s.selecionadoParaFaturar === true || s.selecionadoParaFaturar === 'sim') && (s.faturamento || '') === faturamentoSelecionado);
+            if (servicosAFaturar.length === 0) { alert("Nenhum serviço pendente foi selecionado para faturamento no " + faturamentoSelecionado + "."); return; }
+            const solempIdSelecionada = document.getElementById('faturarSolemp').value;
+            if (!solempIdSelecionada) { alert("Por favor, selecione uma Solemp para usar o saldo."); return; }
+            const solempSelecionada = solemps.find(s => s.id === solempIdSelecionada);
+            
+            const notasComDataAnterior = [];
+            for (const servico of servicosAFaturar) {
+                if (servico.dataNota && solempSelecionada.data && new Date(servico.dataNota) < new Date(solempSelecionada.data)) {
+                    notasComDataAnterior.push(servico.notaFiscal || 'N/A');
+                }
+            }
+            if (notasComDataAnterior.length > 0) {
+                alert(`Atenção, a(s) nota(s) ${notasComDataAnterior.join(', ')} possui(em) data anterior à Solemp ${solempSelecionada.numero} selecionada.`);
+                return;
+            }
+            
+            const totalAFaturar = servicosAFaturar.reduce((acc, s) => acc + parseCurrency(s.valor), 0);
+            const saldoSolemp = solempSelecionada.valorTotal - (solempSelecionada.valorGasto || 0);
+            if (totalAFaturar > saldoSolemp) { alert(`Erro: O valor a faturar (${formatCurrency(totalAFaturar)}) é maior que o saldo da Solemp (${formatCurrency(saldoSolemp)}).`); return; }
+            if (!confirm(`Gerar faturamento no valor de ${formatCurrency(totalAFaturar)} usando a Solemp ${solempSelecionada.numero}?`)) return;
+
+            const anoAtual = new Date().getFullYear();
+            const matchNum = String(faturamentoSelecionado).match(/(\d+)/);
+            const parteNumero = matchNum ? matchNum[1] + '°' : 'N.A.';
+            const numeroFaturamento = `${parteNumero}/${anoAtual}`;
+            const novoFaturamento = { id: `fat_${Date.now()}`, numero: numeroFaturamento, ano: anoAtual, data: new Date().toISOString().split('T')[0], valor: totalAFaturar, solempId: solempIdSelecionada, servicosIds: servicosAFaturar.map(s => s.id) };
+            faturamentos.push(novoFaturamento);
+            
+            solempSelecionada.valorGasto = (solempSelecionada.valorGasto || 0) + totalAFaturar;
+            servicos.forEach(s => { if (novoFaturamento.servicosIds.includes(s.id)) { s.faturado = true; s.selecionadoParaFaturar = false; } });
+
+            await setData('faturamentos', faturamentos);
+            await setData('solemps', solemps);
+            await setData('manutencoesCadastradas', servicos);
+            alert(`Faturamento ${novoFaturamento.numero} gerado com sucesso!`);
+            await loadAll();
+            await populateYearFilters();
+        });
+
+        window.handleEdit = async (type, id) => {
+            const modal = document.getElementById('editModal');
+            const titleEl = document.getElementById('editModalTitle');
+            const bodyEl = document.getElementById('editModalBody');
+            const saveBtn = document.getElementById('editModalSave');
+            const cancelBtn = document.getElementById('editModalCancel');
+
+            const dataKey = type === 'empenho' ? 'empenhos' : type + 's';
+            let items = await getData(dataKey);
+            const itemIndex = items.findIndex(i => i.id === id);
+            if (itemIndex < 0) return;
+            const item = items[itemIndex];
+
+            const formatValorInput = (v) => typeof v === 'number' ? v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : (v || 'R$ 0,00');
+
+            if (type === 'empenho') {
+                titleEl.textContent = 'Editar Contrato';
+                bodyEl.innerHTML = `
+                    <div class="form-group"><label>Número do Contrato</label><input type="text" id="editNumero" value="${(item.numero || '').replace(/"/g, '&quot;')}" placeholder="Ex: 2025NE00123"></div>
+                    <div class="form-group"><label>Data do Contrato</label><input type="date" id="editData" value="${item.data || ''}"></div>
+                    <div class="form-group"><label>Valor Total do Contrato</label><input type="text" id="editValor" value="${formatValorInput(item.valorTotal)}" placeholder="R$ 0,00"></div>
+                `;
+            } else if (type === 'solemp') {
+                const empenhos = await getData('empenhos');
+                const optionsEmpenho = empenhos.map(e => `<option value="${e.id}" ${e.id === item.empenhoId ? 'selected' : ''}>${e.numero}</option>`).join('');
+                titleEl.textContent = 'Editar Solemp';
+                bodyEl.innerHTML = `
+                    <div class="form-group"><label>Contrato</label><select id="editEmpenhoId">${optionsEmpenho}</select></div>
+                    <div class="form-group"><label>Número da Solemp</label><input type="text" id="editNumero" value="${(item.numero || '').replace(/"/g, '&quot;')}" placeholder="Ex: 2025SL00456"></div>
+                    <div class="form-group"><label>Data da Solemp</label><input type="date" id="editData" value="${item.data || ''}"></div>
+                    <div class="form-group"><label>Valor da Solemp</label><input type="text" id="editValor" value="${formatValorInput(item.valorTotal)}" placeholder="R$ 0,00"></div>
+                `;
+            } else if (type === 'faturamento') {
+                const solemps = await getData('solemps');
+                const optionsSolemp = solemps.map(s => `<option value="${s.id}" ${s.id === item.solempId ? 'selected' : ''}>${s.numero}</option>`).join('');
+                titleEl.textContent = 'Editar Faturamento';
+                bodyEl.innerHTML = `
+                    <div class="form-group"><label>Número</label><input type="text" id="editNumero" value="${(item.numero || '').replace(/"/g, '&quot;')}" placeholder="Ex: 9°/2026"></div>
+                    <div class="form-group"><label>Data</label><input type="date" id="editData" value="${item.data || ''}"></div>
+                    <div class="form-group"><label>Valor</label><input type="text" id="editValor" value="${formatValorInput(item.valor)}" placeholder="R$ 0,00"></div>
+                    <div class="form-group"><label>Solemp Utilizada</label><select id="editSolempId">${optionsSolemp}</select></div>
+                `;
+            }
+
+            // Aplicar máscara de moeda no campo valor
+            const valorInput = bodyEl.querySelector('#editValor');
+            if (valorInput) {
+                valorInput.addEventListener('input', (e) => {
+                    let value = e.target.value.replace(/\D/g, '');
+                    e.target.value = formatCurrency(value / 100);
+                });
+            }
+
+            const doSave = async () => {
+                if (type === 'empenho') {
+                    item.numero = document.getElementById('editNumero').value.trim();
+                    item.data = document.getElementById('editData').value;
+                    item.valorTotal = parseCurrency(document.getElementById('editValor').value);
+                } else if (type === 'solemp') {
+                    item.empenhoId = document.getElementById('editEmpenhoId').value;
+                    item.numero = document.getElementById('editNumero').value.trim();
+                    item.data = document.getElementById('editData').value;
+                    item.valorTotal = parseCurrency(document.getElementById('editValor').value);
+                } else if (type === 'faturamento') {
+                    const novoValor = parseCurrency(document.getElementById('editValor').value);
+                    const solempIdNovo = document.getElementById('editSolempId').value;
+                    const valorAntigo = parseFloat(item.valor) || 0;
+                    item.numero = document.getElementById('editNumero').value.trim();
+                    item.data = document.getElementById('editData').value;
+                    if (valorAntigo !== novoValor || solempIdNovo !== item.solempId) {
+                        let solemps = await getData('solemps');
+                        const solAntiga = solemps.find(s => s.id === item.solempId);
+                        if (solAntiga) {
+                            solAntiga.valorGasto = (solAntiga.valorGasto || 0) - valorAntigo;
+                            if (solAntiga.valorGasto < 0) solAntiga.valorGasto = 0;
+                        }
+                        const solNova = solemps.find(s => s.id === solempIdNovo);
+                        if (solNova) {
+                            solNova.valorGasto = (solNova.valorGasto || 0) + novoValor;
+                        }
+                        await setData('solemps', solemps);
+                    }
+                    item.valor = novoValor;
+                    item.solempId = solempIdNovo;
+                }
+                items[itemIndex] = item;
+                await setData(dataKey, items);
+                modal.classList.remove('show');
+                await loadAll();
+                await populateYearFilters();
+                if (document.getElementById('resumo').classList.contains('active')) await renderResumoTables();
+                await populateSelects();
+            };
+
+            saveBtn.onclick = doSave;
+            cancelBtn.onclick = () => modal.classList.remove('show');
+            modal.classList.add('show');
+        };
+
+        window.handleDelete = async (type, id) => {
+            let items = await getData(type + 's');
+            const itemIndex = items.findIndex(i => i.id === id);
+            if (itemIndex < 0) return;
+            
+            const item = items[itemIndex];
+            
+            // EXCLUSÃO EM CASCATA DE EMPENHO
+            if (type === 'empenho') {
+                let solemps = await getData('solemps');
+                let faturamentos = await getData('faturamentos');
+                const solempsVinculadas = solemps.filter(s => s.empenhoId === id);
+                
+                // Coletar todos os faturamentos vinculados às solemps deste contrato
+                let totalFaturamentos = 0;
+                let totalServicos = 0;
+                const faturamentosParaExcluir = [];
+                
+                solempsVinculadas.forEach(sol => {
+                    const fatsVinculados = faturamentos.filter(f => f.solempId === sol.id);
+                    totalFaturamentos += fatsVinculados.length;
+                    faturamentosParaExcluir.push(...fatsVinculados);
+                    fatsVinculados.forEach(fat => {
+                        totalServicos += (fat.servicosIds || []).length;
+                    });
+                });
+                
+                // Montar mensagem detalhada
+                let mensagem = `⚠️ EXCLUSÃO EM CASCATA DE EMPENHO\n\n` +
+                    `Você está prestes a excluir:\n\n` +
+                    `📋 Contrato: ${item.numero}\n` +
+                    `📅 Data: ${formatDate(item.data)}\n` +
+                    `💰 Valor Total: ${formatCurrency(item.valorTotal)}\n` +
+                    `💸 Valor Gasto: ${formatCurrency(item.valorGasto || 0)}\n` +
+                    `💵 Saldo: ${formatCurrency(item.valorTotal - (item.valorGasto || 0))}\n\n`;
+                
+                if (solempsVinculadas.length > 0) {
+                    const listaSolemps = solempsVinculadas.map(s => `\n  • ${s.numero} - ${formatCurrency(s.valorTotal)}`).join('');
+                    mensagem += `🔗 SOLEMPS VINCULADAS (${solempsVinculadas.length}):\n${listaSolemps}\n\n`;
+                }
+                
+                if (totalFaturamentos > 0) {
+                    mensagem += `📦 FATURAMENTOS VINCULADOS: ${totalFaturamentos}\n`;
+                    mensagem += `🛠️ SERVIÇOS AFETADOS: ${totalServicos}\n\n`;
+                }
+                
+                mensagem += `🚨 O QUE SERÁ EXCLUÍDO:\n` +
+                    `  • 1 Contrato\n` +
+                    `  • ${solempsVinculadas.length} Solemp(s)\n` +
+                    `  • ${totalFaturamentos} Faturamento(s)\n` +
+                    `  • ${totalServicos} serviço(s) voltarão para "Pendentes"\n\n` +
+                    `⚠️ Esta ação é IRREVERSÍVEL!\n\n` +
+                    `Deseja continuar?`;
+                
+                if (!confirm(mensagem)) return;
+                
+                // Executar exclusão em cascata
+                let servicos = await getData('manutencoesCadastradas');
+                
+                // 1. Reverter todos os faturamentos
+                faturamentosParaExcluir.forEach(fat => {
+                    servicos.forEach(s => {
+                        if (fat.servicosIds && fat.servicosIds.includes(s.id)) {
+                            s.faturado = false;
+                            s.selecionadoParaFaturar = false;
+                        }
+                    });
+                });
+                
+                // 2. Excluir faturamentos
+                faturamentos = faturamentos.filter(f => !faturamentosParaExcluir.some(fp => fp.id === f.id));
+                await setData('faturamentos', faturamentos);
+                
+                // 3. Excluir solemps
+                solemps = solemps.filter(s => s.empenhoId !== id);
+                await setData('solemps', solemps);
+                
+                // 4. Excluir contrato
+                items.splice(itemIndex, 1);
+                await setData('empenhos', items);
+                
+                // 5. Salvar serviços atualizados
+                await setData('manutencoesCadastradas', servicos);
+                
+                alert(
+                    `✅ EXCLUSÃO EM CASCATA CONCLUÍDA!\n\n` +
+                    `📋 Contrato ${item.numero} excluído\n` +
+                    `🔗 ${solempsVinculadas.length} Solemp(s) excluída(s)\n` +
+                    `📦 ${totalFaturamentos} Faturamento(s) excluído(s)\n` +
+                    `🛠️ ${totalServicos} serviço(s) liberado(s)`
+                );
+                
+                await renderResumoTables();
+                await loadAll();
+                return;
+            }
+            
+            // EXCLUSÃO EM CASCATA DE SOLEMP
+            if (type === 'solemp') {
+                const empenhos = await getData('empenhos');
+                const empenhoVinculado = empenhos.find(e => e.id === item.empenhoId);
+                let faturamentos = await getData('faturamentos');
+                const faturamentosVinculados = faturamentos.filter(f => f.solempId === id);
+                
+                // Contar serviços afetados
+                let totalServicos = 0;
+                faturamentosVinculados.forEach(fat => {
+                    totalServicos += (fat.servicosIds || []).length;
+                });
+                
+                // Montar mensagem detalhada
+                let mensagem = `⚠️ EXCLUSÃO EM CASCATA DE SOLEMP\n\n` +
+                    `Você está prestes a excluir:\n\n` +
+                    `📋 Solemp: ${item.numero}\n` +
+                    `🔗 Contrato: ${empenhoVinculado ? empenhoVinculado.numero : 'N/A'}\n` +
+                    `📅 Data: ${formatDate(item.data)}\n` +
+                    `💰 Valor Total: ${formatCurrency(item.valorTotal)}\n` +
+                    `💸 Valor Gasto: ${formatCurrency(item.valorGasto || 0)}\n` +
+                    `💵 Saldo: ${formatCurrency(item.valorTotal - (item.valorGasto || 0))}\n\n`;
+                
+                if (faturamentosVinculados.length > 0) {
+                    const listaFaturamentos = faturamentosVinculados.map(f => `\n  • ${f.numero} - ${formatCurrency(f.valor)} (${formatDate(f.data)})`).join('');
+                    mensagem += `📦 FATURAMENTOS VINCULADOS (${faturamentosVinculados.length}):\n${listaFaturamentos}\n\n`;
+                    mensagem += `🛠️ SERVIÇOS AFETADOS: ${totalServicos}\n\n`;
+                }
+                
+                mensagem += `🚨 O QUE SERÁ EXCLUÍDO:\n` +
+                    `  • 1 Solemp\n` +
+                    `  • ${faturamentosVinculados.length} Faturamento(s)\n` +
+                    `  • ${totalServicos} serviço(s) voltarão para "Pendentes"\n\n`;
+                
+                if (empenhoVinculado) {
+                    const valorDevolvido = item.valorTotal;
+                    mensagem += `🔄 VALOR DEVOLVIDO AO EMPENHO:\n` +
+                        `  • ${formatCurrency(valorDevolvido)} voltará para ${empenhoVinculado.numero}\n\n`;
+                }
+                
+                mensagem += `⚠️ Esta ação é IRREVERSÍVEL!\n\n` +
+                    `Deseja continuar?`;
+                
+                if (!confirm(mensagem)) return;
+                
+                // Executar exclusão em cascata
+                let servicos = await getData('manutencoesCadastradas');
+                
+                // 1. Reverter todos os faturamentos
+                faturamentosVinculados.forEach(fat => {
+                    servicos.forEach(s => {
+                        if (fat.servicosIds && fat.servicosIds.includes(s.id)) {
+                            s.faturado = false;
+                            s.selecionadoParaFaturar = false;
+                        }
+                    });
+                });
+                
+                // 2. Excluir faturamentos
+                faturamentos = faturamentos.filter(f => f.solempId !== id);
+                await setData('faturamentos', faturamentos);
+                
+                // 3. Devolver valor ao contrato (atualizar valorGasto)
+                if (empenhoVinculado) {
+                    const empenhosAtualizados = await getData('empenhos');
+                    const empIndex = empenhosAtualizados.findIndex(e => e.id === item.empenhoId);
+                    if (empIndex >= 0) {
+                        empenhosAtualizados[empIndex].valorGasto = (empenhosAtualizados[empIndex].valorGasto || 0) - (item.valorGasto || 0);
+                        if (empenhosAtualizados[empIndex].valorGasto < 0) empenhosAtualizados[empIndex].valorGasto = 0;
+                        await setData('empenhos', empenhosAtualizados);
+                    }
+                }
+                
+                // 4. Excluir solemp
+                items.splice(itemIndex, 1);
+                await setData('solemps', items);
+                
+                // 5. Salvar serviços atualizados
+                await setData('manutencoesCadastradas', servicos);
+                
+                alert(
+                    `✅ EXCLUSÃO EM CASCATA CONCLUÍDA!\n\n` +
+                    `📋 Solemp ${item.numero} excluída\n` +
+                    `📦 ${faturamentosVinculados.length} Faturamento(s) excluído(s)\n` +
+                    `🛠️ ${totalServicos} serviço(s) liberado(s)\n` +
+                    `🔄 Valor devolvido ao Contrato`
+                );
+                
+                await renderResumoTables();
+                await loadAll();
+                return;
+            }
+            
+            // EXCLUSÃO (REVERSÃO) DE FATURAMENTO
+            if (type === 'faturamento') {
+                const solemps = await getData('solemps');
+                const solempVinculada = solemps.find(s => s.id === item.solempId);
+                const servicos = await getData('manutencoesCadastradas');
+                const servicosVinculados = servicos.filter(s => item.servicosIds && item.servicosIds.includes(s.id));
+                
+                // Montar lista de serviços
+                const listaServicos = servicosVinculados.length > 0 
+                    ? servicosVinculados.map(s => `\n  • O.S. ${s.ordemServico} - ${s.viatura} - ${formatCurrency(parseCurrency(s.valor))}`).join('')
+                    : '\n  (Nenhum serviço vinculado)';
+                
+                const confirmacao = confirm(
+                    `⚠️ REVERTER FATURAMENTO\n\n` +
+                    `Você está prestes a REVERTER o faturamento:\n\n` +
+                    `📋 Número: ${item.numero}\n` +
+                    `📅 Data: ${formatDate(item.data)}\n` +
+                    `💰 Valor: ${formatCurrency(item.valor)}\n` +
+                    `🔗 Solemp: ${solempVinculada ? solempVinculada.numero : 'N/A'}\n\n` +
+                    `📦 Serviços vinculados (${servicosVinculados.length}):\n${listaServicos}\n\n` +
+                    `🔄 O QUE ACONTECERÁ:\n` +
+                    `  • O valor de ${formatCurrency(item.valor)} será devolvido para a Solemp\n` +
+                    `  • Os ${servicosVinculados.length} serviço(s) voltarão para "Pendentes"\n` +
+                    `  • O faturamento será removido do sistema\n\n` +
+                    `⚠️ Esta ação é IRREVERSÍVEL!\n\n` +
+                    `Deseja continuar?`
+                );
+                
+                if (!confirmacao) return;
+                
+                // Reverter faturamento
+                let solempsAtualizado = await getData('solemps');
+                let servicosAtualizado = await getData('manutencoesCadastradas');
+                const solempAfetada = solempsAtualizado.find(s => s.id === item.solempId);
+                
+                if (solempAfetada) {
+                    solempAfetada.valorGasto = (solempAfetada.valorGasto || 0) - item.valor;
+                    if (solempAfetada.valorGasto < 0) solempAfetada.valorGasto = 0;
+                    await setData('solemps', solempsAtualizado);
+                }
+                
+                servicosAtualizado.forEach(s => { 
+                    if(item.servicosIds && item.servicosIds.includes(s.id)) { 
+                        s.faturado = false; 
+                        s.selecionadoParaFaturar = false;
+                    }
+                });
+                await setData('manutencoesCadastradas', servicosAtualizado);
+                
+                items.splice(itemIndex, 1);
+                await setData('faturamentos', items);
+                
+                alert(
+                    `✅ FATURAMENTO REVERTIDO COM SUCESSO!\n\n` +
+                    `Faturamento ${item.numero} foi removido.\n` +
+                    `Valor de ${formatCurrency(item.valor)} devolvido para a Solemp.\n` +
+                    `${servicosVinculados.length} serviço(s) voltaram para "Pendentes".`
+                );
+                
+                await renderResumoTables();
+                await loadAll();
+                return;
+            }
+            
+            items.splice(itemIndex, 1);
+            await setData(type + 's', items);
+            
+            alert(
+                `✅ EXCLUSÃO REALIZADA COM SUCESSO!\n\n` +
+                `${type === 'empenho' ? 'Contrato' : 'Solemp'} ${item.numero} foi excluído(a) permanentemente.`
+            );
+            
+            await renderResumoTables();
+            await loadAll();
+        };
+        
+        // Event listeners para os filtros
+        Object.values(filters).forEach(group => {
+            group.searchBtn.addEventListener('click', renderResumoTables);
+            group.search.addEventListener('keyup', e => { if (e.key === 'Enter') renderResumoTables(); });
+            group.ano.addEventListener('change', renderResumoTables);
+            group.mes.addEventListener('change', renderResumoTables);
+            group.clearBtn.addEventListener('click', () => {
+                group.ano.value = '';
+                group.mes.value = '';
+                group.search.value = '';
+                renderResumoTables();
+            });
+        });
+
+        loadAll().catch(e => console.warn('loadAll:', e));
+        window.addEventListener('storage', () => {
+            loadAll().then(() => Promise.all([populateYearFilters(), renderResumoTables()])).catch(e => console.warn(e));
+        });
+    });
+    </script>
+</body>
+</html>
