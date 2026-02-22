@@ -651,35 +651,104 @@
             try {
                 firebaseApp = firebase.initializeApp(firebaseConfig);
                 firestoreDb = firebase.firestore();
+                // Forçar long polling (ajuda quando WebSockets são bloqueados por rede/firewall)
+                try { firestoreDb.settings({ experimentalForceLongPolling: true }); } catch (e) {}
                 window.firestoreDb = firestoreDb; // disponível em todo o sistema
                 console.log('Firebase inicializado.');
                 console.log('Firestore conectado.');
                 // Passo 5: primeira escrita e leitura (teste)
-                (async function testarFirestore() {
+                (function testarFirestore() {
                     if (!firestoreDb) {
                         console.warn('[Firestore] firestoreDb não disponível.');
                         return;
                     }
                     console.log('[Firestore] Teste: gravando documento...');
-                    try {
-                        const ref = firestoreDb.collection('sismav_config').doc('conexao');
-                        await ref.set({ ultimaConexao: new Date().toISOString(), app: 'SISMAV' });
-                        const snap = await ref.get();
-                        if (snap.exists) {
-                            console.log('[Firestore] Teste OK – dado gravado e lido:', snap.data());
-                        } else {
-                            console.warn('[Firestore] Documento não encontrado após gravar.');
-                        }
-                    } catch (err) {
-                        console.warn('[Firestore] ERRO no teste:', err.code || '', err.message);
-                        if (err.code === 'permission-denied') {
-                            console.warn('[Firestore] Solução: no Firebase Console > Firestore > Regras, use modo de teste ou libere leitura/escrita.');
-                        }
-                    }
+                    const ref = firestoreDb.collection('sismav_config').doc('conexao');
+                    const timeout = setTimeout(function() {
+                        console.warn('[Firestore] TIMEOUT: a gravação demorou mais de 10s.');
+                        console.warn('[Firestore] Verifique: 1) Firebase Console > Firestore > Regras > allow read, write: if true; 2) Configurações do projeto > Domínios autorizados > localhost deve estar na lista.');
+                    }, 10000);
+                    ref.set({ ultimaConexao: new Date().toISOString(), app: 'SISMAV' })
+                        .then(function() {
+                            clearTimeout(timeout);
+                            return ref.get();
+                        })
+                        .then(function(snap) {
+                            if (snap.exists) {
+                                console.log('[Firestore] Teste OK – dado gravado e lido:', snap.data());
+                            } else {
+                                console.warn('[Firestore] Documento não encontrado após gravar.');
+                            }
+                        })
+                        .catch(function(err) {
+                            clearTimeout(timeout);
+                            console.warn('[Firestore] ERRO no teste:', err.code || '', err.message);
+                            if (err.code === 'permission-denied') {
+                                console.warn('[Firestore] Solução: Firebase Console > Firestore > Regras > use allow read, write: if true; e Publique.');
+                            }
+                        });
                 })();
             } catch (e) {
                 console.warn('Firebase não inicializado:', e.message);
             }
+        }
+
+        // ==================== BACKUP AUTOMÁTICO NO FIRESTORE ====================
+        /** Monta o objeto de backup (sem PDFs para caber no limite do Firestore). */
+        async function obterDadosBackupParaFirestore() {
+            const getData = window.getData || (async (k) => { const v = localStorage.getItem(k); if (v == null) return null; try { return JSON.parse(v); } catch (_) { return v; } });
+            const manutencoes = (await getData('manutencoesCadastradas')) || [];
+            const faturamentos = (await getData('faturamentos')) || [];
+            // Remover PDFs/anexos para reduzir tamanho (limite ~1MB por documento no Firestore)
+            const manutencoesSemPdf = manutencoes.map(function(m) { var c = Object.assign({}, m); delete c.pdf; delete c.anexo; return c; });
+            const faturamentosSemPdf = faturamentos.map(function(f) { var c = Object.assign({}, f); delete c.pdf; return c; });
+            return {
+                versao: '3.0',
+                dataBackup: new Date().toISOString(),
+                dados: {
+                    manutencoesCadastradas: manutencoesSemPdf,
+                    viaturasCadastradas: (await getData('viaturasCadastradas')) || [],
+                    empenhos: (await getData('empenhos')) || [],
+                    solemps: (await getData('solemps')) || [],
+                    valoresCadastrados: (await getData('valoresCadastrados')) || [],
+                    orcamentos_pagamentos: (await getData('orcamentos_pagamentos')) || [],
+                    orcamentos_compras: (await getData('orcamentos_compras')) || [],
+                    faturamentos: faturamentosSemPdf,
+                    fainas_pendentes: (await getData('fainas_pendentes')) || [],
+                    fainas_andamento: (await getData('fainas_andamento')) || [],
+                    fainas_finalizadas: (await getData('fainas_finalizadas')) || [],
+                    fainas_anotacoes: (await getData('fainas_anotacoes')) || [],
+                    viaturasOficina: (await getData('viaturasOficina')) || [],
+                    sismavActiveTab: (await getData('sismavActiveTab')) || 'servicos',
+                    sismavVersao: (await getData('sismavVersao')) || null,
+                    sismavUltimoBackup: (await getData('sismavUltimoBackup')) || null
+                }
+            };
+        }
+        /** Envia backup (versão leve, sem PDFs) para o Firestore. Não bloqueia a interface. */
+        async function enviarBackupParaFirestore() {
+            if (!window.firestoreDb) return;
+            try {
+                const backup = await obterDadosBackupParaFirestore();
+                const jsonString = JSON.stringify(backup);
+                if (jsonString.length > 900000) {
+                    console.warn('[Firestore] Backup muito grande para enviar (' + (jsonString.length / 1024).toFixed(0) + ' KB). Dados sem PDF já foram usados.');
+                }
+                const ref = window.firestoreDb.collection('sismav_backups').doc('ultimo');
+                await ref.set({
+                    dataBackup: backup.dataBackup,
+                    versao: backup.versao,
+                    backup: jsonString
+                });
+                console.log('[Firestore] Backup automático enviado em', backup.dataBackup);
+            } catch (err) {
+                console.warn('[Firestore] Erro ao enviar backup:', err.message);
+            }
+        }
+        // Backup automático: 10s após carregar e a cada 30 minutos
+        if (window.firestoreDb) {
+            setTimeout(function() { enviarBackupParaFirestore(); }, 10000);
+            setInterval(function() { enviarBackupParaFirestore(); }, 30 * 60 * 1000);
         }
 
         // Função para formatar bytes
@@ -930,10 +999,12 @@
                     } else {
                         localStorage.setItem('sismavUltimoBackup', hoje);
                     }
-                    
+                    // Enviar também para o Firestore (backup na nuvem)
+                    if (typeof enviarBackupParaFirestore === 'function') {
+                        enviarBackupParaFirestore().catch(function() {});
+                    }
                     // Fechar modal
                     fecharModalBackup();
-                    
                     // Mostrar mensagem de sucesso
                     alert(`✅ Backup realizado com sucesso!\n\nArquivo: ${resultado.nomeArquivo}\nLocal: ${resultado.local}`);
                 } else {
@@ -1389,6 +1460,9 @@
             try {
                 const result = await executarBackupGeralNaJanelaPrincipal();
                 if (result && result.sucesso) {
+                    if (typeof enviarBackupParaFirestore === 'function') {
+                        enviarBackupParaFirestore().catch(function() {});
+                    }
                     alert('Backup concluído com sucesso.');
                     fecharModalBackupDados();
                 }

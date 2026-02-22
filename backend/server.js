@@ -22,6 +22,21 @@ app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' })); // Aumentar limite para PDFs grandes
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
+// Servir o frontend (SISMAV.html, etc.) para Firebase/Firestore funcionar (evita timeout com file://)
+const frontendDir = path.resolve(__dirname, '..');
+app.use(express.static(frontendDir));
+
+// Rotas explícitas para abrir o SISMAV pelo navegador
+app.get('/', (req, res) => res.redirect('/SISMAV.html'));
+app.get('/SISMAV.html', (req, res) => {
+    const file = path.join(frontendDir, 'SISMAV.html');
+    if (fs.existsSync(file)) {
+        res.sendFile(file);
+    } else {
+        res.status(404).send('Arquivo SISMAV.html não encontrado em: ' + frontendDir);
+    }
+});
+
 // Garantir que o diretório de dados existe
 const dataDir = path.join(__dirname, 'data');
 fs.ensureDirSync(dataDir);
@@ -86,6 +101,7 @@ function formatBytes(bytes) {
 // Iniciar servidor
 app.listen(PORT, () => {
     console.log(`🚀 Servidor SISMAV Backend rodando na porta ${PORT}`);
+    console.log(`📡 Abra no navegador: http://localhost:${PORT}/ ou http://localhost:${PORT}/SISMAV.html`);
     console.log(`📡 API disponível em http://localhost:${PORT}/api`);
     console.log(`💾 Dados armazenados em: ${dataDir}`);
 });
