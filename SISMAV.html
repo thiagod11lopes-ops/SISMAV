@@ -529,6 +529,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- IndexedDB Service - Armazenamento de Dados -->
     <script src="indexeddb-service.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
 </head>
 <body>
     <!-- Modal de Backup Diário -->
@@ -640,6 +644,44 @@
     </div>
 
     <script>
+        // Inicializar Firebase e Firestore
+        let firebaseApp = null;
+        let firestoreDb = null;
+        if (typeof firebase !== 'undefined' && typeof firebaseConfig !== 'undefined') {
+            try {
+                firebaseApp = firebase.initializeApp(firebaseConfig);
+                firestoreDb = firebase.firestore();
+                window.firestoreDb = firestoreDb; // disponível em todo o sistema
+                console.log('Firebase inicializado.');
+                console.log('Firestore conectado.');
+                // Passo 5: primeira escrita e leitura (teste)
+                (async function testarFirestore() {
+                    if (!firestoreDb) {
+                        console.warn('[Firestore] firestoreDb não disponível.');
+                        return;
+                    }
+                    console.log('[Firestore] Teste: gravando documento...');
+                    try {
+                        const ref = firestoreDb.collection('sismav_config').doc('conexao');
+                        await ref.set({ ultimaConexao: new Date().toISOString(), app: 'SISMAV' });
+                        const snap = await ref.get();
+                        if (snap.exists) {
+                            console.log('[Firestore] Teste OK – dado gravado e lido:', snap.data());
+                        } else {
+                            console.warn('[Firestore] Documento não encontrado após gravar.');
+                        }
+                    } catch (err) {
+                        console.warn('[Firestore] ERRO no teste:', err.code || '', err.message);
+                        if (err.code === 'permission-denied') {
+                            console.warn('[Firestore] Solução: no Firebase Console > Firestore > Regras, use modo de teste ou libere leitura/escrita.');
+                        }
+                    }
+                })();
+            } catch (e) {
+                console.warn('Firebase não inicializado:', e.message);
+            }
+        }
+
         // Função para formatar bytes
         function formatarBytes(bytes) {
             if (bytes === 0) return '0 Bytes';
