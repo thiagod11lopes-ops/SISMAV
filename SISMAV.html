@@ -1612,9 +1612,6 @@
                 // Atualizar versão do sistema
                 await atualizarVersaoSistema();
                 
-                // Verificar backup diário
-                await verificarBackupDiario();
-                
             // Aguardar IndexedDB inicializar
             if (window.indexedDBService) {
                 try {
@@ -1626,6 +1623,9 @@
 
             // Sempre carregar dados do Firebase ao abrir (para manter todos os dispositivos com o mesmo conteúdo)
             await carregarDadosDoFirebaseAoAbrir();
+
+                // Verificar backup diário (depois do Firebase, para usar a data restaurada se houver)
+                await verificarBackupDiario();
 
             // Atualizar indicador de armazenamento
             await atualizarIndicadorArmazenamento();
@@ -1797,9 +1797,13 @@
                 alert('Erro ao remover anexos: ' + (err && err.message ? err.message : err));
             }
         }
-        /** Aplica os dados de um backup (usado por Carregar backup e Restaurar do Firebase). */
-        async function executarRestauracaoDados(dadosRestaurar) {
+        /** Aplica os dados de um backup (usado por Carregar backup e Restaurar do Firebase).
+         * @param {Object} dadosRestaurar - Dados do backup
+         * @param {Object} [opcoes] - opcoes.silent = true: não mostra alerta nem recarrega (uso ao abrir a página)
+         */
+        async function executarRestauracaoDados(dadosRestaurar, opcoes) {
             const setData = window.setData;
+            const silent = opcoes && opcoes.silent === true;
             if (!setData) {
                 alert('setData não disponível. Recarregue a página.');
                 return;
@@ -1863,6 +1867,7 @@
                 try { localStorage.setItem('sismavUltimoBackup', dadosRestaurar.sismavUltimoBackup); } catch (_) {}
             }
             fecharModalBackupDados();
+            if (silent) return;
             try { sessionStorage.setItem('sismavRestauroRecente', '1'); } catch (_) {}
             var resumo = 'Manutenções: ' + (list[0][1].length || 0) + '\nViaturas: ' + (list[1][1].length || 0) + '\nContratos: ' + (list[3][1].length || 0) + '\nPagamentos: ' + (orcP.length || 0) + '\nCompras: ' + (orcC.length || 0) + '\nFaturamentos: ' + (Array.isArray(dadosRestaurar.faturamentos) ? dadosRestaurar.faturamentos.length : 0) + '\n';
             setTimeout(function() {
@@ -1911,7 +1916,7 @@
                 var backup = JSON.parse(snap.data().backup);
                 var dados = backup.dados || backup.data || {};
                 if (typeof dados !== 'object' || dados === null) return;
-                await executarRestauracaoDados(dados);
+                await executarRestauracaoDados(dados, { silent: true });
                 console.log('SISMAV: dados da nuvem (Firebase) carregados ao abrir.');
             } catch (err) {
                 console.warn('SISMAV: não foi possível carregar dados do Firebase ao abrir:', err && err.message ? err.message : err);
