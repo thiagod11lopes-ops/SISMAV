@@ -24,6 +24,7 @@
             --edit-orange: #f59e0b;
             --success-green: #10b981;
             --warning-yellow: #fbbf24;
+            --zoom-level: 1;
         }
         
         * {
@@ -660,6 +661,82 @@
         .btn-modal-backup.btn-remover-pdfs:hover {
             background: #4b5563;
         }
+        
+        /* Controle de zoom (mobile) – como Ctrl + / - no PC */
+        #app-zoom-wrapper {
+            transform-origin: top center;
+            transform: scale(var(--zoom-level));
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        
+        .zoom-controls {
+            display: none;
+            position: fixed;
+            bottom: max(16px, env(safe-area-inset-bottom));
+            right: max(16px, env(safe-area-inset-right));
+            z-index: 9998;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 6px 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .zoom-controls.show {
+            display: flex;
+        }
+        
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary-blue);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            transition: background 0.2s, transform 0.15s;
+        }
+        
+        .zoom-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .zoom-btn:hover {
+            background: var(--secondary-blue);
+        }
+        
+        .zoom-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .zoom-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            min-width: 36px;
+            text-align: center;
+        }
+        
+        @media (min-width: 769px) {
+            .zoom-controls { display: none !important; }
+            #app-zoom-wrapper { transform: none; }
+        }
     </style>
     <!-- Font Awesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -699,7 +776,14 @@
         </div>
     </div>
 
+    <!-- Controle de zoom (visível só em celular/tablet) -->
+    <div class="zoom-controls show" id="zoom-controls">
+        <button type="button" class="zoom-btn" id="zoom-out-btn" title="Diminuir tamanho (como Ctrl -)" aria-label="Diminuir">−</button>
+        <span class="zoom-label" id="zoom-label">100%</span>
+        <button type="button" class="zoom-btn" id="zoom-in-btn" title="Aumentar tamanho (como Ctrl +)" aria-label="Aumentar">+</button>
+    </div>
 
+    <div id="app-zoom-wrapper">
     <header>
         <h1 class="main-title">SISMAV - Sistema de Manutenção de Viaturas</h1>
     </header>
@@ -755,6 +839,7 @@
             <iframe id="iframe-balanco" class="iframe-container"></iframe>
         </div>
     </main>
+    </div><!-- fim #app-zoom-wrapper -->
 
     <!-- Modal Backup (aberto pelo botão IndexedDB) -->
     <div id="modal-backup-dados" class="modal-backup-dados" onclick="if(event.target===this)fecharModalBackupDados()">
@@ -1460,6 +1545,55 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
+                // Controle de zoom (mobile) – como Ctrl + / - no PC
+                (function initZoom() {
+                    var ZOOM_KEY = 'sismav_zoom';
+                    var STEPS = [0.75, 0.85, 1, 1.15, 1.25];
+                    var wrapper = document.getElementById('app-zoom-wrapper');
+                    var label = document.getElementById('zoom-label');
+                    var btnOut = document.getElementById('zoom-out-btn');
+                    var btnIn = document.getElementById('zoom-in-btn');
+                    var controls = document.getElementById('zoom-controls');
+                    function getZoom() {
+                        var v = localStorage.getItem(ZOOM_KEY);
+                        var n = v ? parseFloat(v) : 1;
+                        return STEPS.indexOf(n) >= 0 ? n : 1;
+                    }
+                    function setZoom(level) {
+                        var idx = STEPS.indexOf(level);
+                        if (idx < 0) level = 1;
+                        document.documentElement.style.setProperty('--zoom-level', String(level));
+                        if (label) label.textContent = Math.round(level * 100) + '%';
+                        if (btnOut) btnOut.disabled = (level <= STEPS[0]);
+                        if (btnIn) btnIn.disabled = (level >= STEPS[STEPS.length - 1]);
+                        localStorage.setItem(ZOOM_KEY, String(level));
+                    }
+                    function showHideControls() {
+                        if (!controls) return;
+                        if (window.innerWidth <= 768) {
+                            controls.classList.add('show');
+                            if (wrapper) wrapper.style.display = '';
+                        } else {
+                            controls.classList.remove('show');
+                            document.documentElement.style.removeProperty('--zoom-level');
+                            if (wrapper) wrapper.style.transform = '';
+                        }
+                    }
+                    setZoom(getZoom());
+                    showHideControls();
+                    window.addEventListener('resize', showHideControls);
+                    if (btnOut) btnOut.addEventListener('click', function() {
+                        var cur = getZoom();
+                        var idx = STEPS.indexOf(cur);
+                        if (idx > 0) setZoom(STEPS[idx - 1]);
+                    });
+                    if (btnIn) btnIn.addEventListener('click', function() {
+                        var cur = getZoom();
+                        var idx = STEPS.indexOf(cur);
+                        if (idx >= 0 && idx < STEPS.length - 1) setZoom(STEPS[idx + 1]);
+                    });
+                })();
+
                 // Atualizar versão do sistema
                 await atualizarVersaoSistema();
                 
