@@ -1,0 +1,19 @@
+{
+  "name": "SISMAV - Sistema de Manutenção de Viaturas",
+  "short_name": "SISMAV",
+  "description": "Sistema completo para gestão de manutenção e controle financeiro de viaturas",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1f2937",
+  "theme_color": "#2563eb",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
