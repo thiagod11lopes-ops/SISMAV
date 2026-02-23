@@ -73,29 +73,29 @@
         header {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            padding: 30px 20px;
-            padding-top: max(20px, env(safe-area-inset-top));
+            padding: 1.875rem 1.25rem;
+            padding-top: max(1.25rem, env(safe-area-inset-top));
             text-align: center;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0.625rem 2.5rem rgba(0, 0, 0, 0.2);
             position: relative;
             z-index: 10;
         }
         
         .main-title {
-            font-size: 36px;
+            font-size: 2.25rem;
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--black) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             font-weight: 900;
             margin: 0;
-            letter-spacing: -1px;
-            text-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+            letter-spacing: -0.0625rem;
+            text-shadow: 0 0.125rem 0.625rem rgba(37, 99, 235, 0.3);
         }
         main {
             flex-grow: 1;
             margin: 0;
-            padding: 20px;
+            padding: 1.25rem;
             max-width: 100%;
             width: 100%;
             box-sizing: border-box;
@@ -108,14 +108,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 0.625rem;
             flex-wrap: wrap;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            padding: 15px 150px 15px 15px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            padding: 0.9375rem 9.375rem 0.9375rem 0.9375rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.25rem;
             position: relative;
         }
         
@@ -123,7 +123,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 0.625rem;
             flex-wrap: wrap;
             flex: 1;
             min-width: 0;
@@ -131,18 +131,18 @@
         
         .storage-indicator {
             position: absolute;
-            right: 15px;
+            right: 0.9375rem;
             top: 50%;
             transform: translateY(-50%) translateZ(0);
             background: rgba(255, 255, 255, 0.15);
             color: rgba(255, 255, 255, 0.9);
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 13px;
+            padding: 0.625rem 0.9375rem;
+            border-radius: 0.625rem;
+            font-size: 0.8125rem;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
             transition: transform 0.2s ease, background-color 0.2s ease;
             white-space: nowrap;
@@ -163,20 +163,20 @@
         }
         
         .storage-indicator i {
-            font-size: 14px;
+            font-size: 0.875rem;
         }
         
         .storage-type-badge {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 11px;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.6875rem;
             font-weight: 700;
-            margin-left: 8px;
+            margin-left: 0.5rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.03125rem;
         }
         
         .storage-type-badge.indexeddb {
@@ -205,21 +205,20 @@
         
         @media (max-width: 768px) {
             header {
-                padding: 20px 12px;
-                padding-top: max(16px, env(safe-area-inset-top));
+                padding: 1.25rem 0.75rem;
+                padding-top: max(1rem, env(safe-area-inset-top));
             }
             
             .main-title {
-                font-size: 26px;
+                font-size: 1.625rem;
             }
             
             main {
-                padding: 12px;
+                padding: 0.75rem;
             }
             
             .tabs-container {
-                padding: 12px;
-                padding-right: 12px;
+                padding: 0.75rem;
                 flex-wrap: nowrap;
                 overflow-x: auto;
                 overflow-y: hidden;
@@ -235,12 +234,12 @@
             .tabs-wrapper {
                 flex-wrap: nowrap;
                 min-width: min-content;
-                gap: 8px;
+                gap: 0.5rem;
             }
             
             .tab-button {
-                padding: 12px 18px;
-                font-size: 14px;
+                padding: 0.75rem 1.125rem;
+                font-size: 0.875rem;
                 white-space: nowrap;
                 flex-shrink: 0;
             }
@@ -252,9 +251,9 @@
                 transform: none;
                 width: 100%;
                 justify-content: center;
-                margin-top: 10px;
+                margin-top: 0.625rem;
                 flex-direction: column;
-                gap: 8px;
+                gap: 0.5rem;
             }
             
             .storage-type-badge {
@@ -262,66 +261,66 @@
             }
             
             .tab-content {
-                border-radius: 16px;
+                border-radius: 1rem;
                 padding: 0;
             }
             
             .iframe-container {
-                height: calc(100vh - 260px);
-                height: calc(100dvh - 260px);
-                min-height: 300px;
-                border-radius: 16px;
+                height: calc(100vh - 16.25rem);
+                height: calc(100dvh - 16.25rem);
+                min-height: 18.75rem;
+                border-radius: 1rem;
             }
             
             .backup-modal-content {
-                margin: 16px;
-                margin-left: max(16px, env(safe-area-inset-left));
-                margin-right: max(16px, env(safe-area-inset-right));
-                padding: 24px 20px;
+                margin: 1rem;
+                margin-left: max(1rem, env(safe-area-inset-left));
+                margin-right: max(1rem, env(safe-area-inset-right));
+                padding: 1.5rem 1.25rem;
                 max-width: 100%;
             }
             
             .backup-modal-content h2 {
-                font-size: 22px;
+                font-size: 1.375rem;
             }
         }
         
         @media (max-width: 480px) {
             .main-title {
-                font-size: 22px;
+                font-size: 1.375rem;
             }
             
             .tabs-container {
-                padding: 10px;
+                padding: 0.625rem;
             }
             
             .tab-button {
-                padding: 10px 14px;
-                font-size: 13px;
+                padding: 0.625rem 0.875rem;
+                font-size: 0.8125rem;
             }
             
             .iframe-container {
-                height: calc(100vh - 240px);
-                height: calc(100dvh - 240px);
+                height: calc(100vh - 15rem);
+                height: calc(100dvh - 15rem);
             }
             
             .backup-modal-content {
-                padding: 20px 16px;
+                padding: 1.25rem 1rem;
             }
             
             .backup-modal-content h2 {
-                font-size: 20px;
+                font-size: 1.25rem;
             }
         }
         
         @media (max-width: 360px) {
             .main-title {
-                font-size: 18px;
+                font-size: 1.125rem;
             }
             
             .tab-button {
-                padding: 10px 12px;
-                font-size: 12px;
+                padding: 0.625rem 0.75rem;
+                font-size: 0.75rem;
             }
         }
         
@@ -329,12 +328,12 @@
             background: rgba(255, 255, 255, 0.2);
             color: rgba(255, 255, 255, 0.9);
             border: none;
-            padding: 15px 30px;
-            min-height: 44px;
-            min-width: 44px;
-            border-radius: 12px;
+            padding: 0.9375rem 1.875rem;
+            min-height: 2.75rem;
+            min-width: 2.75rem;
+            border-radius: 0.75rem;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1rem;
             font-weight: 700;
             transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
             position: relative;
@@ -376,8 +375,8 @@
             display: none;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 1.25rem;
+            box-shadow: 0 1.25rem 3.75rem rgba(0, 0, 0, 0.3);
             flex-grow: 1;
             padding: 0;
             overflow: hidden;
@@ -403,11 +402,11 @@
         .iframe-container {
             width: 100%;
             max-width: 100%;
-            height: calc(100vh - 240px);
-            height: calc(100dvh - 240px);
+            height: calc(100vh - 15rem);
+            height: calc(100dvh - 15rem);
             border: none;
             box-sizing: border-box;
-            border-radius: 20px;
+            border-radius: 1.25rem;
             overflow: hidden;
         }
         
@@ -662,15 +661,20 @@
             background: #4b5563;
         }
         
-        /* Controle de zoom (mobile) – como Ctrl + / - no PC */
+        /* Controle de zoom (mobile): só campos e letras mudam de tamanho; layout se organiza em linhas */
         #app-zoom-wrapper {
-            transform-origin: top center;
-            transform: scale(var(--zoom-level));
             width: 100%;
             flex: 1;
             display: flex;
             flex-direction: column;
             min-height: 0;
+            max-width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            #app-zoom-wrapper {
+                font-size: calc(16px * var(--zoom-level, 1));
+            }
         }
         
         .zoom-controls {
@@ -735,7 +739,6 @@
         
         @media (min-width: 769px) {
             .zoom-controls { display: none !important; }
-            #app-zoom-wrapper { transform: none; }
         }
     </style>
     <!-- Font Awesome para ícones -->
@@ -1542,6 +1545,18 @@
             }
         });
         
+        /** Aplica o zoom (tamanho da fonte) em todos os iframes para celular/tablet; assim campos e letras dos iframes acompanham o zoom. */
+        function aplicarZoomNosIframes() {
+            var level = parseFloat(localStorage.getItem('sismav_zoom') || '1');
+            var size = (level * 16) + 'px';
+            document.querySelectorAll('.iframe-container').forEach(function(iframe) {
+                try {
+                    if (iframe.contentDocument && iframe.contentDocument.documentElement) {
+                        iframe.contentDocument.documentElement.style.fontSize = size;
+                    }
+                } catch (e) {}
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', async function() {
             try {
@@ -1567,6 +1582,7 @@
                         if (btnOut) btnOut.disabled = (level <= STEPS[0]);
                         if (btnIn) btnIn.disabled = (level >= STEPS[STEPS.length - 1]);
                         localStorage.setItem(ZOOM_KEY, String(level));
+                        if (typeof window.aplicarZoomNosIframes === 'function') window.aplicarZoomNosIframes();
                     }
                     function showHideControls() {
                         if (!controls) return;
@@ -1576,7 +1592,6 @@
                         } else {
                             controls.classList.remove('show');
                             document.documentElement.style.removeProperty('--zoom-level');
-                            if (wrapper) wrapper.style.transform = '';
                         }
                     }
                     setZoom(getZoom());
@@ -1608,6 +1623,9 @@
                     console.error('Erro ao inicializar IndexedDB:', e);
                 }
             }
+
+            // Sempre carregar dados do Firebase ao abrir (para manter todos os dispositivos com o mesmo conteúdo)
+            await carregarDadosDoFirebaseAoAbrir();
 
             // Atualizar indicador de armazenamento
             await atualizarIndicadorArmazenamento();
@@ -1692,16 +1710,15 @@
                 if (needsLoad) {
                     // Adicionar tratamento de erro para arquivos não encontrados
                     iframe.onload = function() {
-                        // Verificar se o conteúdo foi carregado corretamente
                         try {
                             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                            if (!iframeDoc || iframeDoc.body.innerHTML.includes('404') || iframeDoc.body.innerHTML.includes('Not Found')) {
+                            if (!iframeDoc || (iframeDoc.body && (iframeDoc.body.innerHTML.includes('404') || iframeDoc.body.innerHTML.includes('Not Found')))) {
                                 throw new Error('Arquivo não encontrado');
                             }
                         } catch (e) {
-                            // Se houver erro de acesso (CORS), assumir que carregou
                             console.log('Iframe carregado (possível restrição CORS)');
                         }
+                        if (typeof window.aplicarZoomNosIframes === 'function') window.aplicarZoomNosIframes();
                     };
                     
                     iframe.onerror = function() {
@@ -1881,6 +1898,23 @@
             } catch (err) {
                 console.error('Erro ao restaurar do Firebase:', err);
                 alert('Erro ao restaurar do Firebase: ' + (err && err.message ? err.message : err));
+            }
+        }
+
+        /** Carrega automaticamente os dados do Firebase ao abrir o SISMAV (sem pedir confirmação). Assim o conteúdo fica alinhado entre todos os dispositivos. */
+        async function carregarDadosDoFirebaseAoAbrir() {
+            if (!window.firestoreDb) return;
+            try {
+                var ref = window.firestoreDb.collection('sismav_backups').doc('ultimo');
+                var snap = await ref.get();
+                if (!snap.exists || !snap.data().backup) return;
+                var backup = JSON.parse(snap.data().backup);
+                var dados = backup.dados || backup.data || {};
+                if (typeof dados !== 'object' || dados === null) return;
+                await executarRestauracaoDados(dados);
+                console.log('SISMAV: dados da nuvem (Firebase) carregados ao abrir.');
+            } catch (err) {
+                console.warn('SISMAV: não foi possível carregar dados do Firebase ao abrir:', err && err.message ? err.message : err);
             }
         }
 
