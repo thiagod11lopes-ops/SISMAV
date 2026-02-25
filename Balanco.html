@@ -231,6 +231,7 @@
 <body>
 
     <h2 class="main-title"><i class="fas fa-chart-line"></i> Balanço e Análise de Dados</h2>
+    <p style="text-align: center; color: var(--dark-gray); margin-bottom: 1rem; font-size: 0.9rem;">Totais e gráficos consideram apenas serviços com a coluna <strong>Faturar</strong> marcada (aba Manutenções → Serviços).</p>
 
     <div class="card filters-card">
         <h3 class="card-title"><i class="fas fa-filter"></i> Filtros</h3>
@@ -348,7 +349,7 @@
             const inicio = inputInicio.value;
             const fim = inputFim.value;
 
-            const filteredManutencoes = manutencoes.filter(m => {
+            let filteredManutencoes = manutencoes.filter(m => {
                 const dataEntrada = new Date(m.dataEntrada + 'T00:00:00');
                 if (isNaN(dataEntrada)) return false;
                 
@@ -360,6 +361,8 @@
                 
                 return true;
             });
+            // Para o balanço, só contabilizar gastos (valor) dos serviços com coluna Faturar marcada
+            filteredManutencoes = filteredManutencoes.filter(m => m.selecionadoParaFaturar === true || m.selecionadoParaFaturar === 'sim');
 
             let totalAmbulancia = 0;
             let totalAdministrativa = 0;
@@ -425,14 +428,16 @@
         let charts = {};
         
         function createCharts() {
-            const manutencoes = JSON.parse(localStorage.getItem('manutencoesCadastradas')) || [];
+            let manutencoesCharts = JSON.parse(localStorage.getItem('manutencoesCadastradas')) || [];
+            // Para o balanço, só contabilizar gastos dos serviços com coluna Faturar marcada
+            manutencoesCharts = manutencoesCharts.filter(m => m.selecionadoParaFaturar === true || m.selecionadoParaFaturar === 'sim');
             const empenhos = JSON.parse(localStorage.getItem('empenhos')) || [];
             const solemps = JSON.parse(localStorage.getItem('solemps')) || [];
             const faturamentos = JSON.parse(localStorage.getItem('faturamentos')) || [];
             
             // 1. Gráfico: Custos por Tipo de Viatura
             const tipoData = {};
-            manutencoes.forEach(m => {
+            manutencoesCharts.forEach(m => {
                 const tipo = m.tipo || 'Outros';
                 tipoData[tipo] = (tipoData[tipo] || 0) + parseCurrency(m.valor);
             });
@@ -465,7 +470,7 @@
             
             // 2. Gráfico: Top 5 Viaturas
             const viaturaGastos = {};
-            manutencoes.forEach(m => {
+            manutencoesCharts.forEach(m => {
                 viaturaGastos[m.viatura] = (viaturaGastos[m.viatura] || 0) + parseCurrency(m.valor);
             });
             const top5 = Object.entries(viaturaGastos).sort((a,b) => b[1] - a[1]).slice(0, 5);
@@ -505,7 +510,7 @@
             
             // 3. Gráfico: Evolução Mensal
             const mesesData = {};
-            manutencoes.forEach(m => {
+            manutencoesCharts.forEach(m => {
                 const data = new Date(m.dataEntrada + 'T00:00:00');
                 const mesAno = `${data.getMonth() + 1}/${data.getFullYear()}`;
                 mesesData[mesAno] = (mesesData[mesAno] || 0) + parseCurrency(m.valor);
@@ -551,9 +556,9 @@
                 }
             });
             
-            // 4. Gráfico: Dias em Manutenção
+            // 4. Gráfico: Dias em Manutenção (apenas serviços marcados para faturar)
             const diasPorViatura = {};
-            manutencoes.forEach(m => {
+            manutencoesCharts.forEach(m => {
                 const dias = getDaysDifference(m.dataEntrada, m.dataSaida);
                 diasPorViatura[m.viatura] = (diasPorViatura[m.viatura] || 0) + dias;
             });
@@ -612,9 +617,9 @@
                 }
             });
             
-            // 6. Gráfico: Status dos Serviços
-            const faturados = manutencoes.filter(m => m.faturado).length;
-            const pendentes = manutencoes.filter(m => !m.faturado).length;
+            // 6. Gráfico: Status dos Serviços (apenas os marcados para faturar)
+            const faturados = manutencoesCharts.filter(m => m.faturado).length;
+            const pendentes = manutencoesCharts.filter(m => !m.faturado).length;
             
             if (charts.statusServicos) charts.statusServicos.destroy();
             charts.statusServicos = new Chart(document.getElementById('chartStatusServicos'), {

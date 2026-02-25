@@ -4007,7 +4007,7 @@
                 const faturarChecked = servico.selecionadoParaFaturar === true || servico.selecionadoParaFaturar === 'sim';
                 const preAprovadoChecked = servico.preAprovado === true || servico.preAprovado === 'sim';
                 const aprovadoChecked = servico.aprovado === true || servico.aprovado === 'sim';
-                const checkboxHtml = servico.faturado ? `<input type="checkbox" disabled checked>` : `<input type="checkbox" class="faturar-checkbox" data-id="${servico.id}" ${faturarChecked ? 'checked' : ''}>`;
+                const checkboxHtml = `<input type="checkbox" class="faturar-checkbox" data-id="${servico.id}" ${faturarChecked ? 'checked' : ''}>`;
                 const preAprovadoCheckboxHtml = `<input type="checkbox" class="pre-aprovado-checkbox" data-id="${servico.id}" ${preAprovadoChecked ? 'checked' : ''}>`;
                 const aprovadoCheckboxHtml = `<input type="checkbox" class="aprovado-checkbox" data-id="${servico.id}" ${aprovadoChecked ? 'checked' : ''}>`;
                 
