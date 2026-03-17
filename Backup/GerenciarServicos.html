@@ -623,30 +623,6 @@
             align-self: stretch;
         }
         
-        .status-aprovacao-toggle-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .btn-toggle-status-aprovacao {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #475569;
-            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s, border-color 0.2s;
-        }
-        .btn-toggle-status-aprovacao:hover {
-            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-            color: #334155;
-            border-color: #94a3b8;
-        }
         .approval-counters-top {
             flex-basis: 100%;
             width: 100%;
@@ -1001,34 +977,6 @@
         }
         .search-container button:active {
             transform: translateY(0);
-        }
-        .search-container.search-in-filter-buttons {
-            flex: 1;
-            width: auto;
-            min-width: 180px;
-            max-width: 280px;
-            margin: 0;
-            margin-bottom: 0;
-            padding: 0 4px;
-            background: transparent;
-            border: none;
-            box-shadow: none;
-        }
-        .search-container.search-in-filter-buttons input {
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-        .search-container.search-in-filter-buttons button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            flex-direction: row;
-            padding: 10px 20px;
-            font-size: inherit;
-            font-weight: 600;
-            border-radius: 10px;
-            min-height: 42px;
         }
 
         /* Modal de Anotações (Agenda) */
@@ -2202,25 +2150,20 @@
         
         <div class="filters-card" style="width: 100% !important; box-sizing: border-box !important;">
             <div class="filters-grid">
-                <div class="status-aprovacao-toggle-wrap" style="flex-basis: 100%; width: 100%; margin-bottom: 8px;">
-                    <button type="button" id="btnToggleStatusAprovacao" class="btn-toggle-status-aprovacao" title="Clique para mostrar ou ocultar o Status de Aprovação">
-                        <i class="fas fa-chart-pie"></i> <span id="btnToggleStatusAprovacaoText">Mostrar Status de Aprovação</span>
-                    </button>
-                    <div id="statusAprovacaoSection" class="approval-counters approval-counters-top" style="display: none;">
-                        <div class="approval-counters-title"><i class="fas fa-chart-pie"></i> Status de Aprovação</div>
-                        <div class="approval-counters-items">
-                            <div class="approval-counter-item counter-nao-aprovado" title="Clique para filtrar">
-                                <div class="approval-counter-label"><i class="fas fa-times-circle"></i><span>Não Aprovados</span></div>
-                                <div class="approval-counter-value" id="counterNaoAprovado">0</div>
-                            </div>
-                            <div class="approval-counter-item counter-pre-aprovado" title="Clique para filtrar">
-                                <div class="approval-counter-label"><i class="fas fa-clock"></i><span>Pré-aprovados</span></div>
-                                <div class="approval-counter-value" id="counterPreAprovado">0</div>
-                            </div>
-                            <div class="approval-counter-item counter-aprovado" title="Clique para filtrar">
-                                <div class="approval-counter-label"><i class="fas fa-check-circle"></i><span>Aprovados</span></div>
-                                <div class="approval-counter-value" id="counterAprovado">0</div>
-                            </div>
+                <div class="approval-counters approval-counters-top">
+                    <div class="approval-counters-title"><i class="fas fa-chart-pie"></i> Status de Aprovação</div>
+                    <div class="approval-counters-items">
+                        <div class="approval-counter-item counter-nao-aprovado" title="Clique para filtrar">
+                            <div class="approval-counter-label"><i class="fas fa-times-circle"></i><span>Não Aprovados</span></div>
+                            <div class="approval-counter-value" id="counterNaoAprovado">0</div>
+                        </div>
+                        <div class="approval-counter-item counter-pre-aprovado" title="Clique para filtrar">
+                            <div class="approval-counter-label"><i class="fas fa-clock"></i><span>Pré-aprovados</span></div>
+                            <div class="approval-counter-value" id="counterPreAprovado">0</div>
+                        </div>
+                        <div class="approval-counter-item counter-aprovado" title="Clique para filtrar">
+                            <div class="approval-counter-label"><i class="fas fa-check-circle"></i><span>Aprovados</span></div>
+                            <div class="approval-counter-value" id="counterAprovado">0</div>
                         </div>
                     </div>
                 </div>
@@ -2238,13 +2181,8 @@
                         <button id="btnAplicarFiltro" class="btn btn-filter-apply" title="Aplicar os filtros selecionados"><i class="fas fa-filter"></i> Aplicar</button>
                         <button id="btnLimparFiltro" class="btn btn-secondary" title="Limpar todos os filtros"><i class="fas fa-eraser"></i> Limpar</button>
                     </div>
-                    <div class="search-container search-in-filter-buttons">
-                        <input type="text" id="searchBar" placeholder="Digite para buscar nas tabelas...">
-                        <button id="searchBtn"><i class="fas fa-search"></i> Buscar</button>
-                    </div>
                     <div class="tool-buttons">
                         <button id="btnViaturasOficina" class="btn btn-tool btn-viatura" title="Ver viaturas na oficina"><i class="fas fa-car-side"></i> Viaturas na Oficina</button>
-                        <button id="btnPreencherIndeterminadas" class="btn btn-tool" title="Preencher datas de retorno indeterminadas com +7 dias a partir da data de saída (executa apenas uma vez)"><i class="fas fa-clock"></i> Preencher Indeterminadas</button>
                         <button id="btnRelatorio" class="btn btn-tool btn-relatorio" title="Gerar relatório"><i class="fas fa-file-alt"></i> Relatório</button>
                         <button id="btnAprovarOrcamento" class="btn btn-tool btn-aprovar" title="Aprovar orçamento"><i class="fas fa-file-signature"></i> Aprovar Orçamento</button>
                         <button id="btnAnotacoesServicos" class="btn btn-tool btn-anotacoes" title="Anotações de serviços"><i class="fas fa-sticky-note"></i> Anotações</button>
@@ -2267,6 +2205,11 @@
                 </div>
             </div>
             <p class="detalhes" id="valorTotalDetalhes">0 serviços encontrados</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchBar" placeholder="Digite para buscar nas tabelas...">
+            <button id="searchBtn"><i class="fas fa-search"></i> Buscar</button>
         </div>
 
         <div class="table-section" style="width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; overflow-x: auto !important;">
@@ -3868,8 +3811,15 @@
                     }
                 });
                 
-                // Não considerar fainas finalizadas no alerta de data limite da aba Manutenções.
-                // Uma vez finalizadas, elas deixam de fazer parte desse alerta.
+                // Verificar fainas finalizadas (caso ainda tenham data limite)
+                fainasFinalizadas.forEach(faina => {
+                    if (faina.dataLimite && faina.dataLimite === hojeFormatado) {
+                        fainasComLimiteHoje.push({
+                            ...faina,
+                            status: 'Finalizada'
+                        });
+                    }
+                });
                 
                 // Atualizar tabela de alerta
                 const alertaFainasLimite = document.getElementById('alertaFainasLimite');
@@ -7642,25 +7592,6 @@
         
         // --- EVENT LISTENERS PARA FILTROS ---
         btnAplicarFiltro.addEventListener('click', loadServicos);
-
-        // Botão mostrar/ocultar Status de Aprovação
-        (function () {
-            var btnToggle = document.getElementById('btnToggleStatusAprovacao');
-            var btnText = document.getElementById('btnToggleStatusAprovacaoText');
-            var section = document.getElementById('statusAprovacaoSection');
-            if (!btnToggle || !section) return;
-            function atualizarBotao() {
-                var visivel = section.style.display !== 'none';
-                if (btnText) btnText.textContent = visivel ? 'Ocultar Status de Aprovação' : 'Mostrar Status de Aprovação';
-                btnToggle.title = visivel ? 'Clique para ocultar' : 'Clique para mostrar o Status de Aprovação';
-            }
-            btnToggle.addEventListener('click', function () {
-                var visivel = section.style.display !== 'none';
-                section.style.display = visivel ? 'none' : 'flex';
-                atualizarBotao();
-            });
-            atualizarBotao();
-        })();
         
         // Event listeners para contadores de aprovação (filtro ao clicar)
         const counterNaoAprovadoItem = document.querySelector('.counter-nao-aprovado');
@@ -8509,82 +8440,6 @@
             await loadServicos();
         }
         
-        // --- FUNÇÃO ÚNICA PARA PREENCHER DATAS DE RETORNO INDETERMINADAS (+7 DIAS A PARTIR DA DATA DE SAÍDA) ---
-        const btnPreencherIndeterminadas = document.getElementById('btnPreencherIndeterminadas');
-        const CHAVE_PREENCHER_INDETERMINADAS = 'sismav_preencher_datas_retorno_indeterminadas_v1';
-
-        async function preencherDatasRetornoIndeterminadas() {
-            try {
-                if (!window.getData || !window.setData) {
-                    alert('Funções de dados não disponíveis. Recarregue a página.');
-                    return;
-                }
-
-                // Garantir que essa rotina só rode uma vez
-                if (localStorage.getItem(CHAVE_PREENCHER_INDETERMINADAS) === '1') {
-                    alert('A rotina de preenchimento automático já foi executada anteriormente.\n\nNovos cadastros devem ser ajustados manualmente.');
-                    return;
-                }
-
-                const servicos = await window.getData('manutencoesCadastradas') || [];
-                if (!Array.isArray(servicos) || servicos.length === 0) {
-                    alert('Nenhum serviço encontrado para atualizar.');
-                    return;
-                }
-
-                let alterados = 0;
-                const atualizados = servicos.map(servico => {
-                    try {
-                        // Considerar como "indeterminada" quando a flag estiver verdadeira
-                        // e não houver data de retorno preenchida.
-                        if (servico && servico.dataSaidaIndeterminada === true && (!servico.dataSaida || String(servico.dataSaida).trim() === '')) {
-                            const dataBase = servico.dataSaida || servico.dataEntrada;
-                            if (dataBase && typeof dataBase === 'string' && dataBase.length >= 10) {
-                                const baseDate = new Date(dataBase + 'T00:00:00');
-                                if (!isNaN(baseDate.getTime())) {
-                                    baseDate.setDate(baseDate.getDate() + 7);
-                                    const ano = baseDate.getFullYear();
-                                    const mes = String(baseDate.getMonth() + 1).padStart(2, '0');
-                                    const dia = String(baseDate.getDate()).padStart(2, '0');
-                                    const novaDataSaida = `${ano}-${mes}-${dia}`;
-
-                                    alterados++;
-                                    return {
-                                        ...servico,
-                                        dataSaida: novaDataSaida,
-                                        // Após preencher a data de retorno, a flag deixa de ser "indeterminada"
-                                        dataSaidaIndeterminada: false
-                                    };
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        console.warn('Erro ao calcular data de retorno para serviço:', servico && servico.id, e);
-                    }
-                    return servico;
-                });
-
-                if (alterados === 0) {
-                    alert('Nenhum serviço com data de retorno indeterminada foi encontrado para atualização.');
-                    return;
-                }
-
-                await window.setData('manutencoesCadastradas', atualizados);
-                try { localStorage.setItem(CHAVE_PREENCHER_INDETERMINADAS, '1'); } catch (_) {}
-
-                await loadServicos();
-
-                alert(`Rotina concluída com sucesso.\n\nForam preenchidas ${alterados} data(s) de retorno com 7 dias após a data de saída.\nOs próximos cadastros continuam editáveis normalmente.`);
-            } catch (erro) {
-                console.error('Erro na rotina de preenchimento de datas indeterminadas:', erro);
-                alert('Ocorreu um erro ao preencher as datas de retorno. Verifique o console para mais detalhes.');
-            }
-        }
-
-        if (btnPreencherIndeterminadas) {
-            btnPreencherIndeterminadas.addEventListener('click', preencherDatasRetornoIndeterminadas);
-        }
-
         // --- FUNÇÃO PARA GERAR RELATÓRIO DO SISTEMA ---
         const btnRelatorio = document.getElementById('btnRelatorio');
         const btnAprovarOrcamento = document.getElementById('btnAprovarOrcamento');

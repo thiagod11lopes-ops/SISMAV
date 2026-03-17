@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabela de Faturamentos</title>
+    <title>Tabela de Faturamentos - Sistema de Arquivos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="indexeddb-service.js"></script>
     <style>
         :root {
             --primary-blue: #2563eb;
@@ -24,17 +23,12 @@
             box-sizing: border-box;
         }
         
-        html { font-size: 100%; }
-        
         body {
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            padding: 1.875rem;
+            padding: 30px;
             min-height: 100vh;
-            font-size: 1rem;
         }
-        
-        input, select, button, textarea, td, th, label { font-size: 1rem; }
         
         .container {
             max-width: 100%;
@@ -55,6 +49,30 @@
             border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid var(--primary-blue);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #fbbf24;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .success-box {
+            background: #d1fae5;
+            border-left: 4px solid var(--success-green);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
         }
         
         .form-grid {
@@ -121,6 +139,17 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(37, 99, 235, 0.6);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
         }
         
         .btn-danger {
@@ -222,11 +251,49 @@
         input[type="file"] {
             display: none;
         }
+        
+        #pastaInfo {
+            font-weight: bold;
+            color: var(--success-green);
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-file-invoice-dollar"></i> Tabela de Faturamentos</h1>
+        <h1><i class="fas fa-folder-open"></i> Tabela de Faturamentos - Sistema de Arquivos</h1>
+        
+        <!-- Configuração de Pasta -->
+        <div class="form-card">
+            <h2 style="margin-bottom: 20px; color: var(--dark-gray);"><i class="fas fa-cog"></i> Configuração</h2>
+            
+            <div class="info-box">
+                <p style="margin: 0; color: var(--dark-gray); font-size: 14px;">
+                    <i class="fas fa-info-circle" style="color: var(--primary-blue);"></i>
+                    <strong>Sistema de Arquivos:</strong> Os PDFs serão salvos diretamente em uma pasta do seu computador.
+                    Você precisa escolher a pasta onde os arquivos serão armazenados.
+                </p>
+            </div>
+            
+            <div id="pastaNaoConfigurada" class="warning-box">
+                <p style="margin: 0; color: #856404; font-size: 14px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #fbbf24;"></i>
+                    <strong>Pasta não configurada!</strong> Clique no botão abaixo para escolher a pasta onde os PDFs serão salvos.
+                </p>
+            </div>
+            
+            <div id="pastaConfigurada" class="success-box" style="display: none;">
+                <p style="margin: 0; color: #065f46; font-size: 14px;">
+                    <i class="fas fa-check-circle" style="color: var(--success-green);"></i>
+                    <strong>Pasta configurada:</strong> <span id="pastaInfo"></span>
+                </p>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-success" onclick="escolherPasta()">
+                    <i class="fas fa-folder-open"></i> Escolher Pasta de Armazenamento
+                </button>
+            </div>
+        </div>
         
         <!-- Formulário -->
         <div class="form-card">
@@ -266,27 +333,13 @@
         
         <!-- Tabela -->
         <div class="table-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="margin: 0; color: var(--dark-gray);"><i class="fas fa-table"></i> Faturamentos Cadastrados</h2>
-                
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <label for="filtroAno" style="font-weight: 600; color: var(--dark-gray);">
-                        <i class="fas fa-filter"></i> Filtrar por Ano:
-                    </label>
-                    <select id="filtroAno" onchange="aplicarFiltro()" style="padding: 10px 15px; border: 2px solid rgba(37, 99, 235, 0.2); border-radius: 8px; font-size: 14px; cursor: pointer;">
-                        <option value="">Todos os Anos</option>
-                    </select>
-                    <button onclick="limparFiltro()" class="btn btn-secondary" style="padding: 10px 20px; background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
-                        <i class="fas fa-times"></i> Limpar
-                    </button>
-                </div>
-            </div>
+            <h2 style="margin-bottom: 20px; color: var(--dark-gray);"><i class="fas fa-table"></i> Faturamentos Cadastrados</h2>
             <table id="tabelaFaturamentos">
                 <thead>
                     <tr>
                         <th>Número do Faturamento</th>
                         <th>Data do Faturamento</th>
-                        <th>PDF Anexado</th>
+                        <th>Arquivo PDF</th>
                         <th style="text-align: center;">Ações</th>
                     </tr>
                 </thead>
@@ -303,65 +356,67 @@
     </div>
 
     <script>
-        const FATURAMENTOS_KEY = 'faturamentos';
-        const getData = async () => {
-            const fn = window.getData || (window.parent && window.parent.getData);
-            if (typeof fn === 'function') { try { const v = await fn(FATURAMENTOS_KEY); return Array.isArray(v) ? v : []; } catch (e) {} }
-            try { return JSON.parse(localStorage.getItem(FATURAMENTOS_KEY) || '[]'); } catch (_) { return []; }
-        };
-        const setData = async (data) => {
-            const fn = window.setData || (window.parent && window.parent.setData);
-            if (typeof fn === 'function') { try { await fn(FATURAMENTOS_KEY, data); return; } catch (e) {} }
-            localStorage.setItem(FATURAMENTOS_KEY, JSON.stringify(data));
-        };
+        // Variável global para armazenar o handle da pasta
+        let pastaHandle = null;
+        
+        // Carregar dados do localStorage
+        const getData = () => JSON.parse(localStorage.getItem('faturamentosArquivos')) || [];
+        const setData = (data) => localStorage.setItem('faturamentosArquivos', JSON.stringify(data));
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            await carregarTabela();
-            await popularFiltroAno();
-        });
-
-        async function popularFiltroAno() {
-            const faturamentos = await getData();
-            const anos = new Set();
-            
-            faturamentos.forEach(fat => {
-                const ano = new Date(fat.data + 'T00:00:00').getFullYear();
-                anos.add(ano);
-            });
-            
-            const anosOrdenados = Array.from(anos).sort((a, b) => b - a);
-            const select = document.getElementById('filtroAno');
-            
-            // Limpar opções existentes (exceto "Todos")
-            select.innerHTML = '<option value="">Todos os Anos</option>';
-            
-            // Adicionar anos
-            anosOrdenados.forEach(ano => {
-                const option = document.createElement('option');
-                option.value = ano;
-                option.textContent = ano;
-                select.appendChild(option);
-            });
+        // Verificar se a API é suportada
+        if (!('showDirectoryPicker' in window)) {
+            alert('⚠️ AVISO: Seu navegador não suporta a API de Sistema de Arquivos.\n\nPor favor, use o Google Chrome ou Microsoft Edge atualizado.');
         }
 
-        async function carregarTabela(anoFiltro = '') {
-            const todosFaturamentos = await getData();
-            let faturamentos = todosFaturamentos;
+        // Carregar tabela ao iniciar
+        window.addEventListener('DOMContentLoaded', () => {
+            carregarTabela();
+            verificarPastaConfigurada();
+        });
+        
+        async function escolherPasta() {
+            try {
+                console.log('📁 Abrindo seletor de pasta...');
+                
+                // Solicitar permissão para acessar uma pasta
+                pastaHandle = await window.showDirectoryPicker({
+                    mode: 'readwrite'
+                });
+                
+                console.log('✅ Pasta selecionada:', pastaHandle.name);
+                
+                // Salvar referência da pasta (não funciona entre sessões, mas serve para a sessão atual)
+                localStorage.setItem('pastaNome', pastaHandle.name);
+                
+                document.getElementById('pastaNaoConfigurada').style.display = 'none';
+                document.getElementById('pastaConfigurada').style.display = 'block';
+                document.getElementById('pastaInfo').textContent = pastaHandle.name;
+                
+                alert(`✅ Pasta configurada com sucesso!\n\nPasta: ${pastaHandle.name}\n\nOs PDFs serão salvos nesta pasta.`);
+                
+            } catch (error) {
+                console.error('❌ Erro ao escolher pasta:', error);
+                if (error.name !== 'AbortError') {
+                    alert('❌ Erro ao escolher pasta: ' + error.message);
+                }
+            }
+        }
+        
+        function verificarPastaConfigurada() {
+            const pastaNome = localStorage.getItem('pastaNome');
+            if (pastaNome && pastaHandle) {
+                document.getElementById('pastaNaoConfigurada').style.display = 'none';
+                document.getElementById('pastaConfigurada').style.display = 'block';
+                document.getElementById('pastaInfo').textContent = pastaNome;
+            }
+        }
+
+        function carregarTabela() {
+            const faturamentos = getData();
+            const tbody = document.getElementById('corpoTabela');
             
             console.log('📊 Carregando tabela...');
-            console.log('Total de faturamentos:', todosFaturamentos.length);
-            console.log('Filtro de ano:', anoFiltro || 'Nenhum');
-            
-            // Aplicar filtro de ano se selecionado
-            if (anoFiltro) {
-                faturamentos = faturamentos.filter(fat => {
-                    const ano = new Date(fat.data + 'T00:00:00').getFullYear();
-                    return ano.toString() === anoFiltro;
-                });
-                console.log('Faturamentos após filtro:', faturamentos.length);
-            }
-            
-            const tbody = document.getElementById('corpoTabela');
+            console.log('Total de faturamentos:', faturamentos.length);
             
             if (faturamentos.length === 0) {
                 tbody.innerHTML = `
@@ -375,26 +430,19 @@
                 return;
             }
             
-            tbody.innerHTML = faturamentos.map((fat) => {
-                // Encontrar índice real no array completo
-                const indiceReal = todosFaturamentos.findIndex(f => f.numero === fat.numero && f.data === fat.data);
-                
+            tbody.innerHTML = faturamentos.map((fat, index) => {
                 const dataFormatada = new Date(fat.data + 'T00:00:00').toLocaleDateString('pt-BR');
-                const temPdf = fat.pdf ? 'Sim' : 'Não';
-                const btnDownload = fat.pdf 
-                    ? `<button class="action-btn btn-download" onclick="baixarPDF(${indiceReal})" title="Baixar PDF">
-                        <i class="fas fa-download"></i>
-                       </button>`
-                    : '';
                 
                 return `
                     <tr>
                         <td><strong>${fat.numero}</strong></td>
                         <td>${dataFormatada}</td>
-                        <td>${temPdf}</td>
+                        <td>${fat.nomeArquivo}</td>
                         <td style="text-align: center;">
-                            ${btnDownload}
-                            <button class="action-btn btn-delete" onclick="excluirFaturamento(${indiceReal})" title="Excluir">
+                            <button class="action-btn btn-download" onclick="abrirArquivo(${index})" title="Abrir PDF">
+                                <i class="fas fa-external-link-alt"></i>
+                            </button>
+                            <button class="action-btn btn-delete" onclick="excluirFaturamento(${index})" title="Excluir">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
@@ -410,6 +458,11 @@
             const data = document.getElementById('dataFaturamento').value;
             
             // Validações
+            if (!pastaHandle) {
+                alert('❌ Por favor, escolha uma pasta de armazenamento primeiro!');
+                return;
+            }
+            
             if (!numero) {
                 alert('❌ Por favor, selecione o número do faturamento!');
                 return;
@@ -431,183 +484,147 @@
             const data = document.getElementById('dataFaturamento').value;
             const pdfInput = document.getElementById('pdfInput');
             
-            console.log('Número:', numero);
-            console.log('Data:', data);
-            console.log('Arquivo selecionado:', pdfInput.files[0] ? pdfInput.files[0].name : 'Nenhum');
-            
             if (!pdfInput.files[0]) {
                 console.log('❌ Nenhum arquivo selecionado');
                 return;
             }
             
-            const faturamentos = await getData();
-            console.log('Faturamentos existentes:', faturamentos.length);
+            const arquivo = pdfInput.files[0];
+            console.log('Arquivo selecionado:', arquivo.name);
+            console.log('Tamanho:', (arquivo.size / 1024 / 1024).toFixed(2), 'MB');
             
-            const existe = faturamentos.some(f => f.numero === numero && f.data === data);
-            
-            if (existe) {
-                console.log('⚠️ Faturamento já existe');
-                const confirmar = confirm('⚠️ Já existe um faturamento com este número e data. Deseja substituir?');
-                if (!confirmar) {
-                    pdfInput.value = '';
-                    console.log('❌ Usuário cancelou substituição');
-                    return;
-                }
+            try {
+                // Criar nome do arquivo
+                const dataFormatada = data.replace(/-/g, '');
+                const nomeArquivo = `${numero.replace(' ', '_')}_${dataFormatada}.pdf`;
                 
-                // Remover o existente
-                const index = faturamentos.findIndex(f => f.numero === numero && f.data === data);
-                faturamentos.splice(index, 1);
-                console.log('✅ Faturamento existente removido');
-            }
-            
-            // Ler PDF
-            console.log('📖 Lendo arquivo PDF...');
-            const reader = new FileReader();
-            
-            reader.onerror = function(error) {
-                console.error('❌ Erro ao ler arquivo:', error);
-                alert('❌ Erro ao ler arquivo PDF!');
-            };
-            
-            reader.onload = async function(e) {
-                console.log('✅ Arquivo lido com sucesso');
-                const pdfBase64 = e.target.result;
-                const tamanhoMB = (pdfBase64.length / 1024 / 1024).toFixed(2);
-                console.log('Tamanho do PDF (base64):', pdfBase64.length, 'caracteres');
-                console.log('Tamanho do PDF:', tamanhoMB, 'MB');
+                console.log('Nome do arquivo:', nomeArquivo);
                 
-                if (pdfBase64.length > 5000000) {
-                    const continuar = confirm(
-                        `⚠️ AVISO: Arquivo Grande!\n\n` +
-                        `O arquivo selecionado tem ${tamanhoMB} MB.\n` +
-                        `Arquivos muito grandes podem:\n` +
-                        `• Exceder o limite do navegador\n` +
-                        `• Tornar o sistema lento\n` +
-                        `• Causar erros ao salvar\n\n` +
-                        `Recomendamos usar arquivos menores que 3 MB.\n\n` +
-                        `Deseja continuar mesmo assim?`
-                    );
-                    
-                    if (!continuar) {
+                // Criar arquivo na pasta escolhida
+                const fileHandle = await pastaHandle.getFileHandle(nomeArquivo, { create: true });
+                
+                // Escrever conteúdo do arquivo
+                const writable = await fileHandle.createWritable();
+                await writable.write(arquivo);
+                await writable.close();
+                
+                console.log('✅ Arquivo salvo com sucesso!');
+                
+                // Salvar registro no localStorage
+                const faturamentos = getData();
+                
+                // Verificar se já existe
+                const existe = faturamentos.some(f => f.numero === numero && f.data === data);
+                
+                if (existe) {
+                    const confirmar = confirm('⚠️ Já existe um faturamento com este número e data. Deseja substituir?');
+                    if (!confirmar) {
                         pdfInput.value = '';
-                        console.log('❌ Usuário cancelou devido ao tamanho');
                         return;
                     }
+                    
+                    // Remover o existente
+                    const index = faturamentos.findIndex(f => f.numero === numero && f.data === data);
+                    faturamentos.splice(index, 1);
                 }
                 
-                const novoFaturamento = {
+                faturamentos.push({
                     numero: numero,
                     data: data,
-                    pdf: pdfBase64
-                };
+                    nomeArquivo: nomeArquivo
+                });
                 
-                faturamentos.push(novoFaturamento);
-                console.log('✅ Faturamento adicionado ao array');
-                
+                // Ordenar por número
                 faturamentos.sort((a, b) => {
                     const numA = parseInt(a.numero.match(/\d+/)[0]);
                     const numB = parseInt(b.numero.match(/\d+/)[0]);
                     return numA - numB;
                 });
-                console.log('✅ Faturamentos ordenados');
                 
-                try {
-                    await setData(faturamentos);
-                    console.log('✅ Dados salvos (IndexedDB + localStorage)');
-                    
-                    const verificacao = await getData();
-                    console.log('Verificação - Total após salvar:', verificacao.length);
-                    
-                    await carregarTabela();
-                    await popularFiltroAno();
-                    
-                    document.getElementById('numeroFaturamento').value = '';
-                    document.getElementById('dataFaturamento').value = '';
-                    pdfInput.value = '';
-                    
-                    console.log('✅ Processo concluído!');
-                    alert('✅ Faturamento fixado com sucesso!');
-                    
-                } catch (error) {
-                    console.error('❌ Erro ao salvar:', error);
-                    
-                    // Remover o faturamento que não foi salvo
-                    const index = faturamentos.findIndex(f => f.numero === numero && f.data === data);
-                    if (index !== -1) {
-                        faturamentos.splice(index, 1);
-                    }
-                    
-                    if (error.name === 'QuotaExceededError') {
-                        alert(
-                            `❌ ERRO: Espaço Insuficiente!\n\n` +
-                            `O arquivo é muito grande (${tamanhoMB} MB) e excedeu o limite de armazenamento do navegador.\n\n` +
-                            `SOLUÇÕES:\n` +
-                            `1. Use um arquivo PDF menor (recomendado: < 3 MB)\n` +
-                            `2. Comprima o PDF antes de anexar\n` +
-                            `3. Remova faturamentos antigos para liberar espaço\n` +
-                            `4. Faça backup e limpe dados antigos\n\n` +
-                            `DICA: Use ferramentas online para comprimir PDFs:\n` +
-                            `• ilovepdf.com\n` +
-                            `• smallpdf.com`
-                        );
-                    } else {
-                        alert(`❌ Erro ao salvar faturamento: ${error.message}`);
-                    }
-                    
-                    pdfInput.value = '';
-                }
-            };
-            
-            reader.readAsDataURL(pdfInput.files[0]);
+                setData(faturamentos);
+                carregarTabela();
+                
+                // Limpar formulário
+                document.getElementById('numeroFaturamento').value = '';
+                document.getElementById('dataFaturamento').value = '';
+                pdfInput.value = '';
+                
+                alert(`✅ Faturamento fixado com sucesso!\n\nArquivo salvo: ${nomeArquivo}\nPasta: ${pastaHandle.name}`);
+                
+            } catch (error) {
+                console.error('❌ Erro ao salvar arquivo:', error);
+                alert('❌ Erro ao salvar arquivo: ' + error.message);
+                pdfInput.value = '';
+            }
         }
 
-        function aplicarFiltro() {
-            const anoSelecionado = document.getElementById('filtroAno').value;
-            carregarTabela(anoSelecionado);
-        }
-
-        function limparFiltro() {
-            document.getElementById('filtroAno').value = '';
-            carregarTabela();
-        }
-
-        async function baixarPDF(index) {
-            const faturamentos = await getData();
+        async function abrirArquivo(index) {
+            const faturamentos = getData();
             const faturamento = faturamentos[index];
             
-            if (!faturamento.pdf) {
-                alert('❌ Este faturamento não possui PDF anexado!');
+            if (!pastaHandle) {
+                alert('❌ Pasta não configurada! Por favor, escolha a pasta novamente.');
                 return;
             }
             
-            // Criar link de download
-            const link = document.createElement('a');
-            link.href = faturamento.pdf;
-            link.download = `${faturamento.numero.replace(' ', '_')}_${faturamento.data}.pdf`;
-            link.click();
-            
-            alert('✅ PDF baixado com sucesso!');
+            try {
+                console.log('📂 Abrindo arquivo:', faturamento.nomeArquivo);
+                
+                // Obter handle do arquivo
+                const fileHandle = await pastaHandle.getFileHandle(faturamento.nomeArquivo);
+                
+                // Ler arquivo
+                const file = await fileHandle.getFile();
+                
+                // Criar URL e abrir em nova aba
+                const url = URL.createObjectURL(file);
+                window.open(url, '_blank');
+                
+                console.log('✅ Arquivo aberto com sucesso!');
+                
+            } catch (error) {
+                console.error('❌ Erro ao abrir arquivo:', error);
+                alert(`❌ Erro ao abrir arquivo!\n\nO arquivo pode ter sido movido ou excluído.\n\nErro: ${error.message}`);
+            }
         }
 
         async function excluirFaturamento(index) {
-            const faturamentos = await getData();
+            const faturamentos = getData();
             const faturamento = faturamentos[index];
             
             const confirmar = confirm(
                 `⚠️ EXCLUIR FATURAMENTO\n\n` +
                 `Número: ${faturamento.numero}\n` +
-                `Data: ${new Date(faturamento.data + 'T00:00:00').toLocaleDateString('pt-BR')}\n\n` +
-                `Deseja realmente excluir este faturamento?`
+                `Data: ${new Date(faturamento.data + 'T00:00:00').toLocaleDateString('pt-BR')}\n` +
+                `Arquivo: ${faturamento.nomeArquivo}\n\n` +
+                `Deseja realmente excluir este faturamento?\n\n` +
+                `ATENÇÃO: O arquivo PDF também será excluído da pasta!`
             );
             
             if (!confirmar) return;
             
-            faturamentos.splice(index, 1);
-            await setData(faturamentos);
-            await popularFiltroAno();
-            await carregarTabela();
-            
-            alert('✅ Faturamento excluído com sucesso!');
+            try {
+                // Tentar excluir o arquivo físico
+                if (pastaHandle) {
+                    try {
+                        await pastaHandle.removeEntry(faturamento.nomeArquivo);
+                        console.log('✅ Arquivo físico excluído');
+                    } catch (error) {
+                        console.warn('⚠️ Não foi possível excluir o arquivo físico:', error);
+                    }
+                }
+                
+                // Remover do localStorage
+                faturamentos.splice(index, 1);
+                setData(faturamentos);
+                carregarTabela();
+                
+                alert('✅ Faturamento excluído com sucesso!');
+                
+            } catch (error) {
+                console.error('❌ Erro ao excluir:', error);
+                alert('❌ Erro ao excluir faturamento: ' + error.message);
+            }
         }
     </script>
 </body>

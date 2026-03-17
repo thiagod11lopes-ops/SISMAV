@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup do Sistema</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #4a69bd;
+            --secondary-blue: #6c88c9;
+            --gray: #dcdcdc;
+            --dark-gray: #333d47;
+            --white: #ffffff;
+            --light-gray-bg: #f9f9f9;
+            --success-green: #28a745;
+            --warning-orange: #fd7e14;
+            --delete-red: #dc3545;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: var(--dark-gray);
+            background-color: var(--light-gray-bg);
+        }
+        .main-title {
+            font-size: 22px;
+            color: var(--primary-blue);
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--gray);
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .card-title {
+            font-size: 18px;
+            color: var(--primary-blue);
+            margin-top: 0;
+            border-bottom: 2px solid var(--primary-blue);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-description {
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .pasta-destino {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background-color: #e7f3ff;
+            border-left: 3px solid var(--primary-blue);
+            border-radius: 5px;
+            font-size: 14px;
+            color: var(--dark-gray);
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .pasta-destino i {
+            color: var(--primary-blue);
+            flex-shrink: 0;
+        }
+        
+        .pasta-destino span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .btn {
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transform: translateZ(0);
+        }
+        .btn:hover {
+            transform: translateY(-2px) translateZ(0);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-success {
+            background-color: var(--success-green);
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-warning {
+            background-color: var(--warning-orange);
+        }
+        .btn-warning:hover {
+            background-color: #e66a00;
+        }
+        .btn-danger {
+            background-color: var(--delete-red);
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .info-box {
+            background-color: #e7f3ff;
+            border-left: 4px solid var(--primary-blue);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info-box i {
+            color: var(--primary-blue);
+            margin-right: 10px;
+        }
+        .warning-box {
+            background-color: #fff3cd;
+            border-left: 4px solid var(--warning-orange);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning-box i {
+            color: var(--warning-orange);
+            margin-right: 10px;
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background-color: var(--warning-orange);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            transform: translateZ(0);
+        }
+        .file-input-label:hover {
+            background-color: #e66a00;
+            transform: translateY(-2px) translateZ(0);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        /* Modal de informação de backup */
+        .backup-info-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .backup-info-modal.show {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .backup-info-modal-content {
+            background: var(--white);
+            padding: 30px 40px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+        
+        .backup-info-modal-content h3 {
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .backup-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f0f9ff;
+        }
+        
+        .backup-status.processando {
+            background: #fef3c7;
+        }
+        
+        .backup-status.concluido {
+            background: #d1fae5;
+        }
+        
+        .backup-status.erro {
+            background: #fee2e2;
+        }
+        
+        .backup-status i {
+            font-size: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        .backup-status.concluido i,
+        .backup-status.erro i {
+            animation: none;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .backup-info-modal-content .info-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+        
+        .backup-info-modal-content .info-item label {
+            font-weight: bold;
+            color: var(--primary-blue);
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .backup-info-modal-content .info-item span {
+            color: var(--dark-gray);
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        
+        .backup-info-modal-content .btn-fechar {
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            width: 100%;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            transform: translateZ(0);
+        }
+        
+        .backup-info-modal-content .btn-fechar:hover {
+            background: var(--secondary-blue);
+            transform: translateY(-2px) translateZ(0);
+        }
+        
+        .backup-simple-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        .backup-simple-buttons .btn {
+            min-width: 180px;
+        }
+    </style>
+    <script src="indexeddb-service.js"></script>
+</head>
+<body>
+    <!-- Modal de informação de backup -->
+    <div id="backupInfoModal" class="backup-info-modal">
+        <div class="backup-info-modal-content">
+            <h3>
+                <i class="fas fa-database"></i>
+                Informação do Backup
+            </h3>
+            <div id="backupInfoContent">
+                <div class="backup-status processando" id="backupStatus">
+                    <i class="fas fa-spinner"></i>
+                    <span>Processando backup...</span>
+                </div>
+                <div class="info-item" id="backupLocal">
+                    <label>Local de Armazenamento:</label>
+                    <span id="backupLocalText">Carregando...</span>
+                </div>
+                <div class="info-item" id="backupCaminho">
+                    <label>Caminho:</label>
+                    <span id="backupCaminhoText">Carregando...</span>
+                </div>
+                <div class="info-item" id="backupArquivo">
+                    <label>Arquivo:</label>
+                    <span id="backupArquivoText">-</span>
+                </div>
+                <div class="info-item" id="backupData">
+                    <label>Data/Hora:</label>
+                    <span id="backupDataText">-</span>
+                </div>
+                <button class="btn-fechar" onclick="fecharModalBackup()" id="btnFecharModal" style="display: none;">
+                    <i class="fas fa-check"></i> Entendi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="main-title"><i class="fas fa-database"></i> Backup</h2>
+
+    <div class="card">
+        <div class="backup-simple-buttons">
+            <button type="button" class="btn btn-success" onclick="salvarBackup()">
+                <i class="fas fa-download"></i> Fazer backup
+            </button>
+            <label for="fileInput" class="btn btn-warning" style="margin: 0; cursor: pointer;">
+                <i class="fas fa-upload"></i> Carregar backup
+            </label>
+            <input type="file" id="fileInput" accept=".json,application/json,*" style="display: none;" onchange="carregarBackup(event)" title="Selecione o arquivo de backup (ex: SISMAV_Backup_2026-02-06T14-16-02.json na pasta Downloads)">
+        </div>
+    </div>
+
+    <script>
+        // Variável global para armazenar o handle do diretório escolhido
+        let diretorioHandle = null;
+
+        // Atualizar estatísticas ao carregar a página (se existirem elementos)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof atualizarEstatisticas === 'function') atualizarEstatisticas();
+            
+            // Verificar se há informação de pasta escolhida anteriormente no localStorage
+            // (apenas para informação, não podemos restaurar o handle)
+            const pastaInfo = localStorage.getItem('sismavPastaBackup');
+            if (pastaInfo) {
+                try {
+                    const info = JSON.parse(pastaInfo);
+                    console.log('Informação de pasta encontrada no localStorage:', info.nome);
+                    console.log('Nota: O diretorioHandle precisa ser escolhido novamente se o iframe foi recarregado.');
+                    
+                    // Exibir a pasta no indicador ao lado do botão (se disponível)
+                    const pastaDestinoDiv = document.getElementById('pastaDestino');
+                    const nomePastaDestinoSpan = document.getElementById('nomePastaDestino');
+                    if (pastaDestinoDiv && nomePastaDestinoSpan && diretorioHandle) {
+                        nomePastaDestinoSpan.textContent = diretorioHandle.name;
+                        pastaDestinoDiv.style.display = 'inline-flex';
+                    } else if (pastaDestinoDiv && nomePastaDestinoSpan) {
+                        // Se houver informação mas não o handle, mostrar apenas o nome
+                        nomePastaDestinoSpan.textContent = info.nome + ' (reconectar)';
+                        pastaDestinoDiv.style.display = 'inline-flex';
+                        pastaDestinoDiv.style.opacity = '0.7';
+                    }
+                } catch (e) {
+                    console.error('Erro ao ler informação da pasta:', e);
+                }
+            }
+        });
+
+        // Escutar mensagens de outras janelas
+        window.addEventListener('message', async function(event) {
+            console.log('Backup.html recebeu mensagem:', event.data);
+            
+            // Nova mensagem para executar backup geral
+            if (event.data && event.data.type === 'EXECUTAR_BACKUP_GERAL') {
+                console.log('Executando backup geral solicitado...');
+                console.log('diretorioHandle atual:', diretorioHandle);
+                
+                try {
+                    // Verificar se há informação de pasta no localStorage
+                    const pastaInfo = localStorage.getItem('sismavPastaBackup');
+                    console.log('Informação de pasta no localStorage:', pastaInfo);
+                    
+                    // Verificar se estamos em um iframe
+                    let estaEmIframe = false;
+                    try {
+                        estaEmIframe = window.self !== window.top;
+                    } catch (e) {
+                        estaEmIframe = true;
+                    }
+                    
+                    // Se não houver diretorioHandle, tentar reobter acesso à pasta
+                    // IMPORTANTE: Tentar mesmo em iframe, pode funcionar em alguns navegadores
+                    if (!diretorioHandle && window.showDirectoryPicker && pastaInfo) {
+                        try {
+                            const info = JSON.parse(pastaInfo);
+                            console.warn('⚠️ diretorioHandle não disponível. Tentando reobter acesso à pasta:', info.nome);
+                            
+                            if (estaEmIframe) {
+                                console.warn('⚠️ ATENÇÃO: Tentando reobter handle em iframe (pode não funcionar devido a restrições do navegador)');
+                                console.warn('⚠️ Se não funcionar, o backup será feito via download');
+                            }
+                            
+                            // Tentar escolher a pasta novamente
+                            diretorioHandle = await window.showDirectoryPicker();
+                            console.log('✅ Pasta escolhida novamente:', diretorioHandle.name);
+                            
+                            // Atualizar localStorage
+                            localStorage.setItem('sismavPastaBackup', JSON.stringify({
+                                nome: diretorioHandle.name,
+                                timestamp: Date.now()
+                            }));
+                            
+                            // Atualizar exibição se os elementos existirem
+                            const pastaDestinoDiv = document.getElementById('pastaDestino');
+                            const nomePastaDestinoSpan = document.getElementById('nomePastaDestino');
+                            if (pastaDestinoDiv && nomePastaDestinoSpan) {
+                                nomePastaDestinoSpan.textContent = diretorioHandle.name;
+                                pastaDestinoDiv.style.display = 'inline-flex';
+                                pastaDestinoDiv.style.opacity = '1';
+                            }
+                        } catch (error) {
+                            if (error.name === 'AbortError') {
+                                console.log('❌ Usuário cancelou a seleção de pasta. Fazendo download...');
+                            } else {
+                                console.error('❌ Erro ao reobter acesso à pasta:', error);
+                                if (estaEmIframe) {
+                                    console.error('❌ Isso é esperado em iframes devido a restrições de segurança do navegador');
+                                }
+                            }
+                            // Continuar sem pasta - será feito download
+                        }
+                    } else if (!diretorioHandle) {
+                        if (!pastaInfo) {
+                            console.log('⚠️ Nenhuma pasta foi escolhida anteriormente. Fazendo download...');
+                        } else if (!window.showDirectoryPicker) {
+                            console.log('⚠️ File System Access API não disponível. Fazendo download...');
+                        }
+                    }
+                    
+                    // Executar backup sem mostrar alertas (mostrarAlerta = false)
+                    // Verificar se temos diretorioHandle antes de executar
+                    if (diretorioHandle) {
+                        console.log('✅ diretorioHandle disponível! Salvando na pasta:', diretorioHandle.name);
+                    } else {
+                        console.warn('⚠️ diretorioHandle NÃO disponível. O backup será feito via download.');
+                    }
+                    
+                    await salvarBackup(false);
+                    // Enviar resposta de sucesso
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'BACKUP_GERAL_CONCLUIDO'
+                        }, '*');
+                    }
+                } catch (error) {
+                    console.error('❌ Erro ao executar backup geral:', error);
+                    // Enviar resposta de erro
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'BACKUP_GERAL_ERRO',
+                            erro: error.message || 'Erro desconhecido ao fazer backup'
+                        }, '*');
+                    }
+                }
+                return;
+            }
+            
+            // Verificar origem da mensagem por segurança
+            if (event.data && event.data.type === 'SALVAR_BACKUP_COM_PASTA') {
+                console.log('Tipo de mensagem correto. Verificando diretorioHandle...');
+                
+                // Verificar se há informação de pasta no localStorage
+                const pastaInfo = localStorage.getItem('sismavPastaBackup');
+                console.log('Informação de pasta no localStorage:', pastaInfo);
+                console.log('diretorioHandle atual:', diretorioHandle);
+                
+                try {
+                    // Se não houver diretorioHandle, tentar escolher novamente se a API estiver disponível
+                    // Nota: O diretorioHandle não pode ser serializado, então se o iframe foi recarregado, foi perdido
+                    // Tentaremos abrir o seletor de pastas automaticamente
+                    if (!diretorioHandle && window.showDirectoryPicker) {
+                        console.warn('⚠️ diretorioHandle não disponível. Tentando escolher pasta novamente...');
+                        
+                        if (pastaInfo) {
+                            const info = JSON.parse(pastaInfo);
+                            console.log('Pasta anteriormente escolhida:', info.nome);
+                            console.log('O handle foi perdido. Abrindo seletor de pastas...');
+                        }
+                        
+                        try {
+                            // Tentar escolher a pasta novamente (o seletor será aberto)
+                            diretorioHandle = await window.showDirectoryPicker();
+                            console.log('✅ Pasta escolhida novamente:', diretorioHandle.name);
+                            
+                            // Atualizar localStorage
+                            localStorage.setItem('sismavPastaBackup', JSON.stringify({
+                                nome: diretorioHandle.name,
+                                timestamp: Date.now()
+                            }));
+                            
+                            // Atualizar exibição
+                            const pastaDestinoDiv = document.getElementById('pastaDestino');
+                            const nomePastaDestinoSpan = document.getElementById('nomePastaDestino');
+                            if (pastaDestinoDiv && nomePastaDestinoSpan) {
+                                nomePastaDestinoSpan.textContent = diretorioHandle.name;
+                                pastaDestinoDiv.style.display = 'inline-flex';
+                                pastaDestinoDiv.style.opacity = '1';
+                            }
+                        } catch (error) {
+                            if (error.name === 'AbortError') {
+                                console.log('Usuário cancelou a seleção de pasta.');
+                            } else {
+                                console.error('Erro ao tentar escolher pasta:', error);
+                            }
+                            // Continuar sem pasta - será feito download
+                        }
+                    }
+                    
+                    if (diretorioHandle) {
+                        console.log('✅ diretorioHandle encontrado! Salvando backup na pasta:', diretorioHandle.name);
+                        // Coletar todos os dados do armazenamento (IndexedDB) para incluir todas as alterações
+                        const getData = (window.getData || (window.parent && window.parent.getData) || async (k) => { const v = localStorage.getItem(k); if (v == null) return null; try { return JSON.parse(v); } catch (_) { return v; } });
+                        const backup = {
+                            versao: '3.0',
+                            dataBackup: new Date().toISOString(),
+                            dados: {
+                                manutencoesCadastradas: (await getData('manutencoesCadastradas')) || [],
+                                viaturasCadastradas: (await getData('viaturasCadastradas')) || [],
+                                empenhos: (await getData('empenhos')) || [],
+                                solemps: (await getData('solemps')) || [],
+                                valoresCadastrados: (await getData('valoresCadastrados')) || [],
+                                orcamentos_pagamentos: (await getData('orcamentos_pagamentos')) || [],
+                                orcamentos_compras: (await getData('orcamentos_compras')) || [],
+                                faturamentos: (await getData('faturamentos')) || [],
+                                fainas_pendentes: (await getData('fainas_pendentes')) || [],
+                                fainas_andamento: (await getData('fainas_andamento')) || [],
+                                fainas_finalizadas: (await getData('fainas_finalizadas')) || [],
+                                fainas_anotacoes: (await getData('fainas_anotacoes')) || [],
+                                viaturasOficina: (await getData('viaturasOficina')) || [],
+                                sismavActiveTab: (await getData('sismavActiveTab')) || 'servicos',
+                                sismavVersao: (await getData('sismavVersao')) || null,
+                                sismavUltimoBackup: (await getData('sismavUltimoBackup')) || null
+                            }
+                        };
+
+                        // Converter para JSON
+                        const jsonString = JSON.stringify(backup, null, 2);
+                        
+                        // Nome do arquivo com data e hora
+                        const dataAtual = new Date();
+                        const dataFormatada = dataAtual.toISOString().slice(0, 19).replace(/:/g, '-');
+                        const nomeArquivo = `SISMAV_Backup_${dataFormatada}.json`;
+
+                        // Salvar no diretório escolhido
+                        const fileHandle = await diretorioHandle.getFileHandle(nomeArquivo, { create: true });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(jsonString);
+                        await writable.close();
+                        
+                        // Enviar resposta de sucesso
+                        console.log('Backup salvo com sucesso. Enviando resposta...');
+                        // Enviar para a janela pai (SISMAV.html)
+                        if (window.parent && window.parent !== window) {
+                            console.log('Enviando mensagem para window.parent (SISMAV.html)');
+                            window.parent.postMessage({
+                                type: 'BACKUP_SALVO_SUCESSO',
+                                nomeArquivo: nomeArquivo,
+                                pasta: diretorioHandle.name
+                            }, '*');
+                        }
+                    } else {
+                        // Se não houver pasta escolhida, enviar resposta indicando que precisa fazer download
+                        console.warn('❌ diretorioHandle não encontrado!');
+                        console.warn('Isso pode acontecer se:');
+                        console.warn('1. O iframe foi recarregado após escolher a pasta');
+                        console.warn('2. A pasta ainda não foi escolhida');
+                        console.warn('3. O navegador não suporta File System Access API');
+                        
+                        if (window.parent && window.parent !== window) {
+                            console.log('Enviando mensagem BACKUP_SEM_PASTA para window.parent (SISMAV.html)');
+                            window.parent.postMessage({
+                                type: 'BACKUP_SEM_PASTA',
+                                mensagem: 'A pasta precisa ser escolhida novamente na aba Backup. O handle do diretório foi perdido.'
+                            }, '*');
+                        }
+                    }
+                } catch (error) {
+                    // Enviar resposta de erro
+                    console.error('Erro ao salvar backup:', error);
+                    if (window.parent && window.parent !== window) {
+                        window.parent.postMessage({
+                            type: 'BACKUP_ERRO',
+                            erro: error.message
+                        }, '*');
+                    }
+                    if (event.source && event.source !== window) {
+                        event.source.postMessage({
+                            type: 'BACKUP_ERRO',
+                            erro: error.message
+                        }, '*');
+                    }
+                }
+            }
+        });
+
+        async function escolherPasta() {
+            try {
+                // Verificar se estamos em um iframe
+                let estaEmIframe = false;
+                try {
+                    estaEmIframe = window.self !== window.top;
+                } catch (e) {
+                    // Se não conseguir verificar, assumir que está em iframe
+                    estaEmIframe = true;
+                }
+                
+                // Se estiver em iframe, solicitar à janela principal que escolha a pasta
+                // Isso permite que a janela principal mantenha o handle em memória
+                if (estaEmIframe) {
+                    console.log('Em iframe - solicitando à janela principal que escolha a pasta...');
+                    if (window.parent && window.parent !== window) {
+                        // Solicitar à janela principal que escolha a pasta
+                        window.parent.postMessage({
+                            type: 'SOLICITAR_ESCOLHER_PASTA_BACKUP'
+                        }, '*');
+                        
+                        // Aguardar resposta da janela principal
+                        const resposta = await new Promise((resolve) => {
+                            const timeout = setTimeout(() => {
+                                resolve({ sucesso: false, motivo: 'timeout' });
+                            }, 60000); // 60 segundos para escolher a pasta
+                            
+                            const messageHandler = function(event) {
+                                if (event.data && event.data.type === 'PASTA_BACKUP_ESCOLHIDA_RESPOSTA') {
+                                    clearTimeout(timeout);
+                                    window.removeEventListener('message', messageHandler);
+                                    resolve({ 
+                                        sucesso: event.data.sucesso, 
+                                        nomePasta: event.data.nomePasta,
+                                        motivo: event.data.motivo 
+                                    });
+                                }
+                            };
+                            
+                            window.addEventListener('message', messageHandler);
+                        });
+                        
+                        if (resposta.sucesso && resposta.nomePasta) {
+                            // Atualizar localStorage com a informação da pasta
+                            localStorage.setItem('sismavPastaBackup', JSON.stringify({
+                                nome: resposta.nomePasta,
+                                timestamp: Date.now()
+                            }));
+                            
+                            // Exibir a pasta selecionada ao lado do botão
+                            const pastaDestinoDiv = document.getElementById('pastaDestino');
+                            const nomePastaDestinoSpan = document.getElementById('nomePastaDestino');
+                            if (pastaDestinoDiv && nomePastaDestinoSpan) {
+                                nomePastaDestinoSpan.textContent = resposta.nomePasta;
+                                pastaDestinoDiv.style.display = 'inline-flex';
+                                pastaDestinoDiv.style.opacity = '1';
+                            }
+                            
+                            console.log('✅ Pasta escolhida pela janela principal:', resposta.nomePasta);
+                            alert('✅ Pasta escolhida com sucesso!\n\nA pasta "' + resposta.nomePasta + '" foi selecionada e será usada para todos os backups automáticos.');
+                        } else {
+                            console.warn('Pasta não foi escolhida:', resposta.motivo);
+                            if (resposta.motivo !== 'cancelado') {
+                                alert('⚠️ Não foi possível escolher a pasta: ' + (resposta.motivo || 'Erro desconhecido'));
+                            }
+                        }
+                    }
+                    return;
+                }
+                
+                // Se não estiver em iframe, escolher pasta diretamente
+                // Verificar se a File System Access API está disponível
+                if (!window.showDirectoryPicker) {
+                    alert('⚠️ Seu navegador não suporta a seleção de pastas.\n\nPor favor, use o Chrome, Edge ou outro navegador baseado em Chromium.');
+                    return;
+                }
+
+                // Abrir o diálogo para escolher o diretório
+                diretorioHandle = await window.showDirectoryPicker();
+                
+                // Salvar informação da pasta no localStorage para compartilhar com outras páginas
+                localStorage.setItem('sismavPastaBackup', JSON.stringify({
+                    nome: diretorioHandle.name,
+                    timestamp: Date.now()
+                }));
+                
+                // Notificar a janela principal que uma pasta foi escolhida
+                // A janela principal também obterá o handle para manter em memória
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'PASTA_BACKUP_ESCOLHIDA',
+                        nomePasta: diretorioHandle.name
+                    }, '*');
+                }
+                
+                // Exibir a pasta selecionada ao lado do botão
+                const pastaDestinoDiv = document.getElementById('pastaDestino');
+                const nomePastaDestinoSpan = document.getElementById('nomePastaDestino');
+                if (pastaDestinoDiv && nomePastaDestinoSpan) {
+                    nomePastaDestinoSpan.textContent = diretorioHandle.name;
+                    pastaDestinoDiv.style.display = 'inline-flex';
+                    pastaDestinoDiv.style.opacity = '1';
+                }
+                
+                console.log('Pasta selecionada:', diretorioHandle.name);
+                console.log('diretorioHandle armazenado:', diretorioHandle);
+            } catch (error) {
+                // Se o usuário cancelar, não fazer nada
+                if (error.name === 'AbortError') {
+                    return;
+                }
+                
+                // Se for erro de cross-origin ou sub-frame, oferecer abrir em nova janela
+                if (error.message && (error.message.includes('Cross origin') || error.message.includes('sub frames') || error.message.includes('subframes'))) {
+                    const resposta = confirm(
+                        '⚠️ A seleção de pasta não pode ser feita nesta aba.\n\n' +
+                        'Deseja abrir a página de Backup em uma nova janela para usar esta funcionalidade?\n\n' +
+                        'Clique em "OK" para abrir em nova janela ou "Cancelar" para continuar usando o download tradicional.'
+                    );
+                    if (resposta) {
+                        window.open('Backup.html', '_blank', 'width=1200,height=800');
+                    }
+                } else {
+                    alert('❌ Erro ao escolher pasta: ' + error.message);
+                    console.error('Erro ao escolher pasta:', error);
+                }
+            }
+        }
+
+        // Funções para gerenciar backups no OPFS
+        async function listarBackupsOPFS() {
+            const container = document.getElementById('opfs-backups-list');
+            container.innerHTML = '<p style="text-align: center; color: #6b7280;">Carregando backups...</p>';
+            
+            try {
+                // Verificar se OPFS está disponível
+                if (!('storage' in navigator) || !navigator.storage.getDirectory) {
+                    container.innerHTML = '<p style="text-align: center; color: #dc3545;">⚠️ OPFS não está disponível neste navegador.</p>';
+                    return;
+                }
+
+                // Obter diretório de backups
+                const root = await navigator.storage.getDirectory();
+                let backupsDir;
+                try {
+                    backupsDir = await root.getDirectoryHandle('backups');
+                } catch (e) {
+                    container.innerHTML = '<p style="text-align: center; color: #6b7280;">Nenhum backup encontrado no OPFS.</p>';
+                    return;
+                }
+
+                // Listar arquivos
+                const backups = [];
+                for await (const [nome, handle] of backupsDir.entries()) {
+                    if (handle.kind === 'file' && nome.endsWith('.json')) {
+                        try {
+                            const file = await handle.getFile();
+                            backups.push({
+                                nome: nome,
+                                tamanho: file.size,
+                                dataModificacao: file.lastModified,
+                                handle: handle
+                            });
+                        } catch (e) {
+                            console.error('Erro ao ler arquivo:', nome, e);
+                        }
+                    }
+                }
+
+                // Ordenar por data (mais recente primeiro)
+                backups.sort((a, b) => b.dataModificacao - a.dataModificacao);
+
+                if (backups.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #6b7280;">Nenhum backup encontrado no OPFS.</p>';
+                    return;
+                }
+
+                // Exibir lista
+                let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                backups.forEach((backup, index) => {
+                    const dataFormatada = new Date(backup.dataModificacao).toLocaleString('pt-BR');
+                    const tamanhoFormatado = formatarTamanho(backup.tamanho);
+                    
+                    html += `
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: #f9f9f9; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; color: var(--primary-blue); margin-bottom: 5px;">${backup.nome}</div>
+                                <div style="font-size: 12px; color: #6b7280;">
+                                    <i class="fas fa-calendar"></i> ${dataFormatada} | 
+                                    <i class="fas fa-file"></i> ${tamanhoFormatado}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn" style="background-color: var(--primary-blue); padding: 8px 15px; font-size: 14px;" 
+                                        onclick="baixarBackupOPFS('${backup.nome}')" title="Baixar backup">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn" style="background-color: var(--success-green); padding: 8px 15px; font-size: 14px;" 
+                                        onclick="restaurarBackupOPFS('${backup.nome}')" title="Restaurar backup">
+                                    <i class="fas fa-upload"></i>
+                                </button>
+                                <button class="btn" style="background-color: var(--delete-red); padding: 8px 15px; font-size: 14px;" 
+                                        onclick="excluirBackupOPFS('${backup.nome}')" title="Excluir backup">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+
+                // Armazenar handles em um objeto global para acesso posterior
+                window.opfsBackupsHandles = {};
+                backups.forEach(backup => {
+                    window.opfsBackupsHandles[backup.nome] = backup.handle;
+                });
+
+            } catch (error) {
+                console.error('Erro ao listar backups do OPFS:', error);
+                container.innerHTML = '<p style="text-align: center; color: #dc3545;">❌ Erro ao carregar backups: ' + error.message + '</p>';
+            }
+        }
+
+        function formatarTamanho(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const tamanhos = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + tamanhos[i];
+        }
+
+        async function baixarBackupOPFS(nomeArquivo) {
+            try {
+                if (!window.opfsBackupsHandles || !window.opfsBackupsHandles[nomeArquivo]) {
+                    alert('❌ Handle do arquivo não encontrado. Por favor, atualize a lista.');
+                    return;
+                }
+
+                const handle = window.opfsBackupsHandles[nomeArquivo];
+                const file = await handle.getFile();
+                const blob = new Blob([await file.arrayBuffer()], { type: 'application/json' });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nomeArquivo;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert('✅ Backup baixado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao baixar backup:', error);
+                alert('❌ Erro ao baixar backup: ' + error.message);
+            }
+        }
+
+        async function restaurarBackupOPFS(nomeArquivo) {
+            try {
+                if (!window.opfsBackupsHandles || !window.opfsBackupsHandles[nomeArquivo]) {
+                    alert('❌ Handle do arquivo não encontrado. Por favor, atualize a lista.');
+                    return;
+                }
+
+                if (!confirm('⚠️ ATENÇÃO!\n\nAo restaurar este backup, todos os dados atuais serão substituídos.\n\nDeseja continuar?')) {
+                    return;
+                }
+
+                const handle = window.opfsBackupsHandles[nomeArquivo];
+                const file = await handle.getFile();
+                const texto = await file.text();
+                const backup = JSON.parse(texto);
+
+                // Restaurar dados no armazenamento (IndexedDB) para manter consistência
+                const setData = window.setData || (window.parent && window.parent.setData);
+                if (!setData) throw new Error('setData não disponível. Recarregue a página.');
+                if (backup.dados.manutencoesCadastradas) await setData('manutencoesCadastradas', backup.dados.manutencoesCadastradas);
+                if (backup.dados.viaturasCadastradas) await setData('viaturasCadastradas', backup.dados.viaturasCadastradas);
+                if (backup.dados.empenhos) await setData('empenhos', backup.dados.empenhos);
+                if (backup.dados.solemps) await setData('solemps', backup.dados.solemps);
+                if (backup.dados.valoresCadastrados) await setData('valoresCadastrados', backup.dados.valoresCadastrados);
+                if (backup.dados.orcamentos_pagamentos) await setData('orcamentos_pagamentos', backup.dados.orcamentos_pagamentos);
+                if (backup.dados.orcamentos_compras) await setData('orcamentos_compras', backup.dados.orcamentos_compras);
+                if (backup.dados.faturamentos) await setData('faturamentos', backup.dados.faturamentos);
+                if (backup.dados.fainas_pendentes) await setData('fainas_pendentes', backup.dados.fainas_pendentes);
+                if (backup.dados.fainas_andamento) await setData('fainas_andamento', backup.dados.fainas_andamento);
+                if (backup.dados.fainas_finalizadas) await setData('fainas_finalizadas', backup.dados.fainas_finalizadas);
+                if (backup.dados.fainas_anotacoes) await setData('fainas_anotacoes', backup.dados.fainas_anotacoes);
+                if (backup.dados.viaturasOficina) await setData('viaturasOficina', backup.dados.viaturasOficina);
+                if (backup.dados.sismavActiveTab) await setData('sismavActiveTab', backup.dados.sismavActiveTab);
+                if (backup.dados.sismavVersao != null) await setData('sismavVersao', backup.dados.sismavVersao);
+                if (backup.dados.sismavUltimoBackup != null) await setData('sismavUltimoBackup', backup.dados.sismavUltimoBackup);
+
+                await atualizarEstatisticas();
+                alert('✅ Backup restaurado com sucesso!\n\nA página será recarregada para aplicar as alterações.');
+
+                // Recarregar página
+                if (window.top && window.top !== window) {
+                    window.top.location.reload();
+                } else {
+                    window.location.reload();
+                }
+            } catch (error) {
+                console.error('Erro ao restaurar backup:', error);
+                alert('❌ Erro ao restaurar backup: ' + error.message);
+            }
+        }
+
+        async function excluirBackupOPFS(nomeArquivo) {
+            try {
+                if (!confirm('Tem certeza que deseja excluir o backup "' + nomeArquivo + '"?')) {
+                    return;
+                }
+
+                if (!window.opfsBackupsHandles || !window.opfsBackupsHandles[nomeArquivo]) {
+                    alert('❌ Handle do arquivo não encontrado.');
+                    return;
+                }
+
+                const root = await navigator.storage.getDirectory();
+                const backupsDir = await root.getDirectoryHandle('backups');
+                await backupsDir.removeEntry(nomeArquivo);
+
+                alert('✅ Backup excluído com sucesso!');
+                listarBackupsOPFS(); // Atualizar lista
+            } catch (error) {
+                console.error('Erro ao excluir backup:', error);
+                alert('❌ Erro ao excluir backup: ' + error.message);
+            }
+        }
+
+        async function atualizarEstatisticas() {
+            const getData = window.getData || (window.parent && window.parent.getData) || async (k) => { const v = localStorage.getItem(k); if (v == null) return null; try { return JSON.parse(v); } catch (_) { return v; } };
+            const manutencoes = (await getData('manutencoesCadastradas')) || [];
+            const viaturas = (await getData('viaturasCadastradas')) || [];
+            const orcamentosPagamentos = (await getData('orcamentos_pagamentos')) || [];
+            const orcamentosCompras = (await getData('orcamentos_compras')) || [];
+            const faturamentos = (await getData('faturamentos')) || [];
+            const empenhos = (await getData('empenhos')) || [];
+            const solemps = (await getData('solemps')) || [];
+            const orcamentos = orcamentosPagamentos.length + orcamentosCompras.length;
+
+            const el = (id) => document.getElementById(id);
+            if (el('statManutencoes')) el('statManutencoes').textContent = manutencoes.length;
+            if (el('statViaturas')) el('statViaturas').textContent = viaturas.length;
+            if (el('statOrcamentos')) el('statOrcamentos').textContent = orcamentos;
+            if (el('statFaturamentos')) el('statFaturamentos').textContent = faturamentos.length;
+            if (el('statEmpenhos')) el('statEmpenhos').textContent = empenhos.length;
+            if (el('statSolemps')) el('statSolemps').textContent = solemps.length;
+        }
+
+        // Função para abrir modal de backup
+        function abrirModalBackup() {
+            const modal = document.getElementById('backupInfoModal');
+            const statusDiv = document.getElementById('backupStatus');
+            const localText = document.getElementById('backupLocalText');
+            const caminhoText = document.getElementById('backupCaminhoText');
+            const arquivoText = document.getElementById('backupArquivoText');
+            const dataText = document.getElementById('backupDataText');
+            const btnFechar = document.getElementById('btnFecharModal');
+            
+            // Resetar modal
+            statusDiv.className = 'backup-status processando';
+            statusDiv.innerHTML = '<i class="fas fa-spinner"></i><span>Processando backup...</span>';
+            localText.textContent = 'Carregando...';
+            caminhoText.textContent = 'Carregando...';
+            arquivoText.textContent = '-';
+            dataText.textContent = '-';
+            btnFechar.style.display = 'none';
+            
+            modal.classList.add('show');
+        }
+        
+        // Função para atualizar modal com informações do backup
+        function atualizarModalBackup(dados) {
+            const statusDiv = document.getElementById('backupStatus');
+            const localText = document.getElementById('backupLocalText');
+            const caminhoText = document.getElementById('backupCaminhoText');
+            const arquivoText = document.getElementById('backupArquivoText');
+            const dataText = document.getElementById('backupDataText');
+            const btnFechar = document.getElementById('btnFecharModal');
+            
+            if (dados.sucesso) {
+                statusDiv.className = 'backup-status concluido';
+                statusDiv.innerHTML = '<i class="fas fa-check-circle"></i><span>Backup concluído com sucesso!</span>';
+                localText.textContent = dados.local || 'Pasta de Downloads';
+                caminhoText.textContent = dados.caminho || 'Pasta de Downloads do navegador';
+                arquivoText.textContent = dados.nomeArquivo || 'SISMAV_Backup_[data].json';
+                dataText.textContent = new Date().toLocaleString('pt-BR');
+                btnFechar.style.display = 'block';
+            } else {
+                statusDiv.className = 'backup-status erro';
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Erro ao fazer backup</span>';
+                localText.textContent = 'Erro';
+                caminhoText.textContent = 'Não foi possível determinar o caminho';
+                arquivoText.textContent = dados.erro || 'Erro desconhecido';
+                dataText.textContent = new Date().toLocaleString('pt-BR');
+                btnFechar.style.display = 'block';
+            }
+        }
+        
+        // Função para fechar modal
+        function fecharModalBackup() {
+            const modal = document.getElementById('backupInfoModal');
+            modal.classList.remove('show');
+        }
+
+        async function salvarBackup(mostrarAlerta = true) {
+            // Abrir modal de backup
+            abrirModalBackup();
+            
+            try {
+                // Verificar se estamos em um iframe
+                let estaEmIframe = false;
+                try {
+                    estaEmIframe = window.self !== window.top;
+                } catch (e) {
+                    estaEmIframe = true;
+                }
+                
+                console.log('salvarBackup chamado. Em iframe?', estaEmIframe);
+                console.log('diretorioHandle disponível?', !!diretorioHandle);
+                
+                // Coletar todos os dados do armazenamento (IndexedDB) para incluir todas as alterações
+                const getData = window.getData || (window.parent && window.parent.getData) || async (k) => { const v = localStorage.getItem(k); if (v == null) return null; try { return JSON.parse(v); } catch (_) { return v; } };
+                const backup = {
+                    versao: '3.0',
+                    dataBackup: new Date().toISOString(),
+                    dados: {
+                        manutencoesCadastradas: (await getData('manutencoesCadastradas')) || [],
+                        viaturasCadastradas: (await getData('viaturasCadastradas')) || [],
+                        empenhos: (await getData('empenhos')) || [],
+                        solemps: (await getData('solemps')) || [],
+                        valoresCadastrados: (await getData('valoresCadastrados')) || [],
+                        orcamentos_pagamentos: (await getData('orcamentos_pagamentos')) || [],
+                        orcamentos_compras: (await getData('orcamentos_compras')) || [],
+                        faturamentos: (await getData('faturamentos')) || [],
+                        fainas_pendentes: (await getData('fainas_pendentes')) || [],
+                        fainas_andamento: (await getData('fainas_andamento')) || [],
+                        fainas_finalizadas: (await getData('fainas_finalizadas')) || [],
+                        fainas_anotacoes: (await getData('fainas_anotacoes')) || [],
+                        viaturasOficina: (await getData('viaturasOficina')) || [],
+                        sismavActiveTab: (await getData('sismavActiveTab')) || 'servicos',
+                        sismavVersao: (await getData('sismavVersao')) || null,
+                        sismavUltimoBackup: (await getData('sismavUltimoBackup')) || null
+                    }
+                };
+
+                // Converter para JSON
+                const jsonString = JSON.stringify(backup, null, 2);
+                
+                // Nome do arquivo com data e hora
+                const dataAtual = new Date();
+                const dataFormatada = dataAtual.toISOString().slice(0, 19).replace(/:/g, '-');
+                const nomeArquivo = `SISMAV_Backup_${dataFormatada}.json`;
+
+                // Se um diretório foi escolhido, salvar lá
+                if (diretorioHandle) {
+                    try {
+                        console.log('✅ diretorioHandle encontrado! Tentando salvar na pasta:', diretorioHandle.name);
+                        // Criar o arquivo no diretório escolhido
+                        const fileHandle = await diretorioHandle.getFileHandle(nomeArquivo, { create: true });
+                        const writable = await fileHandle.createWritable();
+                        await writable.write(jsonString);
+                        await writable.close();
+                        
+                        // Atualizar modal com informações
+                        atualizarModalBackup({
+                            sucesso: true,
+                            nomeArquivo: nomeArquivo,
+                            local: 'Pasta escolhida pelo usuário',
+                            caminho: 'Pasta: ' + diretorioHandle.name
+                        });
+                        
+                        if (mostrarAlerta && !abrirModalBackup) {
+                            alert('✅ Backup salvo com sucesso!\n\nArquivo salvo em: ' + diretorioHandle.name + '\n\nNome do arquivo: ' + nomeArquivo);
+                        }
+                        console.log('✅✅✅ Backup salvo com sucesso na pasta:', diretorioHandle.name);
+                        return;
+                    } catch (error) {
+                        // Se houver erro ao salvar no diretório, fazer fallback para download
+                        console.error('❌ ERRO ao salvar no diretório escolhido:', error);
+                        console.warn('Fazendo fallback para download...');
+                        
+                        salvarComoDownload(jsonString, nomeArquivo, false); // Não mostrar alert, apenas modal
+                        
+                        // Atualizar modal
+                        atualizarModalBackup({
+                            sucesso: true,
+                            nomeArquivo: nomeArquivo,
+                            local: 'Pasta de Downloads',
+                            caminho: 'Pasta de Downloads do navegador'
+                        });
+                        return;
+                    }
+                } else {
+                    // Se nenhum diretório foi escolhido, fazer download como antes
+                    console.warn('⚠️ Nenhum diretorioHandle disponível. Fazendo download...');
+                    const pastaInfo = localStorage.getItem('sismavPastaBackup');
+                    if (pastaInfo) {
+                        try {
+                            const info = JSON.parse(pastaInfo);
+                            console.warn('⚠️ Uma pasta foi escolhida anteriormente (' + info.nome + '), mas o handle foi perdido.');
+                            console.warn('⚠️ Isso pode acontecer se a página foi recarregada ou se está em um iframe.');
+                            console.warn('⚠️ Por favor, escolha a pasta novamente na aba Backup para salvar automaticamente na pasta escolhida.');
+                        } catch (e) {
+                            console.warn('⚠️ Não foi possível ler informação da pasta escolhida anteriormente.');
+                        }
+                    }
+                    
+                    salvarComoDownload(jsonString, nomeArquivo, false); // Não mostrar alert, apenas modal
+                    
+                    // Atualizar modal
+                    atualizarModalBackup({
+                        sucesso: true,
+                        nomeArquivo: nomeArquivo,
+                        local: 'Pasta de Downloads',
+                        caminho: 'Pasta de Downloads do navegador'
+                    });
+                }
+            } catch (error) {
+                // Atualizar modal com erro
+                atualizarModalBackup({
+                    sucesso: false,
+                    erro: error.message || 'Erro desconhecido'
+                });
+                
+                if (mostrarAlerta) {
+                    alert('❌ Erro ao salvar backup: ' + error.message);
+                }
+                console.error('Erro ao salvar backup:', error);
+                throw error;
+            }
+        }
+
+        function salvarComoDownload(jsonString, nomeArquivo, mostrarAlerta = true) {
+            try {
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                
+                // Criar link de download
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nomeArquivo;
+                
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                if (mostrarAlerta) {
+                    alert('✅ Backup salvo com sucesso!\n\nO arquivo foi baixado para sua pasta de downloads.');
+                }
+                console.log('✅ Backup salvo via download');
+            } catch (error) {
+                if (mostrarAlerta) {
+                    alert('❌ Erro ao fazer download do backup: ' + error.message);
+                }
+                console.error('Erro ao fazer download:', error);
+                throw error;
+            }
+        }
+
+        function carregarBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            console.log('Arquivo selecionado:', file.name, 'Tamanho:', file.size, 'bytes');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    console.log('Lendo arquivo de backup...');
+                    console.log('Conteúdo bruto (primeiros 200 chars):', e.target.result.substring(0, 200));
+                    const backup = JSON.parse(e.target.result);
+                    // Aceitar formato do frontend (dados) ou do backend (data)
+                    const dados = backup.dados || backup.data || {};
+                    if (typeof dados !== 'object' || dados === null) {
+                        throw new Error('Arquivo de backup inválido! Estrutura esperada não encontrada.');
+                    }
+                    console.log('Backup parseado com sucesso!');
+                    console.log('Versão do backup:', backup.versao || backup.version);
+                    console.log('Data do backup:', backup.dataBackup || backup.exportDate);
+                    console.log('Estrutura de dados:', Object.keys(dados));
+                    console.log('Backup válido. Iniciando restauração...');
+
+                    // Confirmar antes de restaurar
+                    if (confirm('⚠️ ATENÇÃO!\n\nAo restaurar este backup, todos os dados atuais serão substituídos.\n\nDeseja continuar?')) {
+                        (async () => {
+                            const setData = window.setData || (window.parent && window.parent.setData);
+                            if (!setData) {
+                                alert('setData não disponível. Recarregue a página e tente novamente.');
+                                return;
+                            }
+                            console.log('Restaurando dados no armazenamento (IndexedDB)...');
+                            
+                            if (dados.manutencoesCadastradas) { await setData('manutencoesCadastradas', dados.manutencoesCadastradas); console.log('Manutenções restauradas:', dados.manutencoesCadastradas.length); }
+                            if (dados.viaturasCadastradas) { await setData('viaturasCadastradas', dados.viaturasCadastradas); console.log('Viaturas restauradas:', dados.viaturasCadastradas.length); }
+                            if (dados.valoresCadastrados) await setData('valoresCadastrados', dados.valoresCadastrados);
+                            if (dados.empenhos) { await setData('empenhos', dados.empenhos); console.log('Contratos restaurados:', dados.empenhos.length); }
+                            if (dados.solemps) { await setData('solemps', dados.solemps); console.log('Solemps restauradas:', dados.solemps.length); }
+                            if (dados.fainas_pendentes) await setData('fainas_pendentes', dados.fainas_pendentes);
+                            if (dados.fainas_andamento) await setData('fainas_andamento', dados.fainas_andamento);
+                            if (dados.fainas_finalizadas) await setData('fainas_finalizadas', dados.fainas_finalizadas);
+                            if (dados.fainas_anotacoes) await setData('fainas_anotacoes', dados.fainas_anotacoes);
+                            if (dados.viaturasOficina) await setData('viaturasOficina', dados.viaturasOficina);
+                            
+                            let orcamentosPagamentos = dados.orcamentos_pagamentos || [];
+                            let orcamentosCompras = dados.orcamentos_compras || [];
+                            if (dados.orcamentosCadastrados !== undefined && Array.isArray(dados.orcamentosCadastrados) && dados.orcamentosCadastrados.length > 0) {
+                                dados.orcamentosCadastrados.forEach(item => {
+                                    if (item.os || item.data) orcamentosPagamentos.push(item);
+                                    else if (item.item) orcamentosCompras.push(item);
+                                });
+                            }
+                            let valoresCorrigidos = false;
+                            orcamentosPagamentos.forEach(item => { if (item.valor && item.valor > 100000) { item.valor = item.valor / 100; valoresCorrigidos = true; } });
+                            orcamentosCompras.forEach(item => { if (item.valor && item.valor > 100000) { item.valor = item.valor / 100; valoresCorrigidos = true; } });
+                            if (valoresCorrigidos) alert('⚠️ Valores anormalmente altos foram corrigidos automaticamente. Verifique a aba Orçamentos.');
+                            await setData('orcamentos_pagamentos', orcamentosPagamentos);
+                            await setData('orcamentos_compras', orcamentosCompras);
+                            
+                            if (dados.faturamentos) await setData('faturamentos', dados.faturamentos);
+                            if (dados.sismavActiveTab) await setData('sismavActiveTab', dados.sismavActiveTab);
+                            if (dados.sismavVersao != null) await setData('sismavVersao', dados.sismavVersao);
+                            if (dados.sismavUltimoBackup != null) await setData('sismavUltimoBackup', dados.sismavUltimoBackup);
+                            
+                            console.log('Restauração concluída!');
+                            await atualizarEstatisticas();
+                            try {
+                                if (window.top && window.top !== window) window.top.location.reload();
+                                else window.location.reload();
+                            } catch (e) {
+                                window.location.reload();
+                            }
+                        })();
+                    }
+                } catch (error) {
+                    alert('❌ Erro ao carregar backup: ' + error.message + '\n\nCertifique-se de que o arquivo é um backup válido do SISMAV.');
+                    console.error('Erro ao carregar backup:', error);
+                }
+            };
+            
+            reader.onerror = function(e) {
+                alert('❌ Erro ao ler o arquivo: ' + e.target.error);
+                console.error('Erro ao ler arquivo:', e.target.error);
+            };
+            
+            reader.readAsText(file);
+            
+            // Limpar o input para permitir selecionar o mesmo arquivo novamente
+            event.target.value = '';
+        }
+
+    </script>
+
+</body>
+</html>

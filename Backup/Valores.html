@@ -157,53 +157,8 @@
         const btnGerarFaturamento = document.getElementById('btnGerarFaturamento');
         const valorEmpenhoInput = document.getElementById('empenhoValor');
         const valorSolempInput = document.getElementById('solempValor');
-        const faturamentoPagoSelect = document.getElementById('faturamentoPago');
 
         // =========================
-        // FATURAMENTOS - OPCÕES COMPATÍVEIS COM A ABA MANUTENÇÕES
-        // =========================
-        const FATURAMENTO_OPCOES_PADRAO = ['1° Faturamento', '2° Faturamento', '3° Faturamento', '4° Faturamento', '5° Faturamento', '6° Faturamento', '7° Faturamento', '8° Faturamento', '9° Faturamento', '10° Faturamento', 'Não Aprovados'];
-        const FATURAMENTO_EXTRA_KEY = 'sismav_faturamento_opcoes_extra';
-
-        function getTodasOpcoesFaturamentoValores(opcoesExtra) {
-            return [...FATURAMENTO_OPCOES_PADRAO, ...(opcoesExtra || [])];
-        }
-
-        async function repopularSelectFaturamentoPago() {
-            if (!faturamentoPagoSelect) return;
-            let extra = [];
-            try {
-                // Tenta buscar as opções extras pelo window.getData, se disponível
-                const fn = window.getData || (window.parent && window.parent !== window && window.parent.getData) || null;
-                if (typeof fn === 'function') {
-                    const v = await fn(FATURAMENTO_EXTRA_KEY);
-                    if (Array.isArray(v)) extra = v;
-                } else {
-                    // Fallback: tenta localStorage
-                    const raw = localStorage.getItem(FATURAMENTO_EXTRA_KEY);
-                    if (raw) {
-                        const parsed = JSON.parse(raw);
-                        if (Array.isArray(parsed)) extra = parsed;
-                    }
-                }
-            } catch (e) {
-                console.warn('Erro ao carregar opções extras de faturamento em Valores:', e);
-            }
-
-            const todas = getTodasOpcoesFaturamentoValores(extra);
-            const valorAtual = faturamentoPagoSelect.value;
-            faturamentoPagoSelect.innerHTML = '<option value=\"\" disabled selected>-- Selecione o faturamento --</option>';
-            todas.forEach(nome => {
-                const opt = document.createElement('option');
-                opt.value = nome;
-                opt.textContent = nome;
-                faturamentoPagoSelect.appendChild(opt);
-            });
-            if (valorAtual && todas.includes(valorAtual)) {
-                faturamentoPagoSelect.value = valorAtual;
-            }
-        }
-
         // AUTOSAVE FORMULÁRIOS EMPENHO / SOLEMP
         // =========================
         const EMPENHO_FORM_DRAFT_KEY = 'valores_empenho_form_draft';
@@ -296,9 +251,6 @@
         // Restaurar rascunhos ao abrir a tela
         restaurarRascunhoEmpenho();
         restaurarRascunhoSolemp();
-
-        // Popular opções de faturamento a ser pago com a mesma lista da aba Manutenções
-        repopularSelectFaturamentoPago();
 
         // Autosave em tempo real
         const empenhoNumero = document.getElementById('empenhoNumero');

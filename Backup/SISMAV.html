@@ -859,9 +859,6 @@
                 <label for="input-carregar-backup" class="btn-modal-backup btn-carregar">
                     <i class="fas fa-upload"></i> Carregar backup
                 </label>
-                <button type="button" class="btn-modal-backup btn-fazer" onclick="enviarBackupParaFirestoreComConfirmacao()" title="Enviar o backup atual para o Firebase agora (usar quando quiser garantir que a nuvem está com os dados mais recentes).">
-                    <i class="fas fa-cloud-upload-alt"></i> Enviar backup para o Firebase
-                </button>
                 <button type="button" class="btn-modal-backup btn-restaurar-firebase" onclick="restaurarDoFirebase()" title="Trazer o último backup salvo no Firebase para este computador. Use em outro PC ou quando perder os dados locais.">
                     <i class="fas fa-cloud-download-alt"></i> Restaurar do Firebase
                 </button>
@@ -982,21 +979,6 @@
         if (window.firestoreDb) {
             setTimeout(function() { enviarBackupParaFirestore(); }, 10000);
             setInterval(function() { enviarBackupParaFirestore(); }, 30 * 60 * 1000);
-        }
-
-        // Versão com confirmação visual para o botão do modal (não usada pelo backup automático)
-        async function enviarBackupParaFirestoreComConfirmacao() {
-            if (!window.firestoreDb) {
-                alert('Firebase não está conectado. Verifique a internet e recarregue a página.');
-                return;
-            }
-            try {
-                await enviarBackupParaFirestore();
-                alert('Backup enviado para o Firebase com sucesso.\n\nO último backup na nuvem agora corresponde ao estado atual deste dispositivo.');
-            } catch (e) {
-                console.warn('Erro ao enviar backup para o Firebase com confirmação:', e);
-                alert('Ocorreu um erro ao enviar o backup para o Firebase. Verifique a conexão e tente novamente.');
-            }
         }
 
         // Função para formatar bytes
@@ -1927,39 +1909,9 @@
             }
         }
 
-        /** Carrega automaticamente os dados do Firebase ao abrir o SISMAV (sem pedir confirmação). Preserva dados locais importantes (Serviços e Fainas). */
+        /** Carrega automaticamente os dados do Firebase ao abrir o SISMAV (sem pedir confirmação). Preserva os checkboxes da aba Serviços (Faturar, Pré-aprovado, Aprovado, Singra2) que já estavam salvos localmente. */
         async function carregarDadosDoFirebaseAoAbrir() {
             if (!window.firestoreDb) return;
-
-            // Fainas: lista local como base; ao adicionar do remoto, só incluir se o id NÃO estiver em nenhuma lista local
-            // (evita duplicar tarefa que foi movida, ex.: de Em andamento para Finalizadas)
-            function mergeFainasSemDuplicar(localPendentes, localAndamento, localFinalizadas, localAnotacoes, remotePendentes, remoteAndamento, remoteFinalizadas, remoteAnotacoes) {
-                var rP = Array.isArray(localPendentes) ? localPendentes.slice() : [];
-                var rA = Array.isArray(localAndamento) ? localAndamento.slice() : [];
-                var rF = Array.isArray(localFinalizadas) ? localFinalizadas.slice() : [];
-                var rAn = Array.isArray(localAnotacoes) ? localAnotacoes.slice() : [];
-                var idsEmQualquer = {};
-                [rP, rA, rF, rAn].forEach(function (arr) {
-                    arr.forEach(function (item) {
-                        if (item && item.id != null) idsEmQualquer[item.id] = true;
-                    });
-                });
-                function addFromRemote(remoteArr, resultArr) {
-                    if (!Array.isArray(remoteArr)) return;
-                    remoteArr.forEach(function (item) {
-                        if (!item) return;
-                        if (item.id != null && idsEmQualquer[item.id]) return;
-                        resultArr.push(item);
-                        if (item.id != null) idsEmQualquer[item.id] = true;
-                    });
-                }
-                addFromRemote(remotePendentes, rP);
-                addFromRemote(remoteAndamento, rA);
-                addFromRemote(remoteFinalizadas, rF);
-                addFromRemote(remoteAnotacoes, rAn);
-                return { pendentes: rP, andamento: rA, finalizadas: rF, anotacoes: rAn };
-            }
-
             try {
                 var localManutencoes = null;
                 if (window.getData) {
@@ -1995,27 +1947,6 @@
                         idsNoResultado[m.id] = true;
                     });
                     dados.manutencoesCadastradas = resultado;
-                }
-
-                // Fainas: lista local como base; ao trazer do Firebase não readicionar item que já está em qualquer lista local (evita duplicar ao mover tarefa)
-                if (window.getData) {
-                    try {
-                        var localFainasPendentes = await window.getData('fainas_pendentes');
-                        var localFainasAndamento = await window.getData('fainas_andamento');
-                        var localFainasFinalizadas = await window.getData('fainas_finalizadas');
-                        var localFainasAnotacoes = await window.getData('fainas_anotacoes');
-
-                        var merged = mergeFainasSemDuplicar(
-                            localFainasPendentes, localFainasAndamento, localFainasFinalizadas, localFainasAnotacoes,
-                            dados.fainas_pendentes, dados.fainas_andamento, dados.fainas_finalizadas, dados.fainas_anotacoes
-                        );
-                        dados.fainas_pendentes = merged.pendentes;
-                        dados.fainas_andamento = merged.andamento;
-                        dados.fainas_finalizadas = merged.finalizadas;
-                        dados.fainas_anotacoes = merged.anotacoes;
-                    } catch (e) {
-                        console.warn('SISMAV: erro ao mesclar dados de Fainas locais com Firebase:', e && e.message ? e.message : e);
-                    }
                 }
 
                 await executarRestauracaoDados(dados, { silent: true });

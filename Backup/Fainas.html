@@ -2080,9 +2080,7 @@
             
             const datasComAtividades = new Set();
             atividades.forEach(item => {
-                // Somente pendentes / em andamento entram no alerta visual de data limite.
-                // Itens em "finalizadas" não devem mais gerar alerta.
-                if (item.dataLimite && prefix !== 'finalizadas') {
+                if (item.dataLimite) {
                     datasComAtividades.add(item.dataLimite);
                 }
             });
