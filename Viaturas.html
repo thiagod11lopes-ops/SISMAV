@@ -339,6 +339,10 @@
                     <label for="placaViatura">Placa</label>
                     <input type="text" id="placaViatura" placeholder="ABC-1234 ou ABC1D23" required>
                 </div>
+                <div class="form-group">
+                    <label for="valorMercadoViatura">Valor de obtenção/Mercado (Fipe)</label>
+                    <input type="text" id="valorMercadoViatura" placeholder="R$ 0,00" inputmode="decimal">
+                </div>
                 <button type="submit" class="submit-btn" id="submitViaturaBtn">Cadastrar Viatura</button>
                 <button type="button" class="cancel-edit-btn" id="cancelEditBtn" style="display:none; margin-top:10px;">Cancelar edição</button>
             </form>
@@ -366,6 +370,7 @@
                             <th>Modelo</th>
                             <th>Ano</th>
                             <th>Placa</th>
+                            <th>Valor (R$)</th>
                             <th>Ação</th>
                         </tr>
                     </thead>
@@ -381,6 +386,7 @@
                             <th>Modelo</th>
                             <th>Ano</th>
                             <th>Placa</th>
+                            <th>Valor (R$)</th>
                             <th>Ação</th>
                         </tr>
                     </thead>
@@ -397,6 +403,7 @@
         const modeloInput = document.getElementById('modeloViatura');
         const anoInput = document.getElementById('anoViatura');
         const placaInput = document.getElementById('placaViatura');
+        const valorMercadoInput = document.getElementById('valorMercadoViatura');
         const submitViaturaBtn = document.getElementById('submitViaturaBtn');
         const cancelEditBtn = document.getElementById('cancelEditBtn');
         const ambulanciasTableBody = document.querySelector('#ambulanciasTable tbody');
@@ -408,6 +415,19 @@
 
         let viaturasCadastradas = [];
         let editingPlaca = null; // placa da viatura em edição (null = modo cadastro)
+
+        function formatarMoedaBRL(valor) {
+            const numero = Number(valor);
+            if (!Number.isFinite(numero)) return '';
+            return numero.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function normalizarValorMoeda(input) {
+            if (!input) return undefined;
+            const limpo = String(input).replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');
+            const numero = Number(limpo);
+            return Number.isFinite(numero) ? numero : undefined;
+        }
 
         // =========================
         // AUTOSAVE FORMULÁRIO VIATURAS
@@ -445,7 +465,8 @@
                     tipo: tipoSelect ? tipoSelect.value : '',
                     modelo: modeloInput ? modeloInput.value : '',
                     ano: anoInput ? anoInput.value : '',
-                    placa: placaInput ? placaInput.value : ''
+                    placa: placaInput ? placaInput.value : '',
+                    valorMercado: valorMercadoInput ? valorMercadoInput.value : ''
                 };
                 await salvarDraftData(VIATURAS_FORM_DRAFT_KEY, draft);
             } catch (e) {
@@ -471,6 +492,7 @@
                 if (modeloInput && draft.modelo) modeloInput.value = draft.modelo;
                 if (anoInput && draft.ano) anoInput.value = draft.ano;
                 if (placaInput && draft.placa) placaInput.value = draft.placa;
+                if (valorMercadoInput && draft.valorMercado) valorMercadoInput.value = draft.valorMercado;
             } catch (e) {
                 console.error('Erro ao restaurar rascunho do formulário de viaturas:', e);
             }
@@ -518,16 +540,20 @@
 
         function populateTable(tableBody, data) {
             if (data.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Nenhuma viatura cadastrada.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhuma viatura cadastrada.</td></tr>';
                 return;
             }
             data.forEach(viatura => {
                 const row = tableBody.insertRow();
                 const ano = viatura.ano ? String(viatura.ano) : '-';
+                const valorMercado = viatura.valorMercado !== undefined && viatura.valorMercado !== null && viatura.valorMercado !== ''
+                    ? formatarMoedaBRL(viatura.valorMercado)
+                    : '-';
                 row.innerHTML = `
                     <td>${viatura.modelo || '-'}</td>
                     <td>${ano}</td>
                     <td>${(viatura.placa || '').toUpperCase()}</td>
+                    <td>${valorMercado}</td>
                     <td>
                         <button class="edit-btn" data-placa="${viatura.placa}" title="Editar"><i class="fas fa-edit"></i></button>
                         <button class="delete-btn" data-placa="${viatura.placa}" title="Excluir"><i class="fas fa-trash-alt"></i></button>
@@ -542,6 +568,9 @@
             modeloInput.value = viatura.modelo || '';
             anoInput.value = viatura.ano || '';
             placaInput.value = (viatura.placa || '').toUpperCase();
+            valorMercadoInput.value = viatura.valorMercado !== undefined && viatura.valorMercado !== null && viatura.valorMercado !== ''
+                ? formatarMoedaBRL(viatura.valorMercado)
+                : '';
             if (submitViaturaBtn) submitViaturaBtn.textContent = 'Atualizar Viatura';
             if (cancelEditBtn) cancelEditBtn.style.display = 'block';
         }
@@ -557,11 +586,18 @@
         restaurarRascunhoViaturas();
 
         // Autosave em tempo real enquanto o usuário digita
-        [tipoSelect, modeloInput, anoInput, placaInput].forEach(campo => {
+        [tipoSelect, modeloInput, anoInput, placaInput, valorMercadoInput].forEach(campo => {
             if (!campo) return;
             campo.addEventListener('input', agendarAutosaveViaturas);
             campo.addEventListener('change', agendarAutosaveViaturas);
         });
+
+        if (valorMercadoInput) {
+            valorMercadoInput.addEventListener('blur', () => {
+                const valor = normalizarValorMoeda(valorMercadoInput.value);
+                valorMercadoInput.value = valor !== undefined ? formatarMoedaBRL(valor) : '';
+            });
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -571,6 +607,7 @@
             const anoVal = anoInput.value.trim();
             const ano = anoVal === '' ? '' : (isNaN(Number(anoVal)) ? anoVal : Number(anoVal));
             const placa = placaInput.value.trim().toUpperCase();
+            const valorMercado = normalizarValorMoeda(valorMercadoInput.value);
 
             if (!tipo || !modelo || !placa) {
                 alert('Por favor, preencha Tipo, Modelo e Placa.');
@@ -588,7 +625,7 @@
             if (editingPlaca !== null) {
                 const idx = viaturasCadastradas.findIndex(v => v.placa === editingPlaca);
                 if (idx !== -1) {
-                    viaturasCadastradas[idx] = { tipo, modelo, placa, ano: ano || undefined };
+                    viaturasCadastradas[idx] = { tipo, modelo, placa, ano: ano || undefined, valorMercado };
                     await setData('viaturasCadastradas', viaturasCadastradas);
                     alert('Viatura atualizada com sucesso!');
                 }
@@ -596,6 +633,7 @@
             } else {
                 const novaViatura = { tipo, modelo, placa };
                 if (ano !== '') novaViatura.ano = ano;
+                if (valorMercado !== undefined) novaViatura.valorMercado = valorMercado;
                 viaturasCadastradas.push(novaViatura);
                 await setData('viaturasCadastradas', viaturasCadastradas);
                 alert('Viatura cadastrada com sucesso!');
@@ -638,10 +676,11 @@
                 return;
             }
 
-            let csvContent = 'Tipo,Modelo,Ano,Placa\n';
+            let csvContent = 'Tipo,Modelo,Ano,Placa,ValorMercado\n';
             viaturasCadastradas.forEach(viatura => {
                 const ano = viatura.ano != null && viatura.ano !== '' ? viatura.ano : '';
-                csvContent += `${viatura.tipo},${viatura.modelo},${ano},${viatura.placa}\n`;
+                const valorMercado = viatura.valorMercado != null && viatura.valorMercado !== '' ? viatura.valorMercado : '';
+                csvContent += `${viatura.tipo},${viatura.modelo},${ano},${viatura.placa},${valorMercado}\n`;
             });
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -684,6 +723,7 @@
                     const modeloIndex = headers.indexOf('modelo');
                     const anoIndex = headers.indexOf('ano');
                     const placaIndex = headers.indexOf('placa');
+                    const valorMercadoIndex = headers.indexOf('valormercado');
 
                     if (tipoIndex === -1 || modeloIndex === -1 || placaIndex === -1) {
                         alert('O arquivo CSV deve conter as colunas: Tipo, Modelo, Placa (Ano é opcional).');
@@ -703,6 +743,8 @@
                         const placa = (values[placaIndex] || '').toUpperCase();
                         const anoVal = anoIndex >= 0 && values[anoIndex] !== undefined ? values[anoIndex].trim() : '';
                         const ano = anoVal === '' ? undefined : (isNaN(Number(anoVal)) ? anoVal : Number(anoVal));
+                        const valorMercadoVal = valorMercadoIndex >= 0 && values[valorMercadoIndex] !== undefined ? values[valorMercadoIndex].trim() : '';
+                        const valorMercado = valorMercadoVal === '' ? undefined : normalizarValorMoeda(valorMercadoVal);
 
                         if (!tipo || !modelo || !placa) continue;
 
@@ -714,6 +756,7 @@
 
                         const item = { tipo, modelo, placa };
                         if (ano !== undefined && ano !== '') item.ano = ano;
+                        if (valorMercado !== undefined) item.valorMercado = valorMercado;
                         viaturasCadastradas.push(item);
                         importCount++;
                     }

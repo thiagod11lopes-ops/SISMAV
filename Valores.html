@@ -335,6 +335,15 @@
             const m = String(num).match(/^(\d+)\/(\d{4})$/);
             return m ? `${m[1]}°/${m[2]}` : num;
         };
+        // Converte o "numero" do faturamento (ex: 9°/2026 ou N.A./2026) para a categoria usada no serviço (ex: "9° Faturamento" ou "Não Aprovados")
+        function getCategoriaFaturamentoDoNumeroFat(numeroFat) {
+            const s = String(numeroFat || '').trim();
+            if (!s) return '';
+            if (s.startsWith('N.A') || s.toUpperCase().includes('N.A')) return 'Não Aprovados';
+            const m = s.match(/^(\d+)\s*°?\s*\/\s*(\d{4})$/);
+            if (!m) return '';
+            return `${m[1]}° Faturamento`;
+        }
         const getData = async (key) => {
             const fn = window.getData || (window.parent && window.parent !== window && window.parent.getData) || null;
             if (typeof fn === 'function') {
@@ -426,6 +435,65 @@
             const empenhos = await getData('empenhos');
             const solemps = await getData('solemps');
             const faturamentos = await getData('faturamentos');
+            const servicos = await getData('manutencoesCadastradas');
+            
+            // Notas pendentes (para preencher a tabela "Faturamentos" no Resumo)
+            // Regra: quando a linha do serviço estiver marcada no checklist (selecionadoParaFaturar)
+            // e a NF estiver vinculada a um empenho (empenhoNfServico/empenhoNfPeca),
+            // então a linha deve aparecer como "nota" na tabela do resumo.
+            const empByNumero = new Map((empenhos || []).map(e => [String(e.numero || '').trim(), e]));
+            const solPorEmpenhoId = new Map();
+            (solemps || []).forEach(sol => {
+                if (!sol || !sol.empenhoId) return;
+                if (!solPorEmpenhoId.has(sol.empenhoId)) solPorEmpenhoId.set(sol.empenhoId, sol);
+            });
+            
+            const notasPendentes = [];
+            const servicosPendentes = (servicos || []).filter(s => {
+                if (!s) return false;
+                // Quando uma nota é vinculada a um empenho, ela deve aparecer no resumo
+                // mesmo sem passar pelo processo de "Gerar Faturamento".
+                // "Faturado" indica que o processo já aconteceu para essa linha.
+                return !s.faturado && !!s.id;
+            });
+            
+            servicosPendentes.forEach(s => {
+                const valorNota = parseCurrency(s.valor);
+                
+                // NF de Serviço
+                const nfServico = (s.nfServico || '').trim();
+                const empNumeroServico = s.empenhoNfServico != null ? String(s.empenhoNfServico).trim() : '';
+                if (nfServico && empNumeroServico) {
+                    const emp = empByNumero.get(empNumeroServico);
+                    const solemp = emp ? solPorEmpenhoId.get(emp.id) : null;
+                    const dataNota = s.dataNfServico || s.dataNotaServico || s.dataNota || s.dataSaida || s.dataEntrada
+                        || (solemp ? solemp.data : '') || (emp ? emp.data : '') || '';
+                    notasPendentes.push({
+                        isNotaPendente: true,
+                        numero: nfServico,
+                        data: dataNota,
+                        valor: valorNota,
+                        solempNumero: solemp ? solemp.numero : 'N/A'
+                    });
+                }
+                
+                // NF de Peça / Material
+                const nfPeca = (s.nfPeca || '').trim();
+                const empNumeroPeca = s.empenhoNfPeca != null ? String(s.empenhoNfPeca).trim() : '';
+                if (nfPeca && empNumeroPeca) {
+                    const emp = empByNumero.get(empNumeroPeca);
+                    const solemp = emp ? solPorEmpenhoId.get(emp.id) : null;
+                    const dataNota = s.dataNfPeca || s.dataNotaPeca || s.dataNota || s.dataSaida || s.dataEntrada
+                        || (solemp ? solemp.data : '') || (emp ? emp.data : '') || '';
+                    notasPendentes.push({
+                        isNotaPendente: true,
+                        numero: nfPeca,
+                        data: dataNota,
+                        valor: valorNota,
+                        solempNumero: solemp ? solemp.numero : 'N/A'
+                    });
+                }
+            });
 
             // Atualiza gastos para exibição correta
             empenhos.forEach(emp => {
@@ -455,17 +523,27 @@
                 const empPai = empenhos.find(e => e.id === item.empenhoId);
                 return [item.numero, empPai ? empPai.numero : '', formatDate(item.data), item.valorTotal, item.valorGasto];
             });
-            const filteredFaturamentos = applyFilters(faturamentos, filters.faturamento, item => {
+            
+            const filteredFaturamentosGerados = applyFilters(faturamentos, filters.faturamento, item => {
                 const solPai = solemps.find(s => s.id === item.solempId);
                 return [item.numero, formatDate(item.data), item.valor, solPai ? solPai.numero : ''];
             });
+            
+            // Notas vinculadas a empenhos que ainda não passaram por "Gerar Faturamento"
+            const filteredNotasPendentes = applyFilters(notasPendentes, filters.faturamento, item => {
+                return [item.numero, formatDate(item.data), item.valor, item.solempNumero];
+            });
+            
+            // Mescla: mantém faturamentos já gerados e adiciona as notas pendentes.
+            const filteredFaturamentos = [...(filteredFaturamentosGerados || []), ...(filteredNotasPendentes || [])];
 
-            populateTables(filteredEmpenhos, filteredSolemps, filteredFaturamentos, empenhos, solemps);
+            populateTables(filteredEmpenhos, filteredSolemps, filteredFaturamentos, empenhos, solemps, servicos);
         }
 
-        function populateTables(empenhosFilt, solempsFilt, faturamentosFilt, allEmpenhos, allSolemps) {
+        function populateTables(empenhosFilt, solempsFilt, faturamentosFilt, allEmpenhos, allSolemps, allServicos) {
             allEmpenhos = allEmpenhos || empenhosFilt || [];
             allSolemps = allSolemps || solempsFilt || [];
+            allServicos = allServicos || [];
             const empenhosTbody = document.querySelector('#empenhosTable tbody');
             empenhosTbody.innerHTML = '';
             (empenhosFilt || []).forEach(emp => { empenhosTbody.innerHTML += `<tr><td>${emp.numero}</td><td>${formatDate(emp.data)}</td><td class="currency">${formatCurrency(emp.valorTotal)}</td><td class="currency">${formatCurrency(emp.valorGasto)}</td><td class="currency">${formatCurrency(emp.valorTotal - emp.valorGasto)}</td><td class="actions-cell"><button onclick="window.handleEdit('empenho', '${emp.id}')" class="action-btn edit-btn" title="Editar"><i class="fas fa-edit"></i></button><button onclick="window.handleDelete('empenho', '${emp.id}')" class="action-btn delete-btn" title="Excluir"><i class="fas fa-trash-alt"></i></button></td></tr>`; });
@@ -480,8 +558,63 @@
             const faturamentosTbody = document.querySelector('#faturamentosTable tbody');
             faturamentosTbody.innerHTML = '';
             (faturamentosFilt || []).forEach(fat => {
+                // Modo especial: listar notas pendentes vinculadas a empenhos
+                if (fat && fat.isNotaPendente) {
+                    faturamentosTbody.innerHTML += `<tr>
+                        <td>${fat.numero || 'N/A'}</td>
+                        <td>${formatDate(fat.data)}</td>
+                        <td class="currency">${formatCurrency(fat.valor)}</td>
+                        <td>${fat.solempNumero || 'N/A'}</td>
+                        <td class="actions-cell"></td>
+                    </tr>`;
+                    return;
+                }
+
                  const solPai = allSolemps.find(s => s.id === fat.solempId);
-                 faturamentosTbody.innerHTML += `<tr><td>${formatFaturamentoNumero(fat.numero)}</td><td>${formatDate(fat.data)}</td><td class="currency">${formatCurrency(fat.valor)}</td><td>${solPai ? solPai.numero : 'N/A'}</td><td class="actions-cell"><button onclick="window.handleEdit('faturamento', '${fat.id}')" class="action-btn edit-btn" title="Editar"><i class="fas fa-edit"></i></button><button onclick="window.handleDelete('faturamento', '${fat.id}')" class="action-btn delete-btn" title="Reverter Faturamento"><i class="fas fa-undo"></i></button></td></tr>`;
+                 const empPai = solPai ? allEmpenhos.find(e => e.id === solPai.empenhoId) : null;
+                 const empNumero = empPai ? empPai.numero : '';
+                
+                 // Notas vinculadas ao empenho do faturamento (NF Serviço e NF Material/Peça).
+                 // A ideia é que uma mesma "linha" (mesmo serviço) pode ter NF Serviço e NF Peça vinculadas em empenhos diferentes.
+                 let notasServico = [];
+                 let notasPeca = [];
+                 const empNumeroNorm = String(empNumero || '').trim();
+                 
+                 // Preferência: buscar notas somente nos serviços que fazem parte desse faturamento.
+                 // Compatibilidade: se faturamentos antigos não tiverem `servicosIds`, fazemos fallback pela categoria.
+                 const servicosVinculados = Array.isArray(fat.servicosIds)
+                     ? fat.servicosIds.map(id => allServicos.find(s => s && s.id === id)).filter(Boolean)
+                     : [];
+                 
+                 const categoriaFaturamento = getCategoriaFaturamentoDoNumeroFat(fat.numero);
+                 
+                 const baseParaNotas = (empNumeroNorm && servicosVinculados.length)
+                     ? servicosVinculados
+                     : (empNumeroNorm && categoriaFaturamento)
+                        ? allServicos.filter(s => (s.faturamento || '') === categoriaFaturamento)
+                        : [];
+                 
+                 if (empNumeroNorm && baseParaNotas.length) {
+                     baseParaNotas.forEach(s => {
+                         const empenhoServicoNorm = s && s.empenhoNfServico != null ? String(s.empenhoNfServico).trim() : '';
+                         const empenhoPecaNorm = s && s.empenhoNfPeca != null ? String(s.empenhoNfPeca).trim() : '';
+
+                         if (s.nfServico && empenhoServicoNorm === empNumeroNorm) notasServico.push(s.nfServico);
+                         if (s.nfPeca && empenhoPecaNorm === empNumeroNorm) notasPeca.push(s.nfPeca);
+                     });
+                 }
+                 
+                 notasServico = [...new Set((notasServico || []).filter(Boolean))];
+                 notasPeca = [...new Set((notasPeca || []).filter(Boolean))];
+                 
+                 const partesNotas = [];
+                 if (notasServico.length) partesNotas.push(`Serviço: ${notasServico.join(', ')}`);
+                 if (notasPeca.length) partesNotas.push(`Material: ${notasPeca.join(', ')}`);
+                 const notasHtml = partesNotas.length
+                     ? `<br><small style="color: #6b7280; font-weight: 600;">${partesNotas.join(' • ')}</small>`
+                     : '';
+                 
+                 faturamentosTbody.innerHTML += `<tr><td>${formatFaturamentoNumero(fat.numero)}${notasHtml}</td><td>${formatDate(fat.data)}</td><td class="currency">${formatCurrency(fat.valor)}</td><td>${solPai ? solPai.numero : 'N/A'}</td><td class="actions-cell"><button onclick="window.handleEdit('faturamento', '${fat.id}')" class="action-btn edit-btn" title="Editar"><i class="fas fa-edit"></i></button><button onclick="window.handleDelete('faturamento', '${fat.id}')" class="action-btn delete-btn" title="Reverter Faturamento"><i class="fas fa-undo"></i></button></td></tr>`;
             });
         }
         

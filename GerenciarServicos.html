@@ -2006,6 +2006,64 @@
             font-size: 14px;
             opacity: 0.85;
         }
+
+        .previsao-futura-wrap {
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            width: 100%;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            justify-items: center;
+        }
+
+        .previsao-item {
+            background: #ffffff;
+            border: 1px solid rgba(102, 126, 234, 0.28);
+            border-radius: 12px;
+            padding: 10px 12px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+            width: 100%;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+        }
+
+        .previsao-item-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .previsao-futura-valor {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.15;
+        }
+
+        .previsao-futura-percentual {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 30px;
+            min-width: 74px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .previsao-cor-verde { color: #15803d; border-color: rgba(21, 128, 61, 0.55); }
+        .previsao-cor-laranja { color: #f59e0b; border-color: rgba(245, 158, 11, 0.45); }
+        .previsao-cor-vermelho { color: #ef4444; border-color: rgba(239, 68, 68, 0.45); }
+        .previsao-cor-excedido { color: #7f1d1d; border-color: rgba(127, 29, 29, 0.55); background: rgba(127, 29, 29, 0.16); }
         
         @keyframes fadeIn {
             from {
@@ -2227,6 +2285,9 @@
                 <div class="filters-row" style="flex-basis: 100%;">
                     <div class="form-group"><label for="filterAno"><i class="fas fa-calendar-alt" style="opacity:0.7; margin-right:4px;"></i>Ano</label><select id="filterAno"><option value="">Todos</option></select></div>
                     <div class="form-group"><label for="filterMes"><i class="fas fa-calendar" style="opacity:0.7; margin-right:4px;"></i>Mês</label><select id="filterMes"><option value="">Todos</option><option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select></div>
+                    <div class="form-group"><label for="filterInicio"><i class="fas fa-calendar-day" style="opacity:0.7; margin-right:4px;"></i>Período (Início)</label><input type="date" id="filterInicio"></div>
+                    <div class="form-group"><label for="filterFim"><i class="fas fa-calendar-check" style="opacity:0.7; margin-right:4px;"></i>Período (Fim)</label><input type="date" id="filterFim"></div>
+                    <div class="form-group"><label for="filterTipoServico"><i class="fas fa-truck-medical" style="opacity:0.7; margin-right:4px;"></i>Tipo</label><select id="filterTipoServico"><option value="">Todos</option><option value="Ambulância">Ambulância</option><option value="Administrativa">Administrativa</option></select></div>
                     <div class="form-group"><label for="filterFaturamento"><i class="fas fa-file-invoice-dollar" style="opacity:0.7; margin-right:4px;"></i>Faturamento</label><select id="filterFaturamento"><option value="">Todos</option><option value="1° Faturamento">1° Faturamento</option><option value="2° Faturamento">2° Faturamento</option><option value="3° Faturamento">3° Faturamento</option><option value="4° Faturamento">4° Faturamento</option><option value="5° Faturamento">5° Faturamento</option><option value="6° Faturamento">6° Faturamento</option><option value="7° Faturamento">7° Faturamento</option><option value="8° Faturamento">8° Faturamento</option><option value="9° Faturamento">9° Faturamento</option><option value="10° Faturamento">10° Faturamento</option><option value="Não Aprovados">Não Aprovados</option></select></div>
                     <div class="form-group"><label for="filterViatura"><i class="fas fa-car" style="opacity:0.7; margin-right:4px;"></i>Viatura</label><select id="filterViatura"><option value="">Todas</option></select></div>
                     <div class="form-group"><label for="filterAprovado"><i class="fas fa-check-double" style="opacity:0.7; margin-right:4px;"></i>Aprovação</label><select id="filterAprovado"><option value="">Todos</option><option value="sim">Aprovado</option><option value="nao">Não Aprovado</option><option value="pre-aprovado">Pré-aprovado</option></select></div>
@@ -2330,6 +2391,26 @@
                 <tbody></tbody>
             </table>
         </div>
+        
+        <div id="somaValoresViaturaDisplay" class="valor-total-display" style="display: none;">
+            <h3 id="somaValoresViaturaTitulo">Soma dos Valores</h3>
+            <p class="valor" id="somaValoresViaturaValor" style="margin: 10px 0;">R$ 0,00</p>
+            <div id="previsaoFuturaWrap" class="previsao-futura-wrap" style="display: none;">
+                <div class="previsao-item">
+                    <span class="previsao-item-label">Previsão Futura Máxima</span>
+                    <span id="previsaoFuturaValor" class="previsao-futura-valor">R$ 0,00</span>
+                </div>
+                <div class="previsao-item">
+                    <span class="previsao-item-label">Percentual Atual</span>
+                    <span id="previsaoFuturaPercentual" class="previsao-futura-percentual">0%</span>
+                </div>
+                <div class="previsao-item">
+                    <span class="previsao-item-label">Margem disponível</span>
+                    <span id="previsaoFuturaRestanteValor" class="previsao-futura-valor">R$ 0,00</span>
+                </div>
+            </div>
+            <p class="detalhes" id="somaValoresViaturaDetalhes">0 serviços encontrados</p>
+        </div>
     </div>
 
     <div id="descricaoModal" class="modal">
@@ -2339,6 +2420,22 @@
                 <span class="close-button descricao-close-btn" style="color: white; font-size: 28px; cursor: pointer; opacity: 0.9; line-height: 1;">&times;</span>
             </div>
             <div id="modalDescricaoBody" class="descricao-modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto; background: #f8fafc;"></div>
+        </div>
+    </div>
+
+    <!-- Modal confirmação apagar faturamento -->
+    <div id="confirmFaturamentoModal" class="modal" style="display: none; z-index: 10050;">
+        <div class="modal-content" style="max-width: 520px; padding: 24px; border-radius: 14px;">
+            <h3 style="margin: 0 0 12px 0; color: var(--primary-blue); font-size: 20px; font-weight: 800; text-align: center;">
+                Confirmação
+            </h3>
+            <p style="margin: 0 0 18px 0; color: #4b5563; font-weight: 700; text-align: center;">
+                Desaje apagar esse Faturamento?
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" class="btn btn-primary" id="confirmFaturamentoYesBtn">SIM</button>
+                <button type="button" class="btn btn-secondary" id="confirmFaturamentoNoBtn">NÃO</button>
+            </div>
         </div>
     </div>
 
@@ -3046,6 +3143,11 @@
             <p id="nfStatus" style="margin: 0 0 30px 0; color: #6b7280; font-size: 14px;">
                 Nenhuma nota anexada
             </p>
+            <div id="nfEmpenhoBlock" style="display: none; margin-bottom: 20px; text-align: left;">
+                <label for="nfEmpenhoInput" style="display: block; margin-bottom: 6px; font-weight: 600; color: #374151;">Empenho</label>
+                <input type="text" id="nfEmpenhoInput" placeholder="Ex: 2025 - Ne - (123)" style="width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 15px;">
+                <p id="nfEmpenhoHint" style="margin: 6px 0 0 0; font-size: 12px; color: #6b7280;">Formato: ano (4 dígitos) - Ne - (Número)</p>
+            </div>
             <input type="file" id="nfFileInput" accept=".pdf" style="display: none;">
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <button id="fixarNotaBtn" class="btn btn-primary" style="padding: 12px 30px; font-size: 16px; background: #3b82f6; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
@@ -3056,6 +3158,9 @@
                 </button>
                 <button id="excluirNotaBtn" class="btn btn-danger" style="padding: 12px 30px; font-size: 16px; background: #ef4444; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; display: none;">
                     <i class="fas fa-trash-alt"></i> Excluir Nota
+                </button>
+                <button id="adicionarEmpenhoBtn" type="button" class="btn btn-primary" style="padding: 12px 30px; font-size: 16px; background: #2563eb; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; display: none;">
+                    <i class="fas fa-file-contract"></i> Vincular Empenho
                 </button>
                 <button id="closeNfModal" class="btn btn-secondary" style="padding: 12px 30px; font-size: 16px; background: #6b7280; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%;">
                     <i class="fas fa-times"></i> Cancelar
@@ -3512,6 +3617,9 @@
         // --- FILTERS ---
         const filterAno = document.getElementById('filterAno');
         const filterMes = document.getElementById('filterMes');
+        const filterInicio = document.getElementById('filterInicio');
+        const filterFim = document.getElementById('filterFim');
+        const filterTipoServico = document.getElementById('filterTipoServico');
         const filterFaturamento = document.getElementById('filterFaturamento');
         const filterViatura = document.getElementById('filterViatura');
         const filterAprovado = document.getElementById('filterAprovado');
@@ -3570,6 +3678,279 @@
                 localStorage.setItem(CHAVE_MIGRACAO, '1');
             } catch (e) {
                 console.error('Erro na migração Pendente -> Data indeterminada:', e);
+            }
+        })();
+        
+        // Migração única: a partir de 02/02/2026, separar cada OS em duas linhas (NF Serviço e NF Peça).
+        // A coluna `valor` deve ficar em branco para reedição.
+        const promessaMigracaoSepararNotasPorOS = (async function migracaoSepararNotasPorOS() {
+            const CHAVE_MIGRACAO = 'sismav_migracao_split_os_por_notas_02022026_v1';
+            if (localStorage.getItem(CHAVE_MIGRACAO)) return;
+            try {
+                const servicos = await getData('manutencoesCadastradas');
+                const faturamentos = await getData('faturamentos');
+                if (!Array.isArray(servicos) || servicos.length === 0) {
+                    localStorage.setItem(CHAVE_MIGRACAO, '1');
+                    return;
+                }
+
+                const usadoEmFaturamento = new Set(
+                    (Array.isArray(faturamentos) ? faturamentos : [])
+                        .flatMap(f => Array.isArray(f.servicosIds) ? f.servicosIds : [])
+                );
+
+                const cutoff = new Date('2026-02-02T00:00:00');
+                if (isNaN(cutoff.getTime())) {
+                    localStorage.setItem(CHAVE_MIGRACAO, '1');
+                    return;
+                }
+
+                function novoId() {
+                    if (typeof crypto !== 'undefined' && crypto.randomUUID) return `man_${crypto.randomUUID()}`;
+                    return `man_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+                }
+
+                function temValorSelecionado(orig) {
+                    return orig === true || orig === 'sim';
+                }
+
+                let alterado = false;
+                const novoArray = [];
+
+                for (const s of servicos) {
+                    if (!s || typeof s !== 'object') continue;
+
+                    // Não mexer em serviços que já foram usados em algum faturamento existente.
+                    if (usadoEmFaturamento.has(s.id)) {
+                        novoArray.push(s);
+                        continue;
+                    }
+
+                    // Não duplicar em migrações futuras.
+                    if (s.nfSeparadoPorNota20260202) {
+                        novoArray.push(s);
+                        continue;
+                    }
+
+                    const dataEntrada = new Date((s.dataEntrada || '') + 'T00:00:00');
+                    const dataValida = !isNaN(dataEntrada.getTime());
+
+                    if (dataValida && dataEntrada >= cutoff) {
+                        const selecionadoOrig = temValorSelecionado(s.selecionadoParaFaturar);
+
+                        const nfServico = (s.nfServico || '').trim();
+                        const nfPeca = (s.nfPeca || '').trim();
+
+                        const possuiNFServico = !!nfServico || !!s.pdfNfServico || !!s.empenhoNfServico;
+                        const possuiNFPeca = !!nfPeca || !!s.pdfNfPeca || !!s.empenhoNfPeca;
+
+                        // Linha para NF Serviço
+                        const linhaServico = {
+                            ...s,
+                            id: novoId(),
+                            nfPeca: '',
+                            empenhoNfPeca: undefined,
+                            pdfNfPeca: undefined,
+                            valor: '',
+                            nfSeparadoPorNota20260202: true,
+                            nfTipoSeparacao20260202: 'servico',
+                            osOriginalId20260202: s.id,
+                            selecionadoParaFaturar: selecionadoOrig && possuiNFServico
+                        };
+
+                        // Linha para NF Peça / Material
+                        const linhaPeca = {
+                            ...s,
+                            id: novoId(),
+                            nfServico: '',
+                            empenhoNfServico: undefined,
+                            pdfNfServico: undefined,
+                            valor: '',
+                            nfSeparadoPorNota20260202: true,
+                            nfTipoSeparacao20260202: 'peca',
+                            osOriginalId20260202: s.id,
+                            selecionadoParaFaturar: selecionadoOrig && possuiNFPeca
+                        };
+
+                        novoArray.push(linhaServico, linhaPeca);
+                        alterado = true;
+                    } else {
+                        novoArray.push(s);
+                    }
+                }
+
+                if (alterado) {
+                    await setData('manutencoesCadastradas', novoArray);
+                    try {
+                        localStorage.setItem('manutencoesCadastradas', JSON.stringify(novoArray));
+                    } catch (_) { /* noop */ }
+                }
+
+                localStorage.setItem(CHAVE_MIGRACAO, '1');
+            } catch (e) {
+                console.error('Erro na migração split OS por notas (02/02/2026):', e);
+            }
+        })();
+
+        // Migração única: reverter status (faturado -> pendente) de OS específica
+        const promessaReverterOS180091 = (async function migracaoReverterOS180091() {
+            const CHAVE_MIGRACAO = 'sismav_reverter_status_os_180091_v1';
+            if (localStorage.getItem(CHAVE_MIGRACAO)) return;
+            try {
+                const ORDEM_SERVICO_ALVO = '180091';
+
+                const servicos = await getData('manutencoesCadastradas');
+                if (!Array.isArray(servicos) || servicos.length === 0) {
+                    localStorage.setItem(CHAVE_MIGRACAO, '1');
+                    return;
+                }
+
+                const idsAlvo = servicos
+                    .filter(s => String(s.ordemServico || '').trim() === ORDEM_SERVICO_ALVO)
+                    .map(s => s.id)
+                    .filter(Boolean);
+
+                if (idsAlvo.length === 0) {
+                    localStorage.setItem(CHAVE_MIGRACAO, '1');
+                    return;
+                }
+
+                const faturamentos = await getData('faturamentos');
+                const solemps = await getData('solemps');
+
+                const parseNum = (v) => {
+                    const n = typeof v === 'number' ? v : parseFloat(String(v).replace(',', '.').replace(/[^\d.-]/g, ''));
+                    return isNaN(n) ? 0 : n;
+                };
+
+                let faturamentosAtualizados = Array.isArray(faturamentos) ? faturamentos : [];
+                let solempsAtualizados = Array.isArray(solemps) ? solemps : [];
+                let servicosAtualizados = servicos;
+
+                const idsAlvoSet = new Set(idsAlvo);
+
+                // Remove faturamentos que contém qualquer uma das linhas da OS alvo,
+                // revertendo também o status e o gasto na solemp.
+                const faturamentosParaManter = [];
+                for (const fat of faturamentosAtualizados) {
+                    const servicosIds = Array.isArray(fat.servicosIds) ? fat.servicosIds : [];
+                    const temAlgumIdAlvo = servicosIds.some(id => idsAlvoSet.has(id));
+
+                    if (!temAlgumIdAlvo) {
+                        faturamentosParaManter.push(fat);
+                        continue;
+                    }
+
+                    const solempIndex = solempsAtualizados.findIndex(s => s && s.id === fat.solempId);
+                    if (solempIndex >= 0) {
+                        const valorFat = parseNum(fat.valor);
+                        solempsAtualizados[solempIndex].valorGasto = parseNum(solempsAtualizados[solempIndex].valorGasto) - valorFat;
+                        if (solempsAtualizados[solempIndex].valorGasto < 0) solempsAtualizados[solempIndex].valorGasto = 0;
+                    }
+
+                    // Reverter serviços para "pendente"
+                    servicosAtualizados.forEach(s => {
+                        if (servicosIds.includes(s.id)) {
+                            s.faturado = false;
+                            s.selecionadoParaFaturar = false;
+                        }
+                    });
+                }
+
+                await setData('manutencoesCadastradas', servicosAtualizados);
+                await setData('solemps', solempsAtualizados);
+                await setData('faturamentos', faturamentosParaManter);
+
+                localStorage.setItem(CHAVE_MIGRACAO, '1');
+            } catch (e) {
+                console.error('Erro na migração revert OS 180091:', e);
+            }
+        })();
+
+        // Migração única: reverter status de todos os serviços do 11° Faturamento para pendente
+        const promessaReverterFaturamento11 = (async function migracaoReverterFaturamento11() {
+            const CHAVE_MIGRACAO = 'sismav_reverter_status_faturamento_11_v1';
+            if (localStorage.getItem(CHAVE_MIGRACAO)) return;
+            try {
+                const FATURAMENTO_ALVO = '11° Faturamento';
+
+                const servicos = await getData('manutencoesCadastradas');
+                if (!Array.isArray(servicos) || servicos.length === 0) {
+                    localStorage.setItem(CHAVE_MIGRACAO, '1');
+                    return;
+                }
+
+                const idsAlvo = servicos
+                    .filter(s => s && String(s.faturamento || '').trim() === FATURAMENTO_ALVO)
+                    .map(s => s.id)
+                    .filter(Boolean);
+
+                if (idsAlvo.length === 0) {
+                    localStorage.setItem(CHAVE_MIGRACAO, '1');
+                    return;
+                }
+
+                const idsAlvoSet = new Set(idsAlvo);
+
+                const faturamentos = await getData('faturamentos');
+                const solemps = await getData('solemps');
+
+                let faturamentosAtualizados = Array.isArray(faturamentos) ? faturamentos : [];
+                let solempsAtualizados = Array.isArray(solemps) ? solemps : [];
+                let servicosAtualizados = servicos;
+
+                const parseNum = (v) => {
+                    const n = typeof v === 'number'
+                        ? v
+                        : parseFloat(String(v).replace(',', '.').replace(/[^\d.-]/g, ''));
+                    return isNaN(n) ? 0 : n;
+                };
+
+                const idsAlvoParaReverter = new Set(idsAlvoSet);
+
+                const faturamentosParaManter = [];
+                for (const fat of faturamentosAtualizados) {
+                    const servicosIds = Array.isArray(fat && fat.servicosIds) ? fat.servicosIds : [];
+                    const temAlgumIdAlvo = servicosIds.some(id => idsAlvoSet.has(id));
+
+                    if (!temAlgumIdAlvo) {
+                        faturamentosParaManter.push(fat);
+                        continue;
+                    }
+
+                    // Ajustar valorGasto da Solemp
+                    const solempIndex = solempsAtualizados.findIndex(s => s && s.id === fat.solempId);
+                    if (solempIndex >= 0) {
+                        const valorFat = parseNum(fat.valor);
+                        solempsAtualizados[solempIndex].valorGasto =
+                            parseNum(solempsAtualizados[solempIndex].valorGasto) - valorFat;
+                        if (solempsAtualizados[solempIndex].valorGasto < 0) solempsAtualizados[solempIndex].valorGasto = 0;
+                    }
+
+                    // Reverter serviços para "pendente"
+                    servicosAtualizados.forEach(s => {
+                        if (s && idsAlvoParaReverter.has(s.id) && servicosIds.includes(s.id)) {
+                            s.faturado = false;
+                            s.selecionadoParaFaturar = false;
+                        }
+                    });
+                }
+
+                // Garante que todas as linhas do 11° Faturamento fiquem pendentes
+                servicosAtualizados.forEach(s => {
+                    if (s && idsAlvoParaReverter.has(s.id)) {
+                        s.faturado = false;
+                        s.selecionadoParaFaturar = false;
+                    }
+                });
+
+                await setData('manutencoesCadastradas', servicosAtualizados);
+                await setData('solemps', solempsAtualizados);
+                await setData('faturamentos', faturamentosParaManter);
+
+                localStorage.setItem(CHAVE_MIGRACAO, '1');
+            } catch (e) {
+                console.error('Erro na migração reverter 11° Faturamento:', e);
             }
         })();
 
@@ -3693,6 +4074,9 @@
             // --- APLICAR FILTROS ---
             let ano = filterAno && filterAno.value ? filterAno.value : '';
             let mes = filterMes && filterMes.value ? filterMes.value : '';
+            let inicio = filterInicio && filterInicio.value ? filterInicio.value : '';
+            let fim = filterFim && filterFim.value ? filterFim.value : '';
+            let tipoServico = filterTipoServico && filterTipoServico.value ? filterTipoServico.value : '';
             let faturamento = filterFaturamento && filterFaturamento.value ? filterFaturamento.value : '';
             let viatura = filterViatura && filterViatura.value ? filterViatura.value : '';
             let aprovado = filterAprovado && filterAprovado.value ? filterAprovado.value : '';
@@ -3706,6 +4090,17 @@
                 if (dataValida) {
                     if (ano && dataEntrada.getFullYear() != ano) return false;
                     if (mes && (dataEntrada.getMonth() + 1) != mes) return false;
+                    if (inicio && (servico.dataEntrada || '') < inicio) return false;
+                    if (fim && (servico.dataEntrada || '') > fim) return false;
+                }
+                if (tipoServico) {
+                    const tipoNorm = (function normalizarTipoServicoFiltro(tipo) {
+                        var t = String(tipo || '').trim();
+                        if (t === 'Ambulância' || t.toLowerCase() === 'ambulancia') return 'Ambulância';
+                        if (t === 'Administrativa' || t.toLowerCase() === 'administrativa') return 'Administrativa';
+                        return 'Outros';
+                    })(servico.tipo);
+                    if (tipoNorm !== tipoServico) return false;
                 }
                 if (faturamento && servico.faturamento !== faturamento) return false;
                 if (viatura && servico.viatura !== viatura) return false;
@@ -3753,6 +4148,7 @@
             
             // Calcular e exibir valor total se houver filtro de faturamento
             calcularValorTotalFaturamento(filteredServicos, faturamento);
+            await calcularSomaValoresPorViatura(filteredServicos, viatura);
             populateFilters(); // Atualizar filtros incluindo o select de viaturas
             
             // Atualizar contadores de aprovação
@@ -3944,21 +4340,31 @@
                 let total = 0;
                 let parcial = 0;
                 let servicosMarcados = 0;
+
+                // Parse robusto do valor do serviço (string pt-BR ou number)
+                const parseValor = (v) => {
+                    if (v === null || v === undefined || v === '') return 0;
+                    if (typeof v === 'number') return v;
+                    const s = String(v).replace('R$', '').trim();
+                    const num = parseFloat(s.replace(/\./g, '').replace(',', '.'));
+                    return isNaN(num) ? 0 : num;
+                };
+
+                // Critério "Marcados" deve bater com o estado visual da checkbox "Faturar"
+                const isMarcadoCheckboxFaturar = (servico) => {
+                    const faturado = servico.faturado === true || servico.faturado === 'sim';
+                    const selecionado = servico.selecionadoParaFaturar === true || servico.selecionadoParaFaturar === 'sim';
+                    return faturado || selecionado;
+                };
                 
                 servicos.forEach(servico => {
-                    if (servico.valor) {
-                        // Remover "R$" e converter para número
-                        const valorLimpo = servico.valor.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
-                        const valorNumerico = parseFloat(valorLimpo);
-                        if (!isNaN(valorNumerico)) {
-                            total += valorNumerico;
-                            
-                            // Se o serviço estiver marcado para faturar, adicionar ao valor parcial
-                            if (servico.selecionadoParaFaturar) {
-                                parcial += valorNumerico;
-                                servicosMarcados++;
-                            }
-                        }
+                    const valorNumerico = parseValor(servico.valor);
+                    total += valorNumerico;
+
+                    // Se o serviço estiver marcado (checkbox "Faturar" está selecionada), adicionar ao valor parcial
+                    if (isMarcadoCheckboxFaturar(servico)) {
+                        parcial += valorNumerico;
+                        servicosMarcados++;
                     }
                 });
                 
@@ -3982,6 +4388,67 @@
             } else {
                 // Ocultar display se não houver filtro de faturamento
                 valorTotalDisplay.style.display = 'none';
+            }
+        }
+
+        async function calcularSomaValoresPorViatura(servicos, viatura) {
+            const somaDisplay = document.getElementById('somaValoresViaturaDisplay');
+            const somaTitulo = document.getElementById('somaValoresViaturaTitulo');
+            const somaValor = document.getElementById('somaValoresViaturaValor');
+            const somaDetalhes = document.getElementById('somaValoresViaturaDetalhes');
+            const previsaoWrap = document.getElementById('previsaoFuturaWrap');
+            const previsaoValorEl = document.getElementById('previsaoFuturaValor');
+            const previsaoPercentualEl = document.getElementById('previsaoFuturaPercentual');
+            const previsaoRestanteValorEl = document.getElementById('previsaoFuturaRestanteValor');
+            if (!somaDisplay || !somaTitulo || !somaValor || !somaDetalhes) return;
+
+            if (viatura) {
+                const total = (servicos || []).reduce((acc, servico) => acc + parseCurrency(servico.valor), 0);
+                somaTitulo.textContent = `Soma dos Valores - Viatura ${viatura}`;
+                somaValor.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                somaDetalhes.textContent = `${servicos.length} ${servicos.length === 1 ? 'serviço encontrado' : 'serviços encontrados'}`;
+
+                if (previsaoWrap && previsaoValorEl && previsaoPercentualEl) {
+                    previsaoWrap.style.display = 'none';
+                    previsaoValorEl.className = 'previsao-futura-valor';
+                    previsaoPercentualEl.className = 'previsao-futura-percentual';
+                    if (previsaoRestanteValorEl) previsaoRestanteValorEl.className = 'previsao-futura-valor';
+
+                    const viaturas = await getData('viaturasCadastradas');
+                    const viaturaSelecionada = encontrarViaturaPorPlaca(viaturas, viatura);
+                    const valorMercado = parseCurrency(viaturaSelecionada?.valorMercado);
+
+                    if (valorMercado > 0) {
+                        const previsaoMaxima = valorMercado * 0.7;
+                        const percentualAtual = (total / valorMercado) * 100;
+                        const percentualExibicao = Math.max(0, percentualAtual);
+
+                        let classeCor = 'previsao-cor-verde';
+                        if (percentualExibicao > 70) {
+                            classeCor = 'previsao-cor-excedido';
+                        } else if (percentualExibicao > 50) {
+                            classeCor = 'previsao-cor-vermelho';
+                        } else if (percentualExibicao > 30) {
+                            classeCor = 'previsao-cor-laranja';
+                        }
+
+                        previsaoValorEl.textContent = previsaoMaxima.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        previsaoPercentualEl.textContent = `${percentualExibicao.toFixed(1).replace('.', ',')}%`;
+                        previsaoValorEl.classList.add(classeCor);
+                        previsaoPercentualEl.classList.add(classeCor);
+
+                        if (previsaoRestanteValorEl) {
+                            const restante = previsaoMaxima - total;
+                            const restanteClamped = restante > 0 ? restante : 0;
+                            previsaoRestanteValorEl.textContent = restanteClamped.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            previsaoRestanteValorEl.classList.add(classeCor);
+                        }
+                        previsaoWrap.style.display = 'flex';
+                    }
+                }
+                somaDisplay.style.display = 'block';
+            } else {
+                somaDisplay.style.display = 'none';
             }
         }
         
@@ -4051,11 +4518,21 @@
                 const viaturaInfo = encontrarViaturaPorPlaca(allViaturas, servico.viatura);
                 const modelo = (viaturaInfo && (viaturaInfo.modelo ?? viaturaInfo.Modelo)) ? (viaturaInfo.modelo ?? viaturaInfo.Modelo) : 'N/A';
                 const faturamento = servico.faturamento || 'N/A';
-                const status = servico.faturado ? '<span style="color: green; font-weight: bold;">Faturado</span>' : '<span style="color: orange; font-weight: bold;">Pendente</span>';
+                const statusSelectHtml = `
+                    <select
+                        class="status-servico-select"
+                        data-id="${servico.id}"
+                        style="font-weight: bold; color: ${servico.faturado ? 'green' : 'orange'}; cursor: pointer; border-radius: 8px; padding: 6px 10px; border: 1px solid rgba(102, 126, 234, 0.25); background: rgba(255,255,255,0.9);"
+                    >
+                        <option value="Faturado" ${servico.faturado ? 'selected' : ''}>Faturado</option>
+                        <option value="Pendente" ${!servico.faturado ? 'selected' : ''}>Pendente</option>
+                    </select>
+                `;
                 const singra2Value = servico.singra2 || 'Aguardando';
                 const selectClass = singra2Value === 'Lançado' ? 'status-lancado' : 'status-aguardando';
                 const singra2SelectHtml = `<select class="singra2-select ${selectClass}" data-id="${servico.id}"><option value="Aguardando" ${singra2Value === 'Aguardando' ? 'selected' : ''}>Aguardando</option><option value="Lançado" ${singra2Value === 'Lançado' ? 'selected' : ''}>Lançado</option></select>`;
-                const faturarChecked = servico.selecionadoParaFaturar === true || servico.selecionadoParaFaturar === 'sim';
+                // Checkbox "Faturar" deve acompanhar o status real de faturado
+                const faturarChecked = servico.faturado === true || servico.faturado === 'sim' || servico.selecionadoParaFaturar === true || servico.selecionadoParaFaturar === 'sim';
                 const preAprovadoChecked = servico.preAprovado === true || servico.preAprovado === 'sim';
                 const aprovadoChecked = servico.aprovado === true || servico.aprovado === 'sim';
                 const checkboxHtml = `<input type="checkbox" class="faturar-checkbox" data-id="${servico.id}" ${faturarChecked ? 'checked' : ''}>`;
@@ -4076,15 +4553,16 @@
                     : servico.ordemServico;
                 
                 // Tornar NFs clicáveis se houver número
-                const nfPecaHtml = servico.nfPeca 
-                    ? `<a href="#" class="nf-link" data-id="${servico.id}" data-tipo="peca" style="color: #f59e0b; text-decoration: underline; cursor: pointer; font-weight: bold;" title="Gerenciar Nota Fiscal de Peça">${servico.nfPeca}</a>`
+                const nfPecaHtml = servico.nfPeca
+                    ? `<a href="#" class="nf-link" data-id="${servico.id}" data-tipo="peca" style="color: #f59e0b; text-decoration: underline; cursor: pointer; font-weight: bold;" title="Gerenciar Nota Fiscal de Peça">${servico.nfPeca}</a>${servico.empenhoNfPeca ? `<br><small style="color: #6b7280;" title="Empenho vinculado">${servico.empenhoNfPeca}</small>` : ''}`
                     : 'N/A';
                 const nfServicoHtml = servico.nfServico 
-                    ? `<a href="#" class="nf-link" data-id="${servico.id}" data-tipo="servico" style="color: #f59e0b; text-decoration: underline; cursor: pointer; font-weight: bold;" title="Gerenciar Nota Fiscal de Serviço">${servico.nfServico}</a>`
+                    ? `<a href="#" class="nf-link" data-id="${servico.id}" data-tipo="servico" style="color: #f59e0b; text-decoration: underline; cursor: pointer; font-weight: bold;" title="Gerenciar Nota Fiscal de Serviço">${servico.nfServico}</a>${servico.empenhoNfServico ? `<br><small style="color: #6b7280;" title="Empenho vinculado">${servico.empenhoNfServico}</small>` : ''}`
                     : 'N/A';
                 
                 const rowClass = !servico.dataSaida ? ' class="row-pending-exit"' : '';
-                const cellsHtml = `<td>${faturamento}</td><td class="actions-cell">${checkboxHtml}</td><td class="bold-text">${modelo}</td><td class="bold-text">${servico.viatura}</td><td>${osHtml}</td><td>${dataEntradaFormatada}</td><td>${dataSaidaFormatada}</td><td>${nfPecaHtml}</td><td>${nfServicoHtml}</td><td>${singra2SelectHtml}</td><td class="actions-cell">${preAprovadoCheckboxHtml}</td><td class="actions-cell">${aprovadoCheckboxHtml}</td><td>${servico.valor || 'R$ 0,00'}</td><td>${status}</td><td class="actions-cell"><button class="action-btn view-desc-btn" data-id="${servico.id}" title="Ver Descrição"><i class="fas fa-eye"></i></button></td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${servico.id}" title="Editar"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${servico.id}" title="Excluir"><i class="fas fa-trash-alt"></i></button></td>`;
+                const valorCell = (servico.valor === '' || servico.valor === null || servico.valor === undefined) ? '' : (servico.valor || 'R$ 0,00');
+                const cellsHtml = `<td>${faturamento}</td><td class="actions-cell">${checkboxHtml}</td><td class="bold-text">${modelo}</td><td class="bold-text">${servico.viatura}</td><td>${osHtml}</td><td>${dataEntradaFormatada}</td><td>${dataSaidaFormatada}</td><td>${nfPecaHtml}</td><td>${nfServicoHtml}</td><td>${singra2SelectHtml}</td><td class="actions-cell">${preAprovadoCheckboxHtml}</td><td class="actions-cell">${aprovadoCheckboxHtml}</td><td>${valorCell}</td><td>${statusSelectHtml}</td><td class="actions-cell"><button class="action-btn view-desc-btn" data-id="${servico.id}" title="Ver Descrição"><i class="fas fa-eye"></i></button></td><td class="actions-cell"><button class="action-btn edit-btn" data-id="${servico.id}" title="Editar"><i class="fas fa-edit"></i></button><button class="action-btn delete-btn" data-id="${servico.id}" title="Excluir"><i class="fas fa-trash-alt"></i></button></td>`;
                 rowsHtml.push(`<tr data-id="${servico.id}"${rowClass}>${cellsHtml}</tr>`);
             });
             tableBody.innerHTML = rowsHtml.join('');
@@ -4355,7 +4833,48 @@
             // Verificar duplicidade de O.S. apenas quando informada
             const ordemServicoPreenchida = (servicoData.ordemServico || '').trim();
             if (ordemServicoPreenchida) {
-            const osDuplicada = allServicos.find(m => (m.ordemServico || '').trim() === ordemServicoPreenchida && m.id !== editId);
+            const isEditSplitSet = !!(servicoExistente && servicoExistente.nfSeparadoPorNota20260202 && servicoExistente.osOriginalId20260202);
+            const originalIdSplitSet = servicoExistente?.osOriginalId20260202;
+            const nfAtualSet = new Set(
+                [
+                    (servicoData.nfServico || '').trim(),
+                    (servicoData.nfPeca || '').trim()
+                ].filter(Boolean)
+            );
+            const osDuplicada = allServicos.find(m => {
+                const mesmoOS = (m.ordemServico || '').trim() === ordemServicoPreenchida;
+                if (!mesmoOS || m.id === editId) return false;
+                
+                // Ignorar a duplicidade quando o usuário está editando uma das linhas geradas pela separação do mesmo OS.
+                if (
+                    isEditSplitSet &&
+                    m.nfSeparadoPorNota20260202 &&
+                    m.osOriginalId20260202 &&
+                    m.osOriginalId20260202 === originalIdSplitSet
+                ) {
+                    return false;
+                }
+                
+                // Nova regra: aceitar O.S. duplicada desde que as notas fiscais (NF Serviço e NF Peça)
+                // tenham números diferentes entre as linhas.
+                // Bloqueia apenas se existir interseção entre os números de NF informados nesta edição
+                // e os números de NF do registro duplicado.
+                const nfMSet = new Set(
+                    [
+                        (m.nfServico || '').trim(),
+                        (m.nfPeca || '').trim()
+                    ].filter(Boolean)
+                );
+
+                // Se o usuário não informou nenhum número de NF nesta edição, mantém o bloqueio por segurança.
+                if (nfAtualSet.size === 0) return true;
+
+                for (const nfAtual of nfAtualSet) {
+                    if (nfMSet.has(nfAtual)) return true;
+                }
+
+                return false;
+            });
             if (osDuplicada) {
                 alert(
                     `❌ ERRO: ORDEM DE SERVIÇO DUPLICADA!\n\n` +
@@ -4380,7 +4899,50 @@
             allServicos.push(servicoData);
                 }
             } else {
-                allServicos.push(servicoData);
+                // Para novas entradas a partir de 02/02/2026: salvar como 2 linhas (NF Serviço e NF Peça)
+                const cutoff = new Date('2026-02-02T00:00:00');
+                const dataEntrada = new Date((servicoData.dataEntrada || '') + 'T00:00:00');
+                const deveSepararPorNotas = !isNaN(dataEntrada.getTime()) && dataEntrada >= cutoff;
+
+                if (deveSepararPorNotas) {
+                    function novoIdLocal() {
+                        if (typeof crypto !== 'undefined' && crypto.randomUUID) return `man_${crypto.randomUUID()}`;
+                        return `man_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+                    }
+                    const selecionadoOrig = servicoData.selecionadoParaFaturar === true || servicoData.selecionadoParaFaturar === 'sim';
+                    const nfServico = (servicoData.nfServico || '').trim();
+                    const nfPeca = (servicoData.nfPeca || '').trim();
+
+                    const linhaServico = {
+                        ...servicoData,
+                        id: novoIdLocal(),
+                        nfPeca: '',
+                        empenhoNfPeca: undefined,
+                        pdfNfPeca: undefined,
+                        valor: '',
+                        nfSeparadoPorNota20260202: true,
+                        nfTipoSeparacao20260202: 'servico',
+                        osOriginalId20260202: servicoData.id,
+                        selecionadoParaFaturar: selecionadoOrig && !!nfServico
+                    };
+
+                    const linhaPeca = {
+                        ...servicoData,
+                        id: novoIdLocal(),
+                        nfServico: '',
+                        empenhoNfServico: undefined,
+                        pdfNfServico: undefined,
+                        valor: '',
+                        nfSeparadoPorNota20260202: true,
+                        nfTipoSeparacao20260202: 'peca',
+                        osOriginalId20260202: servicoData.id,
+                        selecionadoParaFaturar: selecionadoOrig && !!nfPeca
+                    };
+
+                    allServicos.push(linhaServico, linhaPeca);
+                } else {
+                    allServicos.push(servicoData);
+                }
             }
             await setData('manutencoesCadastradas', allServicos);
             
@@ -7565,6 +8127,90 @@
             try { localStorage.setItem('manutencoesCadastradas', JSON.stringify(copiaParaSalvar)); } catch (e) { console.warn('localStorage backup:', e); }
         }
 
+        function mostrarModalConfirmarApagarFaturamento() {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmFaturamentoModal');
+                const yesBtn = document.getElementById('confirmFaturamentoYesBtn');
+                const noBtn = document.getElementById('confirmFaturamentoNoBtn');
+
+                if (!modal || !yesBtn || !noBtn) return resolve(false);
+
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+
+                const fechar = (resultado) => {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    yesBtn.onclick = null;
+                    noBtn.onclick = null;
+                    modal.onclick = null;
+                    resolve(resultado);
+                };
+
+                yesBtn.onclick = () => fechar(true);
+                noBtn.onclick = () => fechar(false);
+
+                // Fechando no backdrop => tratar como "NÃO"
+                modal.onclick = (e) => {
+                    if (e.target === modal) fechar(false);
+                };
+            });
+        }
+
+        async function apagarFaturamentoRelacionadoAoServico(servicoId) {
+            const faturamentosAtuais = await getData('faturamentos');
+            const solempsAtuais = await getData('solemps');
+            const servicosAtuais = await getData('manutencoesCadastradas');
+
+            if (!Array.isArray(faturamentosAtuais) || !Array.isArray(solempsAtuais) || !Array.isArray(servicosAtuais)) return;
+
+            const faturamentoIndex = faturamentosAtuais.findIndex(f =>
+                Array.isArray(f.servicosIds) && f.servicosIds.includes(servicoId)
+            );
+
+            // Fallback: se não achou o faturamento, reverte apenas o estado da linha
+            if (faturamentoIndex < 0) {
+                const servico = servicosAtuais.find(s => s.id === servicoId);
+                if (servico) {
+                    servico.faturado = false;
+                    servico.selecionadoParaFaturar = false;
+                    await salvarManutencoesPersistente(servicosAtuais);
+                }
+                return;
+            }
+
+            const fat = faturamentosAtuais[faturamentoIndex];
+            const solempAfetada = solempsAtuais.find(s => s.id === fat.solempId);
+
+            let valorFat = 0;
+            if (typeof fat.valor === 'number') {
+                valorFat = fat.valor;
+            } else if (fat.valor != null) {
+                const raw = String(fat.valor).replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+                valorFat = parseFloat(raw);
+                if (isNaN(valorFat)) valorFat = 0;
+            }
+
+            if (solempAfetada) {
+                solempAfetada.valorGasto = (solempAfetada.valorGasto || 0) - valorFat;
+                if (solempAfetada.valorGasto < 0) solempAfetada.valorGasto = 0;
+            }
+
+            const servicosIds = Array.isArray(fat.servicosIds) ? fat.servicosIds : [];
+            servicosAtuais.forEach(s => {
+                if (servicosIds.includes(s.id)) {
+                    s.faturado = false;
+                    s.selecionadoParaFaturar = false;
+                }
+            });
+
+            faturamentosAtuais.splice(faturamentoIndex, 1);
+
+            await setData('solemps', solempsAtuais);
+            await salvarManutencoesPersistente(servicosAtuais);
+            await setData('faturamentos', faturamentosAtuais);
+        }
+
         document.body.addEventListener('change', async (event) => {
             if (event.target.classList.contains('faturar-checkbox')) {
                 const servicoId = event.target.dataset.id;
@@ -7574,9 +8220,26 @@
                     if (!Array.isArray(servicosAtuais)) return;
                     const servico = servicosAtuais.find(s => s.id === servicoId);
                     if (servico) {
+                        const isFaturado = servico.faturado === true || servico.faturado === 'sim';
+
+                        // Se era "Faturado" e o usuário tentou desmarcar, pede confirmação
+                        if (isFaturado && !isChecked) {
+                            // Mantém checkbox marcado até escolher SIM/NÃO
+                            event.target.checked = true;
+
+                            const confirmar = await mostrarModalConfirmarApagarFaturamento();
+                            if (!confirmar) return;
+
+                            await apagarFaturamentoRelacionadoAoServico(servicoId);
+                            await loadServicos();
+                            return;
+                        }
+
+                        // Caso normal (pendente): só altera seleção para faturar
                         servico.selecionadoParaFaturar = isChecked;
                         await salvarManutencoesPersistente(servicosAtuais);
                         allServicos = servicosAtuais;
+
                         // Recalcular valor parcial se houver filtro de faturamento ativo
                         const filterFaturamento = document.getElementById('filterFaturamento');
                         if (filterFaturamento && filterFaturamento.value) {
@@ -7587,6 +8250,46 @@
                     }
                 } catch (err) {
                     console.error('Erro ao salvar checkbox Faturar:', err);
+                }
+            } else if (event.target.classList.contains('status-servico-select')) {
+                const servicoId = event.target.dataset.id;
+                const newStatus = event.target.value; // "Faturado" | "Pendente"
+                try {
+                    const servicosAtuais = await getData('manutencoesCadastradas');
+                    if (!Array.isArray(servicosAtuais)) return;
+                    const servico = servicosAtuais.find(s => s.id === servicoId);
+                    if (!servico) return;
+
+                    const currentFaturado = servico.faturado === true || servico.faturado === 'sim';
+                    const desiredFaturado = newStatus === 'Faturado';
+
+                    // Faturado -> Pendente: reverter faturamento (com confirmação)
+                    if (currentFaturado && !desiredFaturado) {
+                        const confirmar = await mostrarModalConfirmarApagarFaturamento();
+                        if (!confirmar) {
+                            // Reverte visualmente o select
+                            event.target.value = 'Faturado';
+                            event.target.style.color = 'green';
+                            return;
+                        }
+
+                        await apagarFaturamentoRelacionadoAoServico(servicoId);
+                        await loadServicos();
+                        return;
+                    }
+
+                    // Pendente -> Faturado: marca manualmente
+                    if (!currentFaturado && desiredFaturado) {
+                        servico.faturado = true;
+                        servico.selecionadoParaFaturar = false;
+                        await salvarManutencoesPersistente(servicosAtuais);
+                        await loadServicos();
+                        return;
+                    }
+
+                    await loadServicos();
+                } catch (err) {
+                    console.error('Erro ao salvar Status (manual):', err);
                 }
             } else if (event.target.classList.contains('pre-aprovado-checkbox')) {
                 const servicoId = event.target.dataset.id;
@@ -7695,6 +8398,9 @@
         
         btnLimparFiltro.addEventListener('click', () => {
             filterMes.value = '';
+            if (filterInicio) filterInicio.value = '';
+            if (filterFim) filterFim.value = '';
+            if (filterTipoServico) filterTipoServico.value = '';
             filterFaturamento.value = '';
             filterViatura.value = '';
             filterAprovado.value = '';
@@ -9185,7 +9891,7 @@
                                 <td style="padding: 10px; border: 1px solid #ddd;">${servico.ordemServico || '-'}</td>
                                 <td style="padding: 10px; border: 1px solid #ddd;">${formatarDataRelatorio(servico.dataEntrada)}</td>
                                 <td style="padding: 10px; border: 1px solid #ddd; white-space: pre-wrap; word-wrap: break-word;">${servico.descricao || '-'}</td>
-                                <td style="padding: 10px; border: 1px solid #ddd;">${servico.valor || 'R$ 0,00'}</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">${(servico.valor === '' || servico.valor === null || servico.valor === undefined) ? '' : (servico.valor || 'R$ 0,00')}</td>
                                 <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
                                     <button onclick="excluirLinhaRelatorio('relatorio-servico-nao-aprovado-${index}')" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;" title="Excluir do relatório">
                                         <i class="fas fa-trash"></i> Excluir
@@ -10831,6 +11537,9 @@
         const fixarNotaBtn = document.getElementById('fixarNotaBtn');
         const baixarNotaBtn = document.getElementById('baixarNotaBtn');
         const excluirNotaBtn = document.getElementById('excluirNotaBtn');
+        const adicionarEmpenhoBtn = document.getElementById('adicionarEmpenhoBtn');
+        const nfEmpenhoBlock = document.getElementById('nfEmpenhoBlock');
+        const nfEmpenhoInput = document.getElementById('nfEmpenhoInput');
         const nfFileInput = document.getElementById('nfFileInput');
         const nfModalTitle = document.getElementById('nfModalTitle');
         const nfNumber = document.getElementById('nfNumber');
@@ -10866,6 +11575,11 @@
                     baixarNotaBtn.style.display = 'none';
                     excluirNotaBtn.style.display = 'none';
                 }
+                
+                // Bloco e botão de empenho para NF de Peça
+                nfEmpenhoBlock.style.display = 'block';
+                adicionarEmpenhoBtn.style.display = 'block';
+                nfEmpenhoInput.value = servico.empenhoNfPeca || '';
             } else {
                 nfModalTitle.textContent = 'Nota Fiscal de Serviço';
                 nfNumber.textContent = servico.nfServico;
@@ -10882,6 +11596,11 @@
                     baixarNotaBtn.style.display = 'none';
                     excluirNotaBtn.style.display = 'none';
                 }
+                
+                // Bloco e botão de empenho para NF de Serviço
+                nfEmpenhoBlock.style.display = 'block';
+                adicionarEmpenhoBtn.style.display = 'block';
+                nfEmpenhoInput.value = servico.empenhoNfServico || '';
             }
             
             nfModal.style.display = 'flex';
@@ -10992,10 +11711,37 @@
             }
         }
         
+        async function vincularEmpenhoNf() {
+            if (!currentNfServicoId || !currentNfTipo) return;
+            const empenhoDigitado = (nfEmpenhoInput.value || '').trim();
+            const servicosAtuais = await getData('manutencoesCadastradas');
+            const servico = servicosAtuais.find(s => s.id === currentNfServicoId);
+            if (!servico) {
+                alert('❌ Serviço não encontrado.');
+                return;
+            }
+
+            const isPeca = currentNfTipo === 'peca';
+            const prop = isPeca ? 'empenhoNfPeca' : 'empenhoNfServico';
+            const label = isPeca ? 'nota fiscal de peça' : 'nota fiscal de serviço';
+
+            if (empenhoDigitado) {
+                servico[prop] = empenhoDigitado;
+            } else {
+                delete servico[prop];
+            }
+
+            await setData('manutencoesCadastradas', servicosAtuais);
+            nfEmpenhoInput.value = empenhoDigitado;
+            alert(empenhoDigitado ? `✅ Empenho vinculado à ${label}.` : `✅ Vínculo de empenho removido da ${label}.`);
+            loadServicos();
+        }
+        
         closeNfModalBtn.onclick = fecharModalNF;
         fixarNotaBtn.onclick = fixarNota;
         baixarNotaBtn.onclick = baixarNota;
         excluirNotaBtn.onclick = excluirNota;
+        if (adicionarEmpenhoBtn) adicionarEmpenhoBtn.addEventListener('click', vincularEmpenhoNf);
         nfFileInput.addEventListener('change', processarArquivoNF);
         
         // Fechar modal ao clicar fora
@@ -11021,6 +11767,9 @@
             localStorage.setItem('sismavFilterAnoServicos', '');
         }
         await promessaMigracaoPendenteIndeterminada;
+        await promessaMigracaoSepararNotasPorOS;
+        await promessaReverterOS180091;
+        await promessaReverterFaturamento11;
         populateViaturas();
         populateFilters();
         loadServicos();
