@@ -1,0 +1,322 @@
+@keyframes fat-resumo-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fat-resumo-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.03);
+  }
+}
+
+.fat-resumo {
+  position: relative;
+  margin-bottom: 1.25rem;
+  padding: 1.15rem 1.35rem 1.25rem;
+  border-radius: var(--radius-xl, 1.25rem);
+  border: 1px solid color-mix(in srgb, var(--primary-500) 28%, var(--border));
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary-500) 10%, var(--surface)) 0%,
+      var(--surface) 42%,
+      color-mix(in srgb, var(--success) 6%, var(--surface)) 100%
+    );
+  box-shadow:
+    var(--shadow-card),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  overflow: hidden;
+  animation: fat-resumo-in 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fat-resumo__glow {
+  position: absolute;
+  top: -40%;
+  right: -8%;
+  width: min(320px, 55%);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary-500) 22%, transparent) 0%,
+    transparent 68%
+  );
+  pointer-events: none;
+  animation: fat-resumo-glow 6s ease-in-out infinite;
+}
+
+.fat-resumo__header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 1rem;
+}
+
+.fat-resumo__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.45rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary-700);
+  background: color-mix(in srgb, var(--primary-500) 14%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--primary-500) 32%, var(--border));
+}
+
+.fat-resumo__badge-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--primary-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-500) 28%, transparent);
+}
+
+.fat-resumo__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.fat-resumo__subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.fat-resumo__metrics {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.85rem 1rem;
+  align-items: stretch;
+}
+
+.fat-resumo__metric {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.95rem 1rem;
+  border-radius: var(--radius-lg, 1rem);
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.fat-resumo__metric:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.fat-resumo__metric--total {
+  border-color: color-mix(in srgb, var(--primary-500) 32%, var(--border));
+}
+
+.fat-resumo__metric--total:hover {
+  border-color: color-mix(in srgb, var(--primary-500) 48%, var(--border));
+}
+
+.fat-resumo__metric--aprovacao {
+  border-color: color-mix(in srgb, var(--success) 32%, var(--border));
+}
+
+.fat-resumo__metric--aprovacao:hover {
+  border-color: color-mix(in srgb, var(--success) 48%, var(--border));
+}
+
+.fat-resumo__metric-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: var(--radius-md, 0.75rem);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--primary-700);
+  background: color-mix(in srgb, var(--primary-500) 14%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--primary-500) 28%, var(--border));
+}
+
+.fat-resumo__metric-icon--ok {
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 14%, var(--surface));
+  border-color: color-mix(in srgb, var(--success) 30%, var(--border));
+}
+
+.fat-resumo__metric-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.fat-resumo__metric-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fat-resumo__metric-value {
+  font-size: clamp(1.25rem, 2.2vw, 1.65rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.fat-resumo__metric--total .fat-resumo__metric-value {
+  color: var(--primary-700);
+}
+
+.fat-resumo__metric--aprovacao .fat-resumo__metric-value {
+  color: var(--success);
+}
+
+.fat-resumo__metric-meta {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.fat-resumo__divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 4.5rem;
+}
+
+.fat-resumo__divider-line {
+  flex: 1;
+  width: 1px;
+  min-height: 0.75rem;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--primary-500) 35%, var(--border)),
+    transparent
+  );
+}
+
+.fat-resumo__divider-ring {
+  position: relative;
+  width: 3.25rem;
+  height: 3.25rem;
+}
+
+.fat-resumo__ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.fat-resumo__ring-track {
+  stroke: color-mix(in srgb, var(--border) 80%, transparent);
+}
+
+.fat-resumo__ring-progress {
+  stroke: var(--success);
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fat-resumo__ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fat-resumo__bar {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.95rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 70%, transparent);
+  overflow: hidden;
+}
+
+.fat-resumo__bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--primary-500),
+    color-mix(in srgb, var(--success) 85%, var(--primary-500))
+  );
+  transition: width 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--success) 45%, transparent);
+}
+
+@media (max-width: 900px) {
+  .fat-resumo__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .fat-resumo__divider {
+    flex-direction: row;
+    min-width: 0;
+    width: 100%;
+    padding: 0.15rem 0;
+  }
+
+  .fat-resumo__divider-line {
+    width: auto;
+    height: 1px;
+    min-height: 0;
+    flex: 1;
+    background: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in srgb, var(--primary-500) 35%, var(--border)),
+      transparent
+    );
+  }
+}
+
+@media (max-width: 520px) {
+  .fat-resumo {
+    padding: 1rem 1rem 1.1rem;
+  }
+
+  .fat-resumo__metric {
+    padding: 0.85rem 0.9rem;
+  }
+}

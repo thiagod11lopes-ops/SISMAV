@@ -1,0 +1,46 @@
+.backup-automatico-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(8px);
+  animation: modern-overlay-in 0.2s ease;
+}
+
+.backup-automatico-modal {
+  width: min(32rem, 100%);
+}
+
+.backup-automatico-modal__data {
+  margin: 0.35rem 0 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.backup-automatico-modal__texto {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.backup-automatico-modal__lista {
+  margin: 1rem 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.backup-automatico-modal .modern-modal-footer {
+  justify-content: stretch;
+}
+
+.backup-automatico-modal .modern-modal-footer .btn {
+  width: 100%;
+}

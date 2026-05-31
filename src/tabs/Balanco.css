@@ -1,0 +1,369 @@
+.balanco-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.balanco-page__header {
+  padding: 1.25rem 1.35rem;
+  border-radius: var(--radius-lg, 1rem);
+  border: 1px solid var(--border);
+  background: var(--gradient-panel-body);
+  box-shadow: var(--shadow-card);
+}
+
+.balanco-page__title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.balanco-page__description {
+  margin: 0.35rem 0 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 52rem;
+}
+
+.balanco-periodo {
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--primary-500) 22%, var(--border));
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--primary-500) 6%, var(--surface)) 0%,
+    var(--surface) 55%
+  );
+  box-shadow: var(--shadow-card);
+}
+
+.balanco-periodo__head {
+  margin-bottom: 0.9rem;
+}
+
+.balanco-periodo__title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.balanco-periodo__desc {
+  margin: 0.2rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.balanco-periodo__grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.65rem 0.5rem;
+  align-items: start;
+}
+
+.balanco-periodo__sep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin-top: 1.65rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  color: var(--primary-600);
+  background: color-mix(in srgb, var(--primary-500) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--primary-500) 28%, var(--border));
+  flex-shrink: 0;
+}
+
+.balanco-periodo__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.balanco-periodo__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.balanco-periodo__badge-hoje {
+  font-size: 0.5625rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  color: var(--primary-800);
+  background: color-mix(in srgb, var(--primary-500) 18%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--primary-500) 35%, var(--border));
+}
+
+.balanco-periodo__date-control {
+  display: flex;
+  align-items: stretch;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.balanco-periodo__date-control:focus-within {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.balanco-periodo__date-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  color: var(--primary-600);
+  background: color-mix(in srgb, var(--primary-500) 8%, var(--input-bg));
+  border-right: 1px solid var(--border);
+}
+
+.balanco-periodo__date-input {
+  flex: 1;
+  min-width: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0.65rem 0.75rem !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.balanco-periodo__date-input:focus {
+  box-shadow: none !important;
+  transform: none;
+}
+
+.balanco-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.balanco-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.balanco-kpi:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.balanco-kpi__label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.balanco-kpi__value {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.balanco-kpi__meta {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.balanco-kpi--primary {
+  border-color: color-mix(in srgb, var(--primary-500) 35%, var(--border));
+  background: color-mix(in srgb, var(--primary-500) 8%, var(--surface));
+}
+
+.balanco-kpi--primary .balanco-kpi__value {
+  color: var(--primary-700);
+}
+
+.balanco-kpi--success .balanco-kpi__value {
+  color: var(--success);
+}
+
+.balanco-gastos-viaturas {
+  padding: 1rem 1.1rem 1.1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.balanco-gastos-viaturas__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.balanco-gastos-viaturas__desc {
+  margin: 0.25rem 0 0.85rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.balanco-gastos-viaturas__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.balanco-gastos-viaturas__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg-subtle);
+}
+
+.balanco-gastos-viaturas__label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.balanco-gastos-viaturas__value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.balanco-gastos-viaturas__meta {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.balanco-gastos-viaturas__card--total {
+  border-color: color-mix(in srgb, var(--primary-500) 35%, var(--border));
+  background: color-mix(in srgb, var(--primary-500) 8%, var(--surface));
+}
+
+.balanco-gastos-viaturas__card--total .balanco-gastos-viaturas__value {
+  color: var(--primary-700);
+  font-size: 1.25rem;
+}
+
+.balanco-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.balanco-chart-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem 1.15rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  min-width: 0;
+}
+
+.balanco-chart-card--wide {
+  grid-column: 1 / -1;
+}
+
+.balanco-chart-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.balanco-chart-card__title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.balanco-chart-card__subtitle {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.balanco-chart-card__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border);
+  background: var(--bg-subtle);
+}
+
+@media (max-width: 1100px) {
+  .balanco-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .balanco-periodo__grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .balanco-periodo__sep {
+    margin-top: 0;
+    align-self: center;
+    transform: rotate(90deg);
+  }
+
+  .balanco-kpis,
+  .balanco-charts,
+  .balanco-gastos-viaturas__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .balanco-chart-card--wide {
+    grid-column: auto;
+  }
+}

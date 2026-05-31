@@ -1,0 +1,76 @@
+.tableContainer {
+  overflow-x: auto;
+  background-color: var(--white);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.tableHead th {
+  padding: 12px 15px;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  color: var(--white);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+
+.tableHead th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.tableHead th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:nth-child(odd) {
+  background-color: var(--light-gray);
+}
+
+.table tbody tr:hover {
+  background-color: rgba(102, 126, 234, 0.1);
+}
+
+.table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e2e8f0;
+  color: var(--dark-gray);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table td.right {
+  text-align: right;
+  font-weight: 600;
+}
+
+.table td.center {
+  text-align: center;
+}
+
+.actionsCell {
+  text-align: center;
+  white-space: nowrap; /* Prevent buttons from wrapping */
+}
+
+.noData {
+  text-align: center;
+  padding: 20px;
+  color: var(--dark-gray);
+  font-style: italic;
+}

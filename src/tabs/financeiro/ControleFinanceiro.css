@@ -1,0 +1,40 @@
+.controle-financeiro {
+  width: 100%;
+}
+
+.cadastro-contrato-solemp {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.cadastro-contrato-solemp__forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.cadastro-contrato-solemp__forms > .section-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cadastro-contrato-solemp__forms .section-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cadastro-contrato-solemp__forms .form-contrato,
+.cadastro-contrato-solemp__forms .form-solemp {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cadastro-contrato-solemp__forms .form-contrato__actions,
+.cadastro-contrato-solemp__forms .form-solemp__actions {
+  margin-top: auto;
+}

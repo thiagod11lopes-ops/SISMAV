@@ -1,0 +1,53 @@
+.editar-financeiro-modal {
+  width: min(96vw, 560px);
+  max-height: min(92vh, 720px);
+}
+
+.editar-financeiro-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.editar-financeiro-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.editar-financeiro-modal__field--full {
+  grid-column: 1 / -1;
+}
+
+.cadastro-financeiro-table__acoes {
+  display: flex;
+  justify-content: center;
+}
+
+.cadastro-financeiro-table__acao-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 0.75rem);
+  background: var(--surface);
+  color: var(--primary-700);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+}
+
+.cadastro-financeiro-table__acao-btn:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-300);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
+.cadastro-financeiro-table__acao-btn:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}

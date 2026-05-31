@@ -1,0 +1,4 @@
+.backup-automatico-gate--bloqueado {
+  pointer-events: none;
+  user-select: none;
+}

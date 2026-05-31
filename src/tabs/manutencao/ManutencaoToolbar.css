@@ -1,0 +1,58 @@
+.manutencao-toolbar {
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.manutencao-toolbar__busca {
+  margin-bottom: 1rem;
+}
+
+.manutencao-toolbar__busca-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.manutencao-toolbar__busca-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.manutencao-toolbar__input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+}
+
+.manutencao-toolbar__input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-50);
+}
+
+.manutencao-toolbar__btn-buscar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.manutencao-toolbar__acoes {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

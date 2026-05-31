@@ -1,0 +1,387 @@
+.controle-creditos-panel {
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 1rem);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.controle-creditos-panel__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+  background: var(--gradient-header);
+  color: #fff;
+}
+
+.controle-creditos-panel__header-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.controle-creditos-panel__icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md, 0.75rem);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.controle-creditos-panel__titulo {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.controle-creditos-panel__subtitulo {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  opacity: 0.88;
+}
+
+.controle-creditos-panel__header .btn--ghost {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.controle-creditos-panel__header .btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.controle-creditos-panel__header-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.controle-creditos-panel__btn-itens {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius-sm, 0.5rem);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+}
+
+.controle-creditos-panel__btn-itens:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.04);
+}
+
+.controle-creditos-panel__btn-itens:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 2px;
+}
+
+.controle-creditos-panel__btn-itens-badge {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.125rem;
+  text-align: center;
+  color: #fff;
+  background: var(--primary-600);
+  border: 2px solid color-mix(in srgb, var(--primary-800) 80%, #0f172a);
+}
+
+.controle-creditos-panel__corpo {
+  padding: 1.15rem;
+  background: linear-gradient(180deg, var(--bg-subtle) 0%, var(--surface) 100%);
+}
+
+.controle-creditos-modal {
+  width: 100%;
+}
+
+.controle-creditos-modal__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+@media (max-width: 720px) {
+  .controle-creditos-modal__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.controle-creditos-modal__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  height: 100%;
+  min-height: 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 1rem);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.controle-creditos-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.controle-creditos-modal__card-titulo {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.controle-creditos-modal__card--compras .controle-creditos-modal__card-titulo {
+  color: var(--danger, #dc2626);
+}
+
+.controle-creditos-modal__card--pagamentos .controle-creditos-modal__card-titulo {
+  color: var(--primary-700);
+}
+
+.controle-creditos-modal__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.controle-creditos-modal__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.controle-creditos-modal__campo input,
+.controle-creditos-modal__campo select {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 0.5rem);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.controle-creditos-modal__campo input:focus,
+.controle-creditos-modal__campo select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--primary-50);
+}
+
+.controle-creditos-modal__lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+}
+
+.controle-creditos-modal__lista--modal {
+  max-height: min(50vh, 22rem);
+}
+
+.controle-creditos-modal__lista-vazia {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.controle-creditos-itens-modal {
+  width: min(52rem, 100%);
+  max-height: min(90vh, 36rem);
+}
+
+.controle-creditos-itens-modal__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .controle-creditos-itens-modal__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.controle-creditos-itens-modal__secao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.controle-creditos-itens-modal__secao-titulo {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.controle-creditos-itens-modal__secao-titulo--pagamentos {
+  color: var(--primary-700);
+}
+
+.controle-creditos-itens-modal__secao-titulo--compras {
+  color: var(--danger, #dc2626);
+}
+
+.controle-creditos-modal__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 0.5rem);
+  background: var(--bg-subtle);
+  font-size: 0.8125rem;
+}
+
+.controle-creditos-modal__item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.controle-creditos-modal__item-titulo {
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-word;
+}
+
+.controle-creditos-modal__item-detalhe {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.controle-creditos-modal__item-valor {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.controle-creditos-modal__item-acoes {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+}
+
+.controle-creditos-modal__item-editar,
+.controle-creditos-modal__item-remover {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm, 0.5rem);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.controle-creditos-modal__item-editar:hover {
+  color: var(--primary-700);
+  background: color-mix(in srgb, var(--primary-500) 12%, transparent);
+}
+
+.controle-creditos-modal__item-remover:hover {
+  color: var(--danger, #dc2626);
+  background: color-mix(in srgb, var(--danger, #dc2626) 10%, transparent);
+}
+
+.controle-creditos-modal__card--editando {
+  border-color: color-mix(in srgb, var(--primary-500) 45%, var(--border));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-500) 15%, transparent);
+}
+
+.controle-creditos-modal__balanco {
+  margin-top: 1rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius-lg, 1rem);
+  border: 2px solid var(--border);
+  background: color-mix(in srgb, var(--primary-50) 35%, var(--surface));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.controle-creditos-modal__balanco-label {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.controle-creditos-modal__balanco-valor {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.controle-creditos-modal__balanco-valor--positivo {
+  color: var(--success, #16a34a);
+}
+
+.controle-creditos-modal__balanco-valor--negativo {
+  color: var(--danger, #dc2626);
+}
+
+.controle-creditos-modal__balanco-valor--zero {
+  color: var(--text);
+}
+
+.controle-creditos-modal__balanco-detalhe {
+  width: 100%;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}

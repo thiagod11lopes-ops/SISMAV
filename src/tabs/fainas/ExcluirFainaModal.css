@@ -1,0 +1,14 @@
+.fainas-excluir-modal {
+  max-width: 26rem;
+}
+
+.fainas-excluir-modal__text {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.fainas-excluir-modal__text strong {
+  color: var(--text);
+}

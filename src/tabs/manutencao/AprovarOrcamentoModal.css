@@ -1,0 +1,307 @@
+.aprovar-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.18), transparent 42%),
+    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.12), transparent 40%),
+    rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(10px);
+  animation: aprovar-overlay-in 0.22s ease;
+}
+
+@keyframes aprovar-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.aprovar-modal {
+  position: relative;
+  width: min(96vw, 560px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--border) 55%, #fff 45%);
+  background: color-mix(in srgb, var(--surface) 92%, #fff 8%);
+  box-shadow:
+    0 28px 60px -18px rgba(15, 23, 42, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  overflow: hidden;
+  animation: aprovar-modal-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes aprovar-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.aprovar-modal__glow {
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 220px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(59, 130, 246, 0.22),
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.aprovar-modal__header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.35rem 1.4rem 1.1rem;
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e3a5f 45%,
+    #1d4ed8 100%
+  );
+  color: #fff;
+}
+
+.aprovar-modal__header-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.aprovar-modal__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  flex-shrink: 0;
+}
+
+.aprovar-modal__eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.aprovar-modal__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.aprovar-modal__subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.aprovar-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.aprovar-modal__close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.aprovar-modal__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding: 1.25rem 1.4rem 1.1rem;
+}
+
+.aprovar-modal__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.aprovar-modal__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--primary-50) 65%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-200) 55%, transparent);
+}
+
+.aprovar-modal__stat--highlight {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--primary-100) 80%, #fff 20%),
+    color-mix(in srgb, var(--primary-50) 90%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--primary-300) 60%, transparent);
+}
+
+.aprovar-modal__stat-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted, #64748b);
+}
+
+.aprovar-modal__stat-value {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.aprovar-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.aprovar-modal__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.aprovar-modal__input-wrap {
+  position: relative;
+  border-radius: 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.aprovar-modal__input-wrap:focus-within {
+  border-color: var(--primary-400);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--primary-500) 18%, transparent),
+    0 8px 20px rgba(37, 99, 235, 0.08);
+}
+
+.aprovar-modal__input-wrap--error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.aprovar-modal__input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.aprovar-modal__input:focus {
+  outline: none;
+}
+
+.aprovar-modal__input::placeholder {
+  color: var(--text-muted, #94a3b8);
+  font-weight: 500;
+}
+
+.aprovar-modal__hint,
+.aprovar-modal__erro {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.aprovar-modal__hint {
+  color: var(--text-muted, #64748b);
+}
+
+.aprovar-modal__erro {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.aprovar-modal__preview {
+  padding: 0.95rem 1rem;
+  border-radius: 0.95rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface) 88%, #f8fafc 12%),
+    color-mix(in srgb, var(--primary-50) 35%, var(--surface))
+  );
+  border: 1px dashed color-mix(in srgb, var(--border) 80%, var(--primary-300) 20%);
+}
+
+.aprovar-modal__preview-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--primary-700);
+}
+
+.aprovar-modal__preview-text {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+
+.aprovar-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  padding: 0.95rem 1.4rem 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  background: color-mix(in srgb, var(--surface) 94%, #f8fafc 6%);
+}
+
+.aprovar-modal__confirm {
+  min-width: 8.5rem;
+}
+
+@media (max-width: 560px) {
+  .aprovar-modal__stats {
+    grid-template-columns: 1fr;
+  }
+}

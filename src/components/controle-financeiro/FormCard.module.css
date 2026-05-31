@@ -1,0 +1,72 @@
+.card {
+  background-color: var(--white);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  margin-bottom: 25px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, var(--primary-blue), var(--secondary-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card form label {
+  display: block;
+  margin-bottom: 15px;
+}
+
+.card form label span {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--dark-gray);
+}
+
+.card form input[type='text'],
+.card form input[type='date'],
+.card form select {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  color: var(--dark-gray);
+  box-sizing: border-box;
+}
+
+.card form input[type='text']::placeholder,
+.card form select::placeholder {
+  color: #a0aec0;
+}
+
+.card form button {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  color: var(--white);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  transition: all 0.3s ease;
+}
+
+.card form button:hover {
+  opacity: 0.9;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.card form button.success {
+  background: linear-gradient(135deg, var(--success-green) 0%, #38a169 100%);
+}
+
+.card form button.success:hover {
+  box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+}

@@ -1,0 +1,92 @@
+.faturamento-servicos {
+  width: 100%;
+}
+
+.faturamento-servicos__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.faturamento-servicos__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  max-width: 420px;
+}
+
+.faturamento-servicos__total-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--radius-lg, 1rem);
+  border: 1px solid color-mix(in srgb, var(--primary-500) 25%, var(--border));
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  max-width: 520px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.faturamento-servicos__total-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.faturamento-servicos__total-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.faturamento-servicos__total-valor {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--primary-700);
+  font-variant-numeric: tabular-nums;
+}
+
+.faturamento-servicos__total-detalhe {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.faturamento-servicos__saldo-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  max-width: 520px;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md, 0.75rem);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.faturamento-servicos__saldo-info strong {
+  color: var(--text);
+}
+
+.faturamento-servicos__mensagem--erro {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md, 0.75rem);
+  font-size: 0.875rem;
+  max-width: 520px;
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, var(--border));
+}
+
+.faturamento-servicos__actions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 0.25rem;
+  flex-wrap: wrap;
+}

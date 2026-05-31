@@ -1,0 +1,50 @@
+.viaturas-table__acoes {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.viaturas-table__acao-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 0.75rem);
+  background: var(--surface);
+  color: var(--primary-700);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+}
+
+.viaturas-table__acao-btn:hover {
+  background: var(--primary-50);
+  border-color: var(--primary-300);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
+.viaturas-table__acao-btn:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.viaturas-table__acao-btn--valor {
+  color: var(--success);
+}
+
+.viaturas-table__acao-btn--valor:hover {
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+  border-color: color-mix(in srgb, var(--success) 35%, var(--border));
+}
+
+.viaturas-table__acao-btn--danger {
+  color: var(--danger);
+}
+
+.viaturas-table__acao-btn--danger:hover {
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+}

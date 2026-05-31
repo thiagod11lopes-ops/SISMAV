@@ -1,0 +1,122 @@
+.fainas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.faina-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.18s ease, transform 0.15s ease;
+}
+
+.faina-item:hover {
+  box-shadow: var(--shadow-card);
+}
+
+.faina-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.faina-item__title {
+  margin: 0 0 0.35rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.faina-item__desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.faina-item__meta {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.faina-item__acoes {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.faina-item__acao-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.12s ease,
+    box-shadow 0.15s ease;
+}
+
+.faina-item__acao-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
+.faina-item__acao-btn:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.faina-item__acao-btn--voltar {
+  color: var(--text-muted);
+}
+
+.faina-item__acao-btn--voltar:hover {
+  color: var(--primary-700);
+  background: var(--primary-50);
+  border-color: color-mix(in srgb, var(--primary-500) 35%, var(--border));
+}
+
+.faina-item__acao-btn--avancar {
+  color: var(--primary-700);
+}
+
+.faina-item__acao-btn--avancar:hover {
+  background: color-mix(in srgb, var(--primary-500) 12%, var(--surface));
+  border-color: color-mix(in srgb, var(--primary-500) 40%, var(--border));
+}
+
+.faina-item__acao-btn--danger {
+  color: var(--danger);
+}
+
+.faina-item__acao-btn--danger:hover {
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+}
+
+@media (max-width: 520px) {
+  .faina-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .faina-item__acoes {
+    justify-content: flex-end;
+  }
+}

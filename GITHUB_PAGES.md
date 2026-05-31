@@ -1,41 +1,36 @@
-# Publicar o SISMAV no GitHub Pages (link para abrir em qualquer dispositivo)
+# Publicar o SISMAV no GitHub Pages
 
-Com o GitHub Pages você obtém um link público (ex.: **https://thiagod11lopes-ops.github.io/SISMAV/**) para abrir o SISMAV de qualquer computador ou celular. Os dados ficam no **navegador** (IndexedDB) e o **backup** é enviado ao **Firebase (Firestore)**.
+O SISMAV 2.0 (React + Vite) é publicado automaticamente pelo GitHub Actions a cada push na branch `main`.
 
-## Passo 1: Ativar o GitHub Pages no repositório
+**Link do site:** https://thiagod11lopes-ops.github.io/SISMAV/
 
-1. No **GitHub**, abra o repositório **SISMAV**: https://github.com/thiagod11lopes-ops/SISMAV  
-2. Clique em **Settings** (Configurações).  
-3. No menu à esquerda, em **"Code and automation"**, clique em **Pages**.  
-4. Em **"Build and deployment"** > **Source**, escolha **Deploy from a branch**.  
-5. Em **Branch**, selecione **main** e a pasta **/ (root)**.  
-6. Clique em **Save**.  
-7. Aguarde alguns minutos. O link do site aparecerá em algo como:  
-   **https://thiagod11lopes-ops.github.io/SISMAV/**
+## Configuração no GitHub (uma vez)
 
-## Passo 2: Autorizar o domínio no Firebase
+1. Abra o repositório: https://github.com/thiagod11lopes-ops/SISMAV
+2. **Settings** → **Pages**
+3. Em **Build and deployment** > **Source**, escolha **GitHub Actions** (não "Deploy from a branch")
+4. Salve
 
-Para o Firebase/Firestore funcionar quando o SISMAV for aberto pelo link do GitHub:
+Após o próximo push, o workflow **Deploy GitHub Pages** fará o build (`npm run build`) e publicará a pasta `dist/`.
 
-1. Acesse o **Firebase Console**: https://console.firebase.google.com/  
-2. Selecione o projeto **SISMAV** (sismav-c5577).  
-3. Clique na **engrenagem** → **Configurações do projeto**.  
-4. Role até **"Domínios autorizados"** (Authorized domains).  
-5. Clique em **Adicionar domínio** e adicione:  
-   **`thiagod11lopes-ops.github.io`**  
-6. Salve.
+## Desenvolvimento local
 
-## Passo 3: Enviar as alterações para o GitHub
+```bash
+npm install
+npm run dev
+```
 
-No Cursor (ou no terminal), faça **Commit** e **Sync** (ou Push) para enviar o projeto (incluindo o `index.html`) para o repositório. Depois que o GitHub Pages terminar de publicar, o link estará no ar.
+Para simular o caminho do GitHub Pages localmente:
 
-## Usar o link
+```bash
+npm run build
+npm run preview -- --base /SISMAV/
+```
 
-- **Link principal:** https://thiagod11lopes-ops.github.io/SISMAV/  
-  (abre o `index.html`, que redireciona para o SISMAV)
+## Versão anterior (HTML)
 
-- **Link direto da aplicação:** https://thiagod11lopes-ops.github.io/SISMAV/SISMAV.html  
+Os arquivos do SISMAV clássico (HTML + IndexedDB + Firebase) estão em `legacy/sismav-html/` apenas para referência. Eles não são mais publicados no GitHub Pages.
 
-Em qualquer dispositivo (PC, celular, tablet), basta abrir esse link no navegador. Os dados são salvos no próprio dispositivo e o backup automático é enviado ao Firestore.
+## Dados
 
-**Observação:** O backend Node (localhost:3000) **não** roda no GitHub Pages. O sistema funciona apenas com os arquivos estáticos + IndexedDB + Firestore, que já estão configurados.
+O SISMAV 2.0 salva os dados no **localStorage** do navegador e permite backup/importação em **CSV** pela aba Configurações. A sincronização automática com Firebase do sistema HTML anterior **não está incluída** nesta versão React.

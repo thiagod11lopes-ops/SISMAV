@@ -232,7 +232,7 @@
 <body>
 
     <h2 class="main-title"><i class="fas fa-chart-line"></i> Balanço e Análise de Dados</h2>
-    <p style="text-align: center; color: var(--dark-gray); margin-bottom: 1rem; font-size: 0.9rem;">Totais e gráficos seguem a mesma regra de filtro e soma da aba <strong>Manutenções → Serviços</strong> (baseados nos filtros e no campo <code>dataEntrada</code> quando válido).</p>
+    <p style="text-align: center; color: var(--dark-gray); margin-bottom: 1rem; font-size: 0.9rem;">Totais e gráficos consideram apenas serviços com a coluna <strong>Faturar</strong> marcada (aba Manutenções → Serviços).</p>
 
     <div class="card filters-card">
         <h3 class="card-title"><i class="fas fa-filter"></i> Filtros</h3>
@@ -240,7 +240,6 @@
             <div class="form-group"><label for="filterAno">Ano</label><select id="filterAno"><option value="">Todos</option></select></div>
             <div class="form-group"><label for="filterMes">Mês</label><select id="filterMes"><option value="">Todos</option><option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select></div>
             <div class="form-group"><label for="filterViatura">Viatura</label><select id="filterViatura"><option value="">Todas</option></select></div>
-            <div class="form-group"><label for="filterTipo">Tipo</label><select id="filterTipo"><option value="">Todos</option><option value="Ambulância">Ambulância</option><option value="Administrativa">Administrativa</option></select></div>
             <div class="form-group"><label for="filterInicio">Período - Início</label><input type="date" id="filterInicio"></div>
             <div class="form-group"><label for="filterFim">Período - Fim</label><input type="date" id="filterFim"></div>
         </div>
@@ -288,31 +287,6 @@
             </tbody>
         </table>
     </div>
-    
-    <div class="card details-card" id="viaturaServicosCard" style="display: none;">
-        <h3 class="card-title">Serviços da Viatura (Filtrado)</h3>
-        <p style="margin: -10px 0 10px 0; color: var(--dark-gray); opacity: 0.8; font-size: 0.9rem;">
-            Lista segue os mesmos critérios de filtro e soma da aba Manutenções → Serviços.
-        </p>
-        <div class="table-container">
-            <table id="viaturaServicosTable">
-                <thead>
-                    <tr>
-                        <th>Faturamento</th>
-                        <th>Status</th>
-                        <th>Tipo</th>
-                        <th>Modelo</th>
-                        <th>Viatura</th>
-                        <th>O.S.</th>
-                        <th>Data de Entrada</th>
-                        <th>Data de Saída</th>
-                        <th class="currency">Valor</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
 
     <div class="card details-card">
         <h3 class="card-title">Detalhes por Viatura (Filtrado)</h3>
@@ -329,7 +303,6 @@
         const selectAno = document.getElementById('filterAno');
         const selectMes = document.getElementById('filterMes');
         const selectViatura = document.getElementById('filterViatura');
-        const selectTipo = document.getElementById('filterTipo');
         const inputInicio = document.getElementById('filterInicio');
         const inputFim = document.getElementById('filterFim');
         const btnAplicar = document.getElementById('btnAplicarFiltro');
@@ -377,40 +350,27 @@
             return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to be inclusive
         }
 
-        function normalizarTipo(tipo) {
-            const t = String(tipo || '').trim();
-            if (t === 'Ambulância' || t.toLowerCase() === 'ambulancia') return 'Ambulância';
-            if (t === 'Administrativa' || t.toLowerCase() === 'administrativa') return 'Administrativa';
-            return 'Outros';
-        }
-
-        function aplicarFiltros(lista) {
+        function calculateAndDisplay() {
             const ano = selectAno.value;
             const mes = selectMes.value;
             const viaturaPlaca = selectViatura.value;
-            const tipoServico = selectTipo.value;
             const inicio = inputInicio.value;
             const fim = inputFim.value;
 
-            return lista.filter(m => {
-                const dataEntrada = new Date((m.dataEntrada || '') + 'T00:00:00');
-                const dataValida = !isNaN(dataEntrada.getTime());
-                // Mesma regra da aba Serviços: não excluir registros com dataEntrada inválida/vazia.
-                // Quando a data é válida, aplicar filtros por ano/mês/período normalmente.
-                if (dataValida) {
-                    if (ano && dataEntrada.getFullYear() != ano) return false;
-                    if (mes && (dataEntrada.getMonth() + 1) != mes) return false;
-                    if (inicio && m.dataEntrada < inicio) return false;
-                    if (fim && m.dataEntrada > fim) return false;
-                }
+            let filteredManutencoes = manutencoes.filter(m => {
+                const dataEntrada = new Date(m.dataEntrada + 'T00:00:00');
+                if (isNaN(dataEntrada)) return false;
+                
+                if (ano && dataEntrada.getFullYear() != ano) return false;
+                if (mes && (dataEntrada.getMonth() + 1) != mes) return false;
                 if (viaturaPlaca && m.viatura !== viaturaPlaca) return false;
-                if (tipoServico && normalizarTipo(m.tipo) !== tipoServico) return false;
+                if (inicio && m.dataEntrada < inicio) return false;
+                if (fim && m.dataEntrada > fim) return false;
+                
                 return true;
             });
-        }
-
-        function calculateAndDisplay() {
-            let filteredManutencoes = aplicarFiltros(manutencoes);
+            // Para o balanço, só contabilizar gastos (valor) dos serviços com coluna Faturar marcada
+            filteredManutencoes = filteredManutencoes.filter(m => m.selecionadoParaFaturar === true || m.selecionadoParaFaturar === 'sim');
 
             let totalAmbulancia = 0;
             let totalAdministrativa = 0;
@@ -439,51 +399,6 @@
             document.getElementById('totalAdministrativa').textContent = formatCurrency(totalAdministrativa);
             document.getElementById('totalGeral').textContent = formatCurrency(totalAmbulancia + totalAdministrativa);
 
-            // Se filtrou por uma viatura específica, listar os serviços considerados no cálculo
-            const viaturaServicosCard = document.getElementById('viaturaServicosCard');
-            const viaturaServicosTbody = document.querySelector('#viaturaServicosTable tbody');
-            if (viaturaServicosCard && viaturaServicosTbody) {
-                if (viaturaPlaca) {
-                    const viaturaInfoGlobal = viaturas.find(v => v.placa === viaturaPlaca) || { modelo: 'N/A' };
-                    const modeloGlobal = viaturaInfoGlobal.modelo || viaturaInfoGlobal.Modelo || 'N/A';
-
-                    const sorted = filteredManutencoes
-                        .slice()
-                        .sort((a, b) => String(a.dataEntrada || '').localeCompare(String(b.dataEntrada || '')));
-
-                    viaturaServicosTbody.innerHTML = '';
-                    if (sorted.length === 0) {
-                        viaturaServicosTbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">Nenhum serviço encontrado para a viatura nos filtros selecionados.</td></tr>';
-                    } else {
-                        const formatDate = (d) => d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A';
-                        sorted.forEach(m => {
-                            const status = m.faturado ? 'Faturado' : 'Pendente';
-                            const faturamento = m.faturamento || 'N/A';
-                            const tipo = m.tipo || 'N/A';
-                            const os = m.ordemServico || m.os || 'N/A';
-                            const valor = parseCurrency(m.valor);
-                            viaturaServicosTbody.innerHTML += `
-                                <tr>
-                                    <td>${faturamento}</td>
-                                    <td>${status}</td>
-                                    <td>${tipo}</td>
-                                    <td>${modeloGlobal}</td>
-                                    <td>${m.viatura || viaturaPlaca}</td>
-                                    <td>${os}</td>
-                                    <td>${formatDate(m.dataEntrada)}</td>
-                                    <td>${formatDate(m.dataSaida)}</td>
-                                    <td class="currency">${formatCurrency(valor)}</td>
-                                </tr>
-                            `;
-                        });
-                    }
-                    viaturaServicosCard.style.display = 'block';
-                } else {
-                    viaturaServicosCard.style.display = 'none';
-                    viaturaServicosTbody.innerHTML = '';
-                }
-            }
-
             const detailsTbody = document.querySelector('#detailsTable tbody');
             detailsTbody.innerHTML = '';
             if (Object.keys(details).length === 0) {
@@ -510,7 +425,6 @@
             selectAno.value = '';
             selectMes.value = '';
             selectViatura.value = '';
-            selectTipo.value = '';
             inputInicio.value = '';
             inputFim.value = '';
             calculateAndDisplay();
@@ -525,7 +439,9 @@
         let charts = {};
         
         async function createCharts() {
-            let manutencoesCharts = aplicarFiltros((await getData('manutencoesCadastradas')) || []);
+            let manutencoesCharts = (await getData('manutencoesCadastradas')) || [];
+            // Para o balanço, só contabilizar gastos dos serviços com coluna Faturar marcada
+            manutencoesCharts = manutencoesCharts.filter(m => m.selecionadoParaFaturar === true || m.selecionadoParaFaturar === 'sim');
             const empenhos = (await getData('empenhos')) || [];
             const solemps = (await getData('solemps')) || [];
             const faturamentos = (await getData('faturamentos')) || [];

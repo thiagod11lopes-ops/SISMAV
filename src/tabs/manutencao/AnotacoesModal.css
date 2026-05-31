@@ -1,0 +1,537 @@
+.anotacoes-modal__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.2), transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.16), transparent 42%),
+    rgba(15, 23, 42, 0.64);
+  backdrop-filter: blur(10px);
+  animation: anotacoes-overlay-in 0.22s ease;
+}
+
+@keyframes anotacoes-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.anotacoes-modal {
+  position: relative;
+  width: min(96vw, 980px);
+  max-height: min(92vh, 760px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 1.35rem;
+  border: 1px solid color-mix(in srgb, var(--border) 55%, #fff 45%);
+  background: color-mix(in srgb, var(--surface) 92%, #fff 8%);
+  box-shadow:
+    0 28px 60px -18px rgba(15, 23, 42, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  overflow: hidden;
+  animation: anotacoes-modal-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes anotacoes-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.anotacoes-modal__glow {
+  position: absolute;
+  inset: -40% -20% auto;
+  height: 220px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(99, 102, 241, 0.2),
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.anotacoes-modal__header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem 1rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 45%, #1d4ed8 100%);
+  color: #fff;
+}
+
+.anotacoes-modal__header-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+
+.anotacoes-modal__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  border-radius: 0.9rem;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
+}
+
+.anotacoes-modal__eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.anotacoes-modal__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.anotacoes-modal__subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.anotacoes-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.anotacoes-modal__close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.anotacoes-modal__body {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.anotacoes-modal__calendario-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-right: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  background: color-mix(in srgb, var(--surface) 96%, #f8fafc 4%);
+  overflow: hidden;
+}
+
+.anotacoes-calendario {
+  padding: 0.85rem;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, var(--primary-200) 20%);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.anotacoes-calendario__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.anotacoes-calendario__nav-btn {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.anotacoes-calendario__nav-btn:hover {
+  border-color: var(--primary-300);
+  color: var(--primary-700);
+  background: var(--primary-50);
+}
+
+.anotacoes-calendario__mes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.anotacoes-calendario__mes strong {
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+}
+
+.anotacoes-calendario__hoje {
+  border: none;
+  background: transparent;
+  color: var(--primary-600);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.anotacoes-calendario__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.anotacoes-calendario__weekday {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted, #64748b);
+}
+
+.anotacoes-calendario__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+
+.anotacoes-calendario__dia {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.2rem;
+  border: 1px solid transparent;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.anotacoes-calendario__dia:hover {
+  background: color-mix(in srgb, var(--primary-50) 80%, transparent);
+  border-color: color-mix(in srgb, var(--primary-200) 70%, transparent);
+}
+
+.anotacoes-calendario__dia--fora {
+  color: var(--text-muted, #94a3b8);
+  opacity: 0.75;
+}
+
+.anotacoes-calendario__dia--hoje {
+  border-color: color-mix(in srgb, var(--primary-400) 70%, transparent);
+}
+
+.anotacoes-calendario__dia--selecionada {
+  background: linear-gradient(135deg, #4338ca, #6366f1);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(67, 56, 202, 0.28);
+}
+
+.anotacoes-calendario__dia--selecionada.anotacoes-calendario__dia--fora {
+  opacity: 1;
+  color: #fff;
+}
+
+.anotacoes-calendario__marcador {
+  position: absolute;
+  bottom: 0.28rem;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.anotacoes-calendario__dia--selecionada .anotacoes-calendario__marcador {
+  background: #bbf7d0;
+}
+
+.anotacoes-modal__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 0;
+  flex: 1;
+}
+
+.anotacoes-modal__lista-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.anotacoes-modal__lista-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.anotacoes-modal__lista-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-100) 80%, transparent);
+  color: var(--primary-700);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.anotacoes-modal__busca {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted, #64748b);
+}
+
+.anotacoes-modal__busca input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+
+.anotacoes-modal__busca input:focus {
+  outline: none;
+}
+
+.anotacoes-modal__lista-itens {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.anotacoes-modal__lista-vazia {
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--primary-50) 50%, transparent);
+  color: var(--text-muted, #64748b);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.anotacoes-modal__lista-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.anotacoes-modal__lista-item:hover {
+  border-color: color-mix(in srgb, var(--primary-300) 70%, transparent);
+  background: color-mix(in srgb, var(--primary-50) 60%, var(--surface));
+}
+
+.anotacoes-modal__lista-item--ativa {
+  border-color: color-mix(in srgb, var(--primary-400) 80%, transparent);
+  background: color-mix(in srgb, var(--primary-50) 85%, var(--surface));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-200) 60%, transparent);
+}
+
+.anotacoes-modal__lista-data {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--primary-700);
+}
+
+.anotacoes-modal__lista-texto {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.anotacoes-modal__editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.1rem 1.25rem 1.25rem;
+  overflow: auto;
+}
+
+.anotacoes-modal__editor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.anotacoes-modal__editor-label {
+  margin: 0 0 0.2rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted, #64748b);
+}
+
+.anotacoes-modal__editor-data {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.anotacoes-modal__badge-hoje {
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-100) 85%, transparent);
+  color: var(--primary-700);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.anotacoes-modal__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  flex: 1;
+}
+
+.anotacoes-modal__campo-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.anotacoes-modal__textarea {
+  width: 100%;
+  min-height: 280px;
+  resize: vertical;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface) 92%, #fff 8%),
+    color-mix(in srgb, var(--primary-50) 25%, var(--surface))
+  );
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.anotacoes-modal__textarea:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--primary-400) 80%, transparent);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--primary-500) 16%, transparent),
+    0 10px 24px rgba(67, 56, 202, 0.08);
+}
+
+.anotacoes-modal__textarea::placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
+.anotacoes-modal__feedback {
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, #dcfce7 80%, var(--surface));
+  color: #166534;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.anotacoes-modal__acoes {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: auto;
+}
+
+@media (max-width: 860px) {
+  .anotacoes-modal__body {
+    grid-template-columns: 1fr;
+    overflow: auto;
+  }
+
+  .anotacoes-modal__calendario-panel {
+    border-right: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 75%, transparent);
+  }
+
+  .anotacoes-modal__lista-itens {
+    max-height: 180px;
+  }
+}

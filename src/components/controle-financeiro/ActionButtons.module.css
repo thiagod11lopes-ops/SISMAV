@@ -1,0 +1,33 @@
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.edit {
+  background-color: #f6ad55; /* Orange */
+  color: white;
+}
+
+.edit:hover {
+  background-color: #ed8936;
+}
+
+.delete {
+  background-color: var(--delete-red);
+  color: white;
+}
+
+.delete:hover {
+  background-color: #c53030;
+}
