@@ -98,6 +98,30 @@ function servicoNoPeriodo(
   return true
 }
 
+/** Serviços da viatura no período (exclui Não aprovados), ordenados por data de saída decrescente. */
+export function listarServicosGastoPeriodoViatura(
+  viatura: ViaturaLinha,
+  dataInicio: string,
+  dataFim: string,
+  servicos = carregarServicos(),
+): ServicoRegistro[] {
+  servicos = servicosParaCalculosGlobais(servicos)
+  const inicio = dataInicio.trim() ? parseDataBr(dataInicio) : null
+  const fim = dataFim.trim() ? parseDataBr(dataFim) : null
+
+  return servicos
+    .filter(
+      (servico) =>
+        placasIguais(servico.viatura, viatura.placa) &&
+        servicoNoPeriodo(servico, inicio, fim),
+    )
+    .sort((a, b) => {
+      const ta = parseDataBr(a.dataSaida)?.getTime() ?? 0
+      const tb = parseDataBr(b.dataSaida)?.getTime() ?? 0
+      return tb - ta
+    })
+}
+
 export function calcularLiberacaoGastoViatura(
   placa: string,
   dataFim: Date,

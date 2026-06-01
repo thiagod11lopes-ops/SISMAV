@@ -163,6 +163,98 @@
   font-weight: 600;
 }
 
+.viatura-financeiro-modal__gasto-btn {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+.viatura-financeiro-modal__gasto-btn:hover {
+  border-color: color-mix(in srgb, var(--primary-500) 45%, var(--border));
+}
+
+.viatura-financeiro-modal__gasto-btn--ativo {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.viatura-financeiro-modal__gasto-hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--primary-700);
+}
+
+.viatura-financeiro-modal__detalhe-gasto {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--primary-500) 28%, var(--border));
+  background: color-mix(in srgb, var(--primary-500) 5%, var(--surface));
+}
+
+.viatura-financeiro-modal__detalhe-gasto-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.viatura-financeiro-modal__detalhe-gasto-vazio {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.viatura-financeiro-modal__detalhe-gasto-scroll {
+  overflow-x: auto;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.viatura-financeiro-modal__detalhe-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.viatura-financeiro-modal__detalhe-tabela th,
+.viatura-financeiro-modal__detalhe-tabela td {
+  padding: 0.45rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.viatura-financeiro-modal__detalhe-tabela th {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--bg-subtle) 70%, transparent);
+  position: sticky;
+  top: 0;
+}
+
+.viatura-financeiro-modal__detalhe-tabela tfoot td {
+  border-bottom: none;
+  border-top: 2px solid var(--border);
+  padding-top: 0.55rem;
+}
+
+.viatura-financeiro-modal__col-valor {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .viatura-financeiro-modal__disponivel--ok {
   border-color: color-mix(in srgb, var(--success) 35%, var(--border));
   background: color-mix(in srgb, var(--success) 8%, var(--surface));

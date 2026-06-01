@@ -9,8 +9,10 @@ import {
 } from '../manutencao/servicosStorage'
 import {
   calcularResumoFinanceiroViatura,
+  listarServicosGastoPeriodoViatura,
   PERCENTUAL_LIMITE_VALOR_MERCADO,
 } from './viaturaFinanceiroUtils'
+import { formatarLabelFaturamento } from '../manutencao/faturamentoOptions'
 import type { ViaturaLinha } from './types'
 import '../../styles/modern-ui.css'
 import './ViaturaFinanceiroModal.css'
@@ -56,12 +58,14 @@ export function ViaturaFinanceiroModal({
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
   const [versaoServicos, setVersaoServicos] = useState(0)
+  const [detalheGastoAberto, setDetalheGastoAberto] = useState(false)
 
   useEffect(() => {
     if (!aberto) return
     const fim = formatarData()
     setDataFim(fim)
     setDataInicio(subtrairAnosDataBr(fim, 1))
+    setDetalheGastoAberto(false)
   }, [aberto, viatura?.id])
 
   useEffect(() => {
@@ -97,6 +101,17 @@ export function ViaturaFinanceiroModal({
     }
     void versaoServicos
     return calcularResumoFinanceiroViatura(
+      viatura,
+      dataInicio,
+      dataFim,
+      carregarServicos(),
+    )
+  }, [viatura, dataInicio, dataFim, versaoServicos])
+
+  const servicosNoPeriodo = useMemo(() => {
+    if (!viatura) return []
+    void versaoServicos
+    return listarServicosGastoPeriodoViatura(
       viatura,
       dataInicio,
       dataFim,
@@ -201,12 +216,28 @@ export function ViaturaFinanceiroModal({
           </section>
 
           <div className="modern-stat-grid">
-            <div className="modern-stat-card modern-stat-card--highlight">
+            <button
+              type="button"
+              className={[
+                'modern-stat-card',
+                'modern-stat-card--highlight',
+                'viatura-financeiro-modal__gasto-btn',
+                detalheGastoAberto ? 'viatura-financeiro-modal__gasto-btn--ativo' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => setDetalheGastoAberto((prev) => !prev)}
+              aria-expanded={detalheGastoAberto}
+              aria-controls="viatura-financeiro-detalhe-gasto"
+            >
               <span className="modern-stat-card__label">Gasto no período</span>
               <strong className="modern-stat-card__value">
                 {formatarMoeda(resumo.gastoTotal)}
               </strong>
-            </div>
+              <span className="viatura-financeiro-modal__gasto-hint">
+                {detalheGastoAberto ? 'Ocultar serviços' : 'Ver serviços do período'}
+              </span>
+            </button>
             <div className="modern-stat-card">
               <span className="modern-stat-card__label">Valor de mercado</span>
               <strong className="modern-stat-card__value">
@@ -254,6 +285,66 @@ export function ViaturaFinanceiroModal({
               ) : null}
             </div>
           </div>
+
+          {detalheGastoAberto ? (
+            <section
+              id="viatura-financeiro-detalhe-gasto"
+              className="viatura-financeiro-modal__detalhe-gasto"
+              aria-labelledby="viatura-financeiro-detalhe-gasto-title"
+            >
+              <h3
+                id="viatura-financeiro-detalhe-gasto-title"
+                className="viatura-financeiro-modal__detalhe-gasto-title"
+              >
+                {servicosNoPeriodo.length === 1
+                  ? '1 serviço no período'
+                  : `${servicosNoPeriodo.length} serviços no período`}
+              </h3>
+
+              {servicosNoPeriodo.length === 0 ? (
+                <p className="viatura-financeiro-modal__detalhe-gasto-vazio">
+                  Nenhum serviço registrado para esta viatura no período selecionado.
+                </p>
+              ) : (
+                <div className="viatura-financeiro-modal__detalhe-gasto-scroll">
+                  <table className="viatura-financeiro-modal__detalhe-tabela">
+                    <thead>
+                      <tr>
+                        <th scope="col">Faturamento</th>
+                        <th scope="col">O.S.</th>
+                        <th scope="col" className="viatura-financeiro-modal__col-valor">
+                          Valor
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {servicosNoPeriodo.map((servico) => (
+                        <tr key={servico.id}>
+                          <td>
+                            {formatarLabelFaturamento(servico.faturamento) || '—'}
+                          </td>
+                          <td>{servico.os.trim() || '—'}</td>
+                          <td className="viatura-financeiro-modal__col-valor">
+                            {formatarMoeda(Number(servico.valor) || 0)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <td colSpan={2}>
+                          <strong>Total ({servicosNoPeriodo.length} serviços)</strong>
+                        </td>
+                        <td className="viatura-financeiro-modal__col-valor">
+                          <strong>{formatarMoeda(resumo.gastoTotal)}</strong>
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              )}
+            </section>
+          ) : null}
 
           {resumo.ultrapassouLimite70 ? (
             <div
