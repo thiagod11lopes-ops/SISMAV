@@ -191,6 +191,8 @@ export function Balanco() {
         <p className="balanco-page__description">
           Consolidação em tempo real dos dados do SISMAV. Ajuste o período abaixo
           para filtrar serviços, pagamentos e anotações (padrão: últimos 12 meses).
+          Serviços do faturamento <strong>Não aprovados</strong> não entram nos totais
+          — use o filtro Tipo faturamento na aba Manutenção apenas para consulta.
         </p>
       </header>
 
@@ -248,7 +250,7 @@ export function Balanco() {
         </h3>
         <p className="balanco-gastos-viaturas__desc">
           Soma dos serviços no período por tipo de viatura (placa cadastrada ou categoria do
-          serviço).
+          serviço). Exclui o faturamento <strong>Não aprovados</strong>.
         </p>
         <div className="balanco-gastos-viaturas__grid">
           <article className="balanco-gastos-viaturas__card">

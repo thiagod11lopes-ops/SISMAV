@@ -1,4 +1,5 @@
 import { formatarData, parseDataBr, parseValorMoeda } from '../../utils/formatoBr'
+import { servicosParaCalculosGlobais } from '../manutencao/faturamentoOptions'
 import { carregarServicos } from '../manutencao/servicosStorage'
 import type { ServicoRegistro } from '../manutencao/servicoTypes'
 import type { ViaturaLinha } from './types'
@@ -145,6 +146,7 @@ export function calcularResumoFinanceiroViatura(
   dataFim: string,
   servicos = carregarServicos(),
 ): ResumoFinanceiroViatura {
+  servicos = servicosParaCalculosGlobais(servicos)
   const inicio = dataInicio.trim() ? parseDataBr(dataInicio) : null
   const fim = dataFim.trim() ? parseDataBr(dataFim) : null
   const fimJanelaAnual = fim ?? new Date()

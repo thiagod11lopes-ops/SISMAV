@@ -12,6 +12,7 @@ import {
   getAprovacaoServico,
   type ServicoRegistro,
 } from '../manutencao/servicoTypes'
+import { servicosParaCalculosGlobais } from '../manutencao/faturamentoOptions'
 import { carregarServicos } from '../manutencao/servicosStorage'
 import { carregarContratos } from '../financeiro/contratoStorage'
 import { carregarPagamentos } from '../financeiro/pagamentosStorage'
@@ -256,6 +257,7 @@ export function calcularGastosViaturasPorTipo(
   servicos: ServicoRegistro[],
   viaturas: ViaturaLinha[],
 ): GastosViaturasPorTipo {
+  servicos = servicosParaCalculosGlobais(servicos)
   const tipoPorPlaca = new Map<string, TipoViatura>()
   for (const viatura of viaturas) {
     tipoPorPlaca.set(normalizarPlaca(viatura.placa), viatura.tipo)
@@ -291,10 +293,8 @@ export function calcularBalancoSistema(
   dataInicio: string,
   dataFim: string,
 ): BalancoSistema {
-  const servicos = filtrarServicosPorPeriodo(
-    carregarServicos(),
-    dataInicio,
-    dataFim,
+  const servicos = servicosParaCalculosGlobais(
+    filtrarServicosPorPeriodo(carregarServicos(), dataInicio, dataFim),
   )
   const viaturas = carregarViaturas([])
   const contratos = carregarContratos()

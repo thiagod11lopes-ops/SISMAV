@@ -5,6 +5,30 @@ export interface FaturamentoOption {
   label: string
 }
 
+/** Valor canônico do faturamento de consulta (não entra em balanço nem gastos). */
+export const FATURAMENTO_NAO_APROVADOS = 'Não aprovados'
+
+function normalizarTextoFaturamento(texto: string): string {
+  return texto
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+/** Serviços deste faturamento são só para consulta (filtro Tipo faturamento). */
+export function ehFaturamentoNaoAprovados(faturamento: string): boolean {
+  const t = normalizarTextoFaturamento(faturamento)
+  return t === 'nao aprovados' || t === 'nao aprovado'
+}
+
+/** Exclui faturamento "Não aprovados" de totais, balanço e gastos por viatura. */
+export function servicosParaCalculosGlobais(
+  servicos: ServicoRegistro[],
+): ServicoRegistro[] {
+  return servicos.filter((s) => !ehFaturamentoNaoAprovados(s.faturamento))
+}
+
 /** Ex.: "15" ou "15º" → "15º Faturamento"; textos livres permanecem iguais. */
 export function formatarLabelFaturamento(valor: string): string {
   const trimmed = valor.trim()
