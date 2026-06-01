@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { VIATURAS_INICIAIS } from '../Viaturas'
+import { VIATURAS_INICIAIS } from './viaturasData'
 import type { ViaturaLinha } from './types'
 import {
   carregarViaturas,

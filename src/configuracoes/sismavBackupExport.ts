@@ -16,6 +16,7 @@ import type { ServicoRegistro } from '../tabs/manutencao/servicoTypes'
 import { carregarServicos } from '../tabs/manutencao/servicosStorage'
 import type { ViaturaLinha } from '../tabs/viaturas/types'
 import { carregarViaturas } from '../tabs/viaturas/viaturasStorage'
+import { VIATURAS_INICIAIS } from '../tabs/viaturas/viaturasData'
 import type { TemaId } from '../theme/themeStorage'
 import { carregarTemaSalvo } from '../theme/themeStorage'
 import { carregarBalancoPeriodoSalvo } from '../tabs/balanco/balancoPeriodoStorage'
@@ -64,7 +65,7 @@ export function coletarDadosBackup(): SismavBackupPayload {
     versao: '2.0',
     exportadoEm: formatarData(new Date()),
     servicos: carregarServicos(),
-    viaturas: carregarViaturas([]),
+    viaturas: carregarViaturas(VIATURAS_INICIAIS),
     contratos: carregarContratos(),
     solemps: carregarSolemps(),
     pagamentos: carregarPagamentos(),

@@ -24,6 +24,7 @@ import {
 import { carregarSolemps } from '../financeiro/solempStorage'
 import type { TipoViatura } from '../viaturas/CadastrarViaturaCard'
 import { carregarViaturas } from '../viaturas/viaturasStorage'
+import { VIATURAS_INICIAIS } from '../viaturas/viaturasData'
 import type { ViaturaLinha } from '../viaturas/types'
 
 const MESES_CURTOS = [
@@ -296,7 +297,7 @@ export function calcularBalancoSistema(
   const servicos = servicosParaCalculosGlobais(
     filtrarServicosPorPeriodo(carregarServicos(), dataInicio, dataFim),
   )
-  const viaturas = carregarViaturas([])
+  const viaturas = carregarViaturas(VIATURAS_INICIAIS)
   const contratos = carregarContratos()
   const solemps = carregarSolemps()
   const pagamentosTodos = carregarPagamentos()
