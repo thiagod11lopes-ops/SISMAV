@@ -30,6 +30,7 @@ import {
   formatarMoedaBalanco,
   periodoPadraoBalanco,
 } from './balanco/balancoData'
+import type { MargemGastoViaturaItem } from './viaturas/viaturaFinanceiroUtils'
 import {
   carregarBalancoPeriodoSalvo,
   salvarBalancoPeriodo,
@@ -129,6 +130,64 @@ function BalancoChartCard({
   )
 }
 
+interface BalancoMargemRankingProps {
+  titulo: string
+  totalTipo: number
+  itens: MargemGastoViaturaItem[]
+}
+
+function BalancoMargemRanking({
+  titulo,
+  totalTipo,
+  itens,
+}: BalancoMargemRankingProps) {
+  return (
+    <div className="balanco-margem-70__ranking">
+      <div className="balanco-margem-70__ranking-head">
+        <h4 className="balanco-margem-70__ranking-title">{titulo}</h4>
+        <span className="balanco-margem-70__ranking-total">
+          Subtotal: {formatarMoedaBalanco(totalTipo)}
+        </span>
+      </div>
+      {itens.length === 0 ? (
+        <p className="balanco-margem-70__ranking-empty">Nenhuma viatura cadastrada.</p>
+      ) : (
+        <ol className="balanco-margem-70__lista">
+          {itens.map((item, indice) => (
+            <li key={item.id} className="balanco-margem-70__item">
+              <span className="balanco-margem-70__posicao">{indice + 1}</span>
+              <div className="balanco-margem-70__info">
+                <strong className="balanco-margem-70__placa">{item.placa}</strong>
+                <span className="balanco-margem-70__modelo">{item.modelo}</span>
+              </div>
+              <div className="balanco-margem-70__valores">
+                <strong
+                  className={
+                    item.margemDisponivel > 0
+                      ? 'balanco-margem-70__margem'
+                      : 'balanco-margem-70__margem balanco-margem-70__margem--zero'
+                  }
+                >
+                  {formatarMoedaBalanco(item.margemDisponivel)}
+                </strong>
+                {item.ultrapassouLimite70 ? (
+                  <span className="balanco-margem-70__status balanco-margem-70__status--excedido">
+                    Acima de 70%
+                  </span>
+                ) : item.semValorMercado ? (
+                  <span className="balanco-margem-70__status">Sem valor FIPE</span>
+                ) : item.margemDisponivel <= 0 ? (
+                  <span className="balanco-margem-70__status">Limite atingido</span>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  )
+}
+
 export function Balanco() {
   const [versao, setVersao] = useState(0)
   const periodoInicial = useMemo(
@@ -166,7 +225,7 @@ export function Balanco() {
     return calcularBalancoSistema(dataInicio, dataFim)
   }, [versao, dataInicio, dataFim])
 
-  const { kpis, gastosViaturas } = dados
+  const { kpis, gastosViaturas, margemGastoFrota } = dados
   const tooltipMoeda = (valor: number) => formatarMoedaBalanco(valor)
 
   const dadosCategoriaPie = dados.servicosPorCategoria.map((item, i) => ({
@@ -284,6 +343,128 @@ export function Balanco() {
             </span>
           </article>
         </div>
+
+        <div
+          className="balanco-margem-70"
+          aria-labelledby="balanco-margem-70-title"
+        >
+          <h4 id="balanco-margem-70-title" className="balanco-margem-70__title">
+            Margem disponível (regra dos 70%)
+          </h4>
+          <p className="balanco-margem-70__desc">
+            Soma do que cada viatura ainda pode gastar sem ultrapassar{' '}
+            <strong>70% do valor FIPE</strong> na janela móvel de 12 meses (até{' '}
+            {margemGastoFrota.dataReferenciaJanela}). Serviços{' '}
+            <strong>Não aprovados</strong> não entram no cálculo.
+          </p>
+          <article className="balanco-margem-70__total-card">
+            <span className="balanco-gastos-viaturas__label">
+              Total possível de gastar (todas as viaturas)
+            </span>
+            <strong className="balanco-margem-70__total-value">
+              {formatarMoedaBalanco(margemGastoFrota.totalMargemDisponivel)}
+            </strong>
+            <span className="balanco-margem-70__total-meta">
+              Ambulâncias: {formatarMoedaBalanco(margemGastoFrota.margemAmbulancias)} ·
+              Administrativas:{' '}
+              {formatarMoedaBalanco(margemGastoFrota.margemAdministrativas)}
+              {margemGastoFrota.viaturasUltrapassaram > 0 ? (
+                <>
+                  {' '}
+                  · {margemGastoFrota.viaturasUltrapassaram} viatura
+                  {margemGastoFrota.viaturasUltrapassaram === 1 ? '' : 's'} acima do
+                  limite
+                </>
+              ) : null}
+            </span>
+          </article>
+          <div className="balanco-margem-70__rankings">
+            <BalancoMargemRanking
+              titulo="Ranking — Ambulâncias"
+              totalTipo={margemGastoFrota.margemAmbulancias}
+              itens={margemGastoFrota.rankingAmbulancias}
+            />
+            <BalancoMargemRanking
+              titulo="Ranking — Administrativas"
+              totalTipo={margemGastoFrota.margemAdministrativas}
+              itens={margemGastoFrota.rankingAdministrativas}
+            />
+          </div>
+        </div>
+      </section>
+
+      <section
+        className="balanco-limite-excedido"
+        aria-labelledby="balanco-limite-excedido-title"
+      >
+        <h3 id="balanco-limite-excedido-title" className="balanco-limite-excedido__title">
+          Viaturas acima do limite de 70%
+        </h3>
+        <p className="balanco-limite-excedido__desc">
+          Viaturas que ultrapassaram o teto de{' '}
+          <strong>70% do valor FIPE</strong> na janela móvel de 12 meses (até{' '}
+          {margemGastoFrota.dataReferenciaJanela}). A data de liberação indica quando
+          serviços antigos saem da janela; o valor futuro é o teto disponível nessa data.
+        </p>
+        {margemGastoFrota.viaturasAcimaLimite70.length === 0 ? (
+          <p className="balanco-limite-excedido__empty" role="status">
+            Nenhuma viatura acima do limite de 70% na data de referência.
+          </p>
+        ) : (
+          <div className="balanco-limite-excedido__table-wrap">
+            <table className="balanco-limite-excedido__table">
+              <thead>
+                <tr>
+                  <th scope="col">Viatura</th>
+                  <th scope="col">Tipo</th>
+                  <th scope="col">Gasto 12 meses</th>
+                  <th scope="col">Excedente</th>
+                  <th scope="col">Liberação</th>
+                  <th scope="col">Valor futuro</th>
+                </tr>
+              </thead>
+              <tbody>
+                {margemGastoFrota.viaturasAcimaLimite70.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <strong className="balanco-limite-excedido__placa">
+                        {item.placa}
+                      </strong>
+                      <span className="balanco-limite-excedido__modelo">
+                        {item.modelo}
+                      </span>
+                    </td>
+                    <td>
+                      {item.tipo === 'ambulancia' ? 'Ambulância' : 'Administrativa'}
+                    </td>
+                    <td>{formatarMoedaBalanco(item.gastoAnual12Meses)}</td>
+                    <td className="balanco-limite-excedido__excedente">
+                      {formatarMoedaBalanco(item.valorExcedido)}
+                    </td>
+                    <td>
+                      {item.liberacaoGasto ? (
+                        item.liberacaoGasto.data
+                      ) : (
+                        <span className="balanco-limite-excedido__indefinido">
+                          Indefinida
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {item.liberacaoGasto ? (
+                        <strong className="balanco-limite-excedido__futuro">
+                          {formatarMoedaBalanco(item.liberacaoGasto.valorDisponivel)}
+                        </strong>
+                      ) : (
+                        <span className="balanco-limite-excedido__indefinido">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       <section className="balanco-charts">

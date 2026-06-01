@@ -26,6 +26,10 @@ import type { TipoViatura } from '../viaturas/CadastrarViaturaCard'
 import { carregarViaturas } from '../viaturas/viaturasStorage'
 import { VIATURAS_INICIAIS } from '../viaturas/viaturasData'
 import type { ViaturaLinha } from '../viaturas/types'
+import {
+  calcularMargemGastoFrota,
+  type ResumoMargemGastoFrota,
+} from '../viaturas/viaturaFinanceiroUtils'
 
 const MESES_CURTOS = [
   'jan',
@@ -191,6 +195,7 @@ export interface GastosViaturasPorTipo {
 export interface BalancoSistema {
   kpis: BalancoKpis
   gastosViaturas: GastosViaturasPorTipo
+  margemGastoFrota: ResumoMargemGastoFrota
   servicosPorMes: SerieMes[]
   pagamentosPorMes: SerieMes[]
   servicosPorCategoria: SerieNomeValor[]
@@ -408,6 +413,11 @@ export function calcularBalancoSistema(
   }
 
   const gastosViaturas = calcularGastosViaturasPorTipo(servicos, viaturas)
+  const margemGastoFrota = calcularMargemGastoFrota(
+    viaturas,
+    dataFim,
+    carregarServicos(),
+  )
 
   const contratosFinanceiro = contratos
     .map((contrato) => {
@@ -444,6 +454,7 @@ export function calcularBalancoSistema(
       diasComAnotacao,
     },
     gastosViaturas,
+    margemGastoFrota,
     servicosPorMes,
     pagamentosPorMes,
     servicosPorCategoria: [...categoriaMap.entries()].map(([name, dados]) => ({

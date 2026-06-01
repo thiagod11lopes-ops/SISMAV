@@ -231,3 +231,150 @@ export function calcularResumoFinanceiroViatura(
     liberacaoGasto,
   }
 }
+
+export interface MargemGastoViaturaItem {
+  id: string
+  placa: string
+  modelo: string
+  tipo: ViaturaLinha['tipo']
+  valorMercado: number
+  gastoAnual12Meses: number
+  limite70: number
+  /** Quanto ainda pode gastar sem ultrapassar 70% na janela móvel de 12 meses. */
+  margemDisponivel: number
+  ultrapassouLimite70: boolean
+  semValorMercado: boolean
+}
+
+export interface ResumoMargemGastoFrota {
+  dataReferenciaJanela: string
+  totalMargemDisponivel: number
+  margemAmbulancias: number
+  margemAdministrativas: number
+  rankingAmbulancias: MargemGastoViaturaItem[]
+  rankingAdministrativas: MargemGastoViaturaItem[]
+  viaturasUltrapassaram: number
+  viaturasSemValorMercado: number
+  viaturasAcimaLimite70: ViaturaAcimaLimite70Item[]
+}
+
+export interface ViaturaAcimaLimite70Item {
+  id: string
+  placa: string
+  modelo: string
+  tipo: ViaturaLinha['tipo']
+  gastoAnual12Meses: number
+  limite70: number
+  valorExcedido: number
+  liberacaoGasto: LiberacaoGastoViatura | null
+}
+
+/** Soma da margem até 70% do FIPE por viatura (janela de 12 meses até dataFimReferencia). */
+export function calcularMargemGastoFrota(
+  viaturas: ViaturaLinha[],
+  dataFimReferencia: string,
+  servicos = carregarServicos(),
+): ResumoMargemGastoFrota {
+  servicos = servicosParaCalculosGlobais(servicos)
+  const fimJanela = dataFimReferencia.trim()
+    ? (parseDataBr(dataFimReferencia) ?? new Date())
+    : new Date()
+
+  const itens: MargemGastoViaturaItem[] = []
+  const viaturasAcimaLimite70: ViaturaAcimaLimite70Item[] = []
+
+  for (const viatura of viaturas) {
+    const valorMercado = parseValorMoeda(viatura.valorFipe)
+    const semValorMercado = valorMercado <= 0
+    const limite70 = semValorMercado
+      ? 0
+      : valorMercado * (PERCENTUAL_LIMITE_VALOR_MERCADO / 100)
+    const gastoAnual12Meses = gastoJanelaAnualViatura(
+      servicos,
+      viatura.placa,
+      fimJanela,
+    )
+    const ultrapassouLimite70 =
+      !semValorMercado && gastoAnual12Meses > limite70
+    const margemDisponivel =
+      semValorMercado || ultrapassouLimite70
+        ? 0
+        : Math.max(0, limite70 - gastoAnual12Meses)
+
+    if (ultrapassouLimite70) {
+      viaturasAcimaLimite70.push({
+        id: viatura.id,
+        placa: viatura.placa,
+        modelo: viatura.modelo,
+        tipo: viatura.tipo,
+        gastoAnual12Meses,
+        limite70,
+        valorExcedido: gastoAnual12Meses - limite70,
+        liberacaoGasto: calcularLiberacaoGastoViatura(
+          viatura.placa,
+          fimJanela,
+          valorMercado,
+          servicos,
+        ),
+      })
+    }
+
+    itens.push({
+      id: viatura.id,
+      placa: viatura.placa,
+      modelo: viatura.modelo,
+      tipo: viatura.tipo,
+      valorMercado,
+      gastoAnual12Meses,
+      limite70,
+      margemDisponivel,
+      ultrapassouLimite70,
+      semValorMercado,
+    })
+  }
+
+  const ordenarPorMargem = (
+    a: MargemGastoViaturaItem,
+    b: MargemGastoViaturaItem,
+  ) =>
+    b.margemDisponivel - a.margemDisponivel ||
+    a.placa.localeCompare(b.placa, 'pt-BR')
+
+  const rankingAmbulancias = itens
+    .filter((v) => v.tipo === 'ambulancia')
+    .sort(ordenarPorMargem)
+  const rankingAdministrativas = itens
+    .filter((v) => v.tipo === 'administrativo')
+    .sort(ordenarPorMargem)
+
+  viaturasAcimaLimite70.sort((a, b) => {
+    const dataA = a.liberacaoGasto
+      ? (parseDataBr(a.liberacaoGasto.data)?.getTime() ?? Number.MAX_SAFE_INTEGER)
+      : Number.MAX_SAFE_INTEGER
+    const dataB = b.liberacaoGasto
+      ? (parseDataBr(b.liberacaoGasto.data)?.getTime() ?? Number.MAX_SAFE_INTEGER)
+      : Number.MAX_SAFE_INTEGER
+    return dataA - dataB || a.placa.localeCompare(b.placa, 'pt-BR')
+  })
+
+  return {
+    dataReferenciaJanela: formatarData(fimJanela),
+    totalMargemDisponivel: itens.reduce(
+      (acc, v) => acc + v.margemDisponivel,
+      0,
+    ),
+    margemAmbulancias: rankingAmbulancias.reduce(
+      (acc, v) => acc + v.margemDisponivel,
+      0,
+    ),
+    margemAdministrativas: rankingAdministrativas.reduce(
+      (acc, v) => acc + v.margemDisponivel,
+      0,
+    ),
+    rankingAmbulancias,
+    rankingAdministrativas,
+    viaturasUltrapassaram: itens.filter((v) => v.ultrapassouLimite70).length,
+    viaturasSemValorMercado: itens.filter((v) => v.semValorMercado).length,
+    viaturasAcimaLimite70,
+  }
+}
