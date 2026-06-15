@@ -54,6 +54,7 @@ export function ManutencaoToolbar({
           onClick={onControleCreditos}
           variant={controleCreditosAtivo ? 'primary' : 'secondary'}
           iconOnly
+          className="icon-btn--invisible"
           title="Controle de créditos"
           aria-label="Controle de créditos"
           aria-pressed={controleCreditosAtivo}

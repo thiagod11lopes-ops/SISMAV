@@ -35,6 +35,30 @@
   gap: 0;
 }
 
+/* Botão oculto visualmente, mas clicável (área de toque preservada) */
+.icon-btn--invisible {
+  opacity: 0;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.icon-btn--invisible:hover,
+.icon-btn--invisible:focus,
+.icon-btn--invisible:focus-visible,
+.icon-btn--invisible.icon-btn--primary,
+.icon-btn--invisible.icon-btn--secondary {
+  opacity: 0;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+  color: transparent;
+}
+
 .icon-btn--primary {
   background: var(--primary-600);
   color: #fff;
