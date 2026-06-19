@@ -1,9 +1,26 @@
-import { formatarMoeda, parseDataBr } from '../../utils/formatoBr'
+import { dataBrNoPeriodo, formatarMoeda, parseDataBr } from '../../utils/formatoBr'
 import type { ManutencaoFiltros } from './types'
 import type { ServicoRegistro } from './servicoTypes'
 import { getAprovacaoServico } from './servicoTypes'
 
 export { parseDataBr } from '../../utils/formatoBr'
+
+function temFiltroPeriodoSaida(filtros: ManutencaoFiltros): boolean {
+  return Boolean(filtros.dataInicio.trim() || filtros.dataFim.trim())
+}
+
+function referenciaAnoMesServico(
+  registro: ServicoRegistro,
+): { ano: number; mes: number } | null {
+  const dataSaida = parseDataBr(registro.dataSaida)
+  if (dataSaida) {
+    return { ano: dataSaida.getFullYear(), mes: dataSaida.getMonth() + 1 }
+  }
+  if (registro.ano && registro.mes) {
+    return { ano: registro.ano, mes: registro.mes }
+  }
+  return null
+}
 
 export function buscarServicos(
   registros: ServicoRegistro[],
@@ -26,16 +43,22 @@ export function filtrarServicos(
   registros: ServicoRegistro[],
   filtros: ManutencaoFiltros,
 ): ServicoRegistro[] {
-  const inicio = filtros.dataInicio ? parseDataBr(filtros.dataInicio) : null
-  const fim = filtros.dataFim ? parseDataBr(filtros.dataFim) : null
+  const filtroPeriodoSaida = temFiltroPeriodoSaida(filtros)
 
   return registros.filter((r) => {
-    if (filtros.ano !== 'todos' && r.ano !== Number(filtros.ano)) return false
-    if (filtros.mes !== 'todos' && r.mes !== Number(filtros.mes)) return false
-
-    const dataRegistro = parseDataBr(r.dataSaida)
-    if (inicio && dataRegistro && dataRegistro < inicio) return false
-    if (fim && dataRegistro && dataRegistro > fim) return false
+    if (filtroPeriodoSaida) {
+      if (!dataBrNoPeriodo(r.dataSaida, filtros.dataInicio, filtros.dataFim)) {
+        return false
+      }
+    } else {
+      const referencia = referenciaAnoMesServico(r)
+      if (filtros.ano !== 'todos') {
+        if (!referencia || referencia.ano !== Number(filtros.ano)) return false
+      }
+      if (filtros.mes !== 'todos') {
+        if (!referencia || referencia.mes !== Number(filtros.mes)) return false
+      }
+    }
 
     if (filtros.tipo !== 'todos' && r.categoria !== filtros.tipo) return false
     if (

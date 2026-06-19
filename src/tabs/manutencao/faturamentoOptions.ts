@@ -8,12 +8,20 @@ export interface FaturamentoOption {
 /** Valor canônico do faturamento de consulta (não entra em balanço nem gastos). */
 export const FATURAMENTO_NAO_APROVADOS = 'Não aprovados'
 
+/** Faturamento de serviços arquivados (consulta / card de resumo). */
+export const FATURAMENTO_ARQUIVADOS = 'Arquivados'
+
 function normalizarTextoFaturamento(texto: string): string {
   return texto
     .trim()
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+}
+
+/** Serviços com faturamento Arquivados (coluna Faturamento). */
+export function ehFaturamentoArquivados(faturamento: string): boolean {
+  return normalizarTextoFaturamento(faturamento) === 'arquivados'
 }
 
 /** Serviços deste faturamento são só para consulta (filtro Tipo faturamento). */

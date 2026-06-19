@@ -79,7 +79,24 @@ export function subtrairAnosDataBr(dataBr: string, anos: number): string {
 }
 
 export function parseDataBr(data: string): Date | null {
-  const normalizada = normalizarDataBr(data)
+  const trimmed = data.trim()
+  if (!trimmed || trimmed === 'Indeterminado') return null
+
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed)
+  if (iso) {
+    const [, ano, mes, dia] = iso
+    const date = new Date(Number(ano), Number(mes) - 1, Number(dia))
+    if (
+      date.getFullYear() !== Number(ano) ||
+      date.getMonth() !== Number(mes) - 1 ||
+      date.getDate() !== Number(dia)
+    ) {
+      return null
+    }
+    return date
+  }
+
+  const normalizada = normalizarDataBr(trimmed)
   const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(normalizada)
   if (!match) return null
   const [, dia, mes, ano] = match
@@ -92,4 +109,34 @@ export function parseDataBr(data: string): Date | null {
     return null
   }
   return date
+}
+
+function inicioDoDia(data: Date): Date {
+  const copia = new Date(data)
+  copia.setHours(0, 0, 0, 0)
+  return copia
+}
+
+function fimDoDia(data: Date): Date {
+  const copia = new Date(data)
+  copia.setHours(23, 59, 59, 999)
+  return copia
+}
+
+/** Verifica se uma data (dd/mm/aaaa ou yyyy-mm-dd) está no intervalo informado. */
+export function dataBrNoPeriodo(
+  dataBr: string,
+  dataInicio: string,
+  dataFim: string,
+): boolean {
+  const data = parseDataBr(dataBr)
+  if (!data) return false
+
+  const inicio = dataInicio.trim() ? parseDataBr(dataInicio) : null
+  const fim = dataFim.trim() ? parseDataBr(dataFim) : null
+  const dataComparacao = inicioDoDia(data)
+
+  if (inicio && dataComparacao < inicioDoDia(inicio)) return false
+  if (fim && dataComparacao > fimDoDia(fim)) return false
+  return true
 }

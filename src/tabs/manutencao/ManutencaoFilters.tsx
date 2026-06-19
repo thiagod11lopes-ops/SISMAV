@@ -184,18 +184,18 @@ export function ManutencaoFilters({
         </label>
 
         <label className="filtro-field">
-          <span className="filtro-field__label">Data fim</span>
-          <DataInput
-            value={filtros.dataFim}
-            onValueChange={(valor) => set('dataFim', valor)}
-          />
-        </label>
-
-        <label className="filtro-field">
           <span className="filtro-field__label">Data início</span>
           <DataInput
             value={filtros.dataInicio}
             onValueChange={(valor) => set('dataInicio', valor)}
+          />
+        </label>
+
+        <label className="filtro-field">
+          <span className="filtro-field__label">Data fim</span>
+          <DataInput
+            value={filtros.dataFim}
+            onValueChange={(valor) => set('dataFim', valor)}
           />
         </label>
         </div>

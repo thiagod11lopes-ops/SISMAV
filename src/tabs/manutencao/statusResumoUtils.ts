@@ -1,30 +1,32 @@
 import type { ManutencaoFiltros } from './types'
-import { getAprovacaoServico, type ServicoRegistro } from './servicoTypes'
+import { ehFaturamentoArquivados } from './faturamentoOptions'
+import type { ServicoRegistro } from './servicoTypes'
 
-export type ResumoCardFiltro = 'faturado' | 'pendente' | 'nao-aprovado'
+export type ResumoCardFiltro = 'faturado' | 'pendente' | 'arquivados'
 
 export interface ResumoStatusServicos {
   totalFaturados: number
   totalPendentes: number
-  totalNaoAprovados: number
+  totalArquivados: number
   qtdFaturados: number
   qtdPendentes: number
-  qtdNaoAprovados: number
+  qtdArquivados: number
 }
 
 export function servicoPertenceAoResumoCard(
   servico: ServicoRegistro,
   card: ResumoCardFiltro,
 ): boolean {
-  const aprovacao = getAprovacaoServico(servico)
-
   switch (card) {
     case 'faturado':
       return servico.status === 'faturado'
     case 'pendente':
-      return servico.status === 'pendente' && aprovacao !== 'nao-aprovado'
-    case 'nao-aprovado':
-      return aprovacao === 'nao-aprovado'
+      return (
+        servico.status === 'pendente' &&
+        !ehFaturamentoArquivados(servico.faturamento)
+      )
+    case 'arquivados':
+      return ehFaturamentoArquivados(servico.faturamento)
   }
 }
 
@@ -60,10 +62,10 @@ export function calcularResumoStatusServicos(
 ): ResumoStatusServicos {
   let totalFaturados = 0
   let totalPendentes = 0
-  let totalNaoAprovados = 0
+  let totalArquivados = 0
   let qtdFaturados = 0
   let qtdPendentes = 0
-  let qtdNaoAprovados = 0
+  let qtdArquivados = 0
 
   for (const servico of servicos) {
     if (servicoPertenceAoResumoCard(servico, 'faturado')) {
@@ -74,18 +76,18 @@ export function calcularResumoStatusServicos(
       totalPendentes += servico.valor
       qtdPendentes += 1
     }
-    if (servicoPertenceAoResumoCard(servico, 'nao-aprovado')) {
-      totalNaoAprovados += servico.valor
-      qtdNaoAprovados += 1
+    if (servicoPertenceAoResumoCard(servico, 'arquivados')) {
+      totalArquivados += servico.valor
+      qtdArquivados += 1
     }
   }
 
   return {
     totalFaturados,
     totalPendentes,
-    totalNaoAprovados,
+    totalArquivados,
     qtdFaturados,
     qtdPendentes,
-    qtdNaoAprovados,
+    qtdArquivados,
   }
 }

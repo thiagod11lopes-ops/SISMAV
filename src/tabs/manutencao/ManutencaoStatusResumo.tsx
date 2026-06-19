@@ -19,8 +19,8 @@ const CARDS: Array<{
   id: ResumoCardFiltro
   label: string
   className: string
-  qtdKey: 'qtdFaturados' | 'qtdPendentes' | 'qtdNaoAprovados'
-  totalKey: 'totalFaturados' | 'totalPendentes' | 'totalNaoAprovados'
+  qtdKey: 'qtdFaturados' | 'qtdPendentes' | 'qtdArquivados'
+  totalKey: 'totalFaturados' | 'totalPendentes' | 'totalArquivados'
 }> = [
   {
     id: 'faturado',
@@ -37,11 +37,11 @@ const CARDS: Array<{
     totalKey: 'totalPendentes',
   },
   {
-    id: 'nao-aprovado',
-    label: 'Não aprovados',
-    className: 'manutencao-status-resumo__metric--nao-aprovado',
-    qtdKey: 'qtdNaoAprovados',
-    totalKey: 'totalNaoAprovados',
+    id: 'arquivados',
+    label: 'Arquivados',
+    className: 'manutencao-status-resumo__metric--arquivados',
+    qtdKey: 'qtdArquivados',
+    totalKey: 'totalArquivados',
   },
 ]
 

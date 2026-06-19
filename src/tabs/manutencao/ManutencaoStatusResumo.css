@@ -157,7 +157,7 @@
     0 0 0 2px color-mix(in srgb, var(--primary-500) 45%, transparent);
 }
 
-.manutencao-status-resumo__metric--ativo.manutencao-status-resumo__metric--nao-aprovado {
+.manutencao-status-resumo__metric--ativo.manutencao-status-resumo__metric--arquivados {
   box-shadow:
     var(--shadow-md),
     0 0 0 2px color-mix(in srgb, var(--danger) 45%, transparent);
@@ -208,12 +208,12 @@
   color: var(--primary-700);
 }
 
-.manutencao-status-resumo__metric--nao-aprovado {
+.manutencao-status-resumo__metric--arquivados {
   border-color: color-mix(in srgb, var(--danger) 32%, var(--border));
   background: color-mix(in srgb, var(--danger) 6%, var(--surface));
 }
 
-.manutencao-status-resumo__metric--nao-aprovado .manutencao-status-resumo__metric-value {
+.manutencao-status-resumo__metric--arquivados .manutencao-status-resumo__metric-value {
   color: var(--danger);
 }
 
