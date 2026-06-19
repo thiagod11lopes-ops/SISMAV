@@ -1,6 +1,8 @@
 import type { ManutencaoFiltros } from './types'
 import { getAprovacaoServico, type ServicoRegistro } from './servicoTypes'
 
+export type ResumoCardFiltro = 'faturado' | 'pendente' | 'nao-aprovado'
+
 export interface ResumoStatusServicos {
   totalFaturados: number
   totalPendentes: number
@@ -8,6 +10,30 @@ export interface ResumoStatusServicos {
   qtdFaturados: number
   qtdPendentes: number
   qtdNaoAprovados: number
+}
+
+export function servicoPertenceAoResumoCard(
+  servico: ServicoRegistro,
+  card: ResumoCardFiltro,
+): boolean {
+  const aprovacao = getAprovacaoServico(servico)
+
+  switch (card) {
+    case 'faturado':
+      return servico.status === 'faturado'
+    case 'pendente':
+      return servico.status === 'pendente' && aprovacao !== 'nao-aprovado'
+    case 'nao-aprovado':
+      return aprovacao === 'nao-aprovado'
+  }
+}
+
+export function filtrarPorResumoCard(
+  servicos: ServicoRegistro[],
+  card: ResumoCardFiltro | null,
+): ServicoRegistro[] {
+  if (!card) return servicos
+  return servicos.filter((servico) => servicoPertenceAoResumoCard(servico, card))
 }
 
 export function filtrosEstaoVazios(
@@ -40,17 +66,15 @@ export function calcularResumoStatusServicos(
   let qtdNaoAprovados = 0
 
   for (const servico of servicos) {
-    const aprovacao = getAprovacaoServico(servico)
-
-    if (servico.status === 'faturado') {
+    if (servicoPertenceAoResumoCard(servico, 'faturado')) {
       totalFaturados += servico.valor
       qtdFaturados += 1
     }
-    if (servico.status === 'pendente' && aprovacao !== 'nao-aprovado') {
+    if (servicoPertenceAoResumoCard(servico, 'pendente')) {
       totalPendentes += servico.valor
       qtdPendentes += 1
     }
-    if (aprovacao === 'nao-aprovado') {
+    if (servicoPertenceAoResumoCard(servico, 'nao-aprovado')) {
       totalNaoAprovados += servico.valor
       qtdNaoAprovados += 1
     }

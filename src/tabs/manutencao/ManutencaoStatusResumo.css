@@ -117,12 +117,55 @@
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   backdrop-filter: blur(6px);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  width: 100%;
 }
 
 .manutencao-status-resumo__metric:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
+}
+
+.manutencao-status-resumo__metric:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+.manutencao-status-resumo__metric--ativo {
+  transform: translateY(-1px);
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 2px color-mix(in srgb, var(--primary-500) 35%, transparent);
+}
+
+.manutencao-status-resumo__metric--ativo.manutencao-status-resumo__metric--faturado {
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 2px color-mix(in srgb, var(--success) 45%, transparent);
+}
+
+.manutencao-status-resumo__metric--ativo.manutencao-status-resumo__metric--pendente {
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 2px color-mix(in srgb, var(--primary-500) 45%, transparent);
+}
+
+.manutencao-status-resumo__metric--ativo.manutencao-status-resumo__metric--nao-aprovado {
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 2px color-mix(in srgb, var(--danger) 45%, transparent);
+}
+
+.manutencao-status-resumo__filtro-ativo {
+  color: var(--primary-600, var(--primary-700));
+  font-weight: 700;
 }
 
 .manutencao-status-resumo__metric-label {

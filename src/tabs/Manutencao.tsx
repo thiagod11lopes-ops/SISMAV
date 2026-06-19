@@ -40,7 +40,7 @@ import { FaturamentoResumoTotais } from './manutencao/FaturamentoResumoTotais'
 import { useFainasPendentesHoje } from './manutencao/useFainasPendentesHoje'
 import { ManutencaoStatusResumo } from './manutencao/ManutencaoStatusResumo'
 import { ManutencaoToolbar } from './manutencao/ManutencaoToolbar'
-import { filtrosEstaoVazios } from './manutencao/statusResumoUtils'
+import { filtrosEstaoVazios, filtrarPorResumoCard, type ResumoCardFiltro } from './manutencao/statusResumoUtils'
 import { carregarServicos, salvarServicos } from './manutencao/servicosStorage'
 import { ServicosTabelas } from './manutencao/ServicosTabelas'
 import { ViaturasOficinaModal } from './manutencao/ViaturasOficinaModal'
@@ -172,6 +172,7 @@ function ServicosContent({
   onAlternarColunasDetalhadas,
   onGerarPdfFaturamento,
   servicosFiltrados,
+  servicosExibidos,
   filtrosAplicados,
   filtrosRascunho,
   setFiltrosRascunho,
@@ -194,6 +195,7 @@ function ServicosContent({
   onAlternarColunasDetalhadas: () => void
   onGerarPdfFaturamento: () => void
   servicosFiltrados: ServicoRegistro[]
+  servicosExibidos: ServicoRegistro[]
   filtrosAplicados: ManutencaoFiltros
   filtrosRascunho: typeof FILTROS_INICIAIS
   setFiltrosRascunho: (filtros: typeof FILTROS_INICIAIS) => void
@@ -229,7 +231,7 @@ function ServicosContent({
         exibirColunasDetalhadas={exibirColunasDetalhadas}
         onAlternarColunasDetalhadas={onAlternarColunasDetalhadas}
         onGerarPdfFaturamento={onGerarPdfFaturamento}
-        totalFiltrado={servicosFiltrados.length}
+        totalFiltrado={servicosExibidos.length}
         totalGeral={servicosGeral}
       />
 
@@ -240,7 +242,7 @@ function ServicosContent({
       />
 
       <ServicosTabelas
-        servicos={servicosFiltrados}
+        servicos={servicosExibidos}
         exibirColunasDetalhadas={exibirColunasDetalhadas}
         onEditar={handleEditarServico}
         onExcluir={handleExcluirServico}
@@ -769,6 +771,10 @@ export function Manutencao() {
     null,
   )
   const [exibirColunasDetalhadas, setExibirColunasDetalhadas] = useState(false)
+  const [resumoCardAtivo, setResumoCardAtivo] = useState<ResumoCardFiltro | null>(
+    null,
+  )
+  const painelServicosRef = useRef<HTMLDivElement | null>(null)
   const viaturasCadastradas = useViaturas()
   const { fainas: fainasPendentesHoje, dispensarAviso: dispensarAvisoFainas } =
     useFainasPendentesHoje()
@@ -790,6 +796,11 @@ export function Manutencao() {
   const servicosParaResumo = useMemo(
     () => (escopoResumoGeral ? servicos : servicosFiltrados),
     [escopoResumoGeral, servicos, servicosFiltrados],
+  )
+
+  const servicosExibidos = useMemo(
+    () => filtrarPorResumoCard(servicosFiltrados, resumoCardAtivo),
+    [servicosFiltrados, resumoCardAtivo],
   )
 
   const opcoesFaturamento = useMemo(
@@ -819,6 +830,16 @@ export function Manutencao() {
     setFiltrosAplicados(FILTROS_INICIAIS)
     setBuscaRascunho('')
     setBuscaAplicada('')
+    setResumoCardAtivo(null)
+  }
+
+  const handleResumoCardClick = (card: ResumoCardFiltro) => {
+    setResumoCardAtivo((atual) => (atual === card ? null : card))
+    setActiveSubTab('servicos')
+
+    requestAnimationFrame(() => {
+      painelServicosRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
   }
 
   const aplicarBusca = () => setBuscaAplicada(buscaRascunho)
@@ -959,6 +980,8 @@ export function Manutencao() {
           servicos={servicosParaResumo}
           escopoGeral={escopoResumoGeral}
           totalServicos={servicosParaResumo.length}
+          cardAtivo={resumoCardAtivo}
+          onCardClick={handleResumoCardClick}
         />
         <div className="manutencao-top__actions">
           <ManutencaoToolbar
@@ -983,6 +1006,7 @@ export function Manutencao() {
       />
 
       <div
+        ref={painelServicosRef}
         className="sub-tabs-panel"
         role="tabpanel"
         id={`manutencao-panel-${activeSubTab}`}
@@ -998,6 +1022,7 @@ export function Manutencao() {
             }
             onGerarPdfFaturamento={() => setModalGerarPdfFaturamentoAberto(true)}
             servicosFiltrados={servicosFiltrados}
+            servicosExibidos={servicosExibidos}
             filtrosAplicados={filtrosAplicados}
             filtrosRascunho={filtrosRascunho}
             setFiltrosRascunho={setFiltrosRascunho}
