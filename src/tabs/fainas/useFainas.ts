@@ -70,6 +70,33 @@ export function useFainas() {
     [atualizar],
   )
 
+  const reordenarPendente = useCallback(
+    (id: string, direcao: 'cima' | 'baixo') => {
+      atualizar((prev) => {
+        const indicesPendentes: number[] = []
+        prev.forEach((faina, indice) => {
+          if (faina.status === 'pendente') indicesPendentes.push(indice)
+        })
+
+        const posicao = indicesPendentes.findIndex((indice) => prev[indice].id === id)
+        if (posicao < 0) return prev
+
+        const novaPosicao = direcao === 'cima' ? posicao - 1 : posicao + 1
+        if (novaPosicao < 0 || novaPosicao >= indicesPendentes.length) return prev
+
+        const indiceAtual = indicesPendentes[posicao]
+        const indiceTroca = indicesPendentes[novaPosicao]
+        const proximo = [...prev]
+        ;[proximo[indiceAtual], proximo[indiceTroca]] = [
+          proximo[indiceTroca],
+          proximo[indiceAtual],
+        ]
+        return proximo
+      })
+    },
+    [atualizar],
+  )
+
   const porStatus = useCallback(
     (status: FainaStatus) => fainas.filter((faina) => faina.status === status),
     [fainas],
@@ -79,6 +106,7 @@ export function useFainas() {
     fainas,
     adicionar,
     moverStatus,
+    reordenarPendente,
     excluir,
     pendentes: porStatus('pendente'),
     emAndamento: porStatus('andamento'),

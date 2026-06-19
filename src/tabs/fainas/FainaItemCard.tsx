@@ -19,13 +19,39 @@ function IconSetaDireita() {
   )
 }
 
+function IconSetaCima() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M18 15l-6-6-6 6" />
+    </svg>
+  )
+}
+
+function IconSetaBaixo() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  )
+}
+
 interface FainaItemCardProps {
   faina: FainaItem
   onMover: (id: string, status: FainaStatus) => void
   onExcluir: (faina: FainaItem) => void
+  onReordenar?: (id: string, direcao: 'cima' | 'baixo') => void
+  podeSubir?: boolean
+  podeDescer?: boolean
 }
 
-export function FainaItemCard({ faina, onMover, onExcluir }: FainaItemCardProps) {
+export function FainaItemCard({
+  faina,
+  onMover,
+  onExcluir,
+  onReordenar,
+  podeSubir = false,
+  podeDescer = false,
+}: FainaItemCardProps) {
   return (
     <article className="faina-item">
       <div className="faina-item__content">
@@ -39,6 +65,31 @@ export function FainaItemCard({ faina, onMover, onExcluir }: FainaItemCardProps)
       </div>
 
       <div className="faina-item__acoes">
+        {faina.status === 'pendente' && onReordenar ? (
+          <div className="faina-item__ordem" aria-label="Alterar ordem da atividade">
+            <button
+              type="button"
+              className="faina-item__acao-btn faina-item__acao-btn--ordem"
+              title="Subir na lista"
+              aria-label={`Subir "${faina.tituloAtividade}" na lista`}
+              disabled={!podeSubir}
+              onClick={() => onReordenar(faina.id, 'cima')}
+            >
+              <IconSetaCima />
+            </button>
+            <button
+              type="button"
+              className="faina-item__acao-btn faina-item__acao-btn--ordem"
+              title="Descer na lista"
+              aria-label={`Descer "${faina.tituloAtividade}" na lista`}
+              disabled={!podeDescer}
+              onClick={() => onReordenar(faina.id, 'baixo')}
+            >
+              <IconSetaBaixo />
+            </button>
+          </div>
+        ) : null}
+
         {faina.status === 'pendente' ? (
           <button
             type="button"

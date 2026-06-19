@@ -7,13 +7,14 @@ import { useFainasContext } from './FainasContext'
 import './FainaItemCard.css'
 
 export function Pendente() {
-  const { pendentes, adicionar, moverStatus, solicitarExclusao } = useFainasContext()
+  const { pendentes, adicionar, moverStatus, reordenarPendente, solicitarExclusao } =
+    useFainasContext()
   const [showAddActivity, setShowAddActivity] = useState(false)
 
   return (
     <SectionCard
       title="Atividades Pendentes"
-      description="Gerencie as fainas pendentes. Use a seta para enviar à aba Em andamento."
+      description="Gerencie as fainas pendentes. Use as setas verticais para alterar a ordem e a seta à direita para enviar à aba Em andamento."
       actions={
         <Button onClick={() => setShowAddActivity((prev) => !prev)}>
           {showAddActivity ? 'Ocultar formulário' : 'Adicionar nova atividade'}
@@ -38,12 +39,15 @@ export function Pendente() {
 
       {!showAddActivity && pendentes.length > 0 && (
         <div className="fainas-list">
-          {pendentes.map((faina) => (
+          {pendentes.map((faina, indice) => (
             <FainaItemCard
               key={faina.id}
               faina={faina}
               onMover={moverStatus}
               onExcluir={solicitarExclusao}
+              onReordenar={reordenarPendente}
+              podeSubir={indice > 0}
+              podeDescer={indice < pendentes.length - 1}
             />
           ))}
         </div>
