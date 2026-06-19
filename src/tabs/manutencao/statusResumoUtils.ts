@@ -40,15 +40,17 @@ export function calcularResumoStatusServicos(
   let qtdNaoAprovados = 0
 
   for (const servico of servicos) {
+    const aprovacao = getAprovacaoServico(servico)
+
     if (servico.status === 'faturado') {
       totalFaturados += servico.valor
       qtdFaturados += 1
     }
-    if (servico.status === 'pendente') {
+    if (servico.status === 'pendente' && aprovacao !== 'nao-aprovado') {
       totalPendentes += servico.valor
       qtdPendentes += 1
     }
-    if (getAprovacaoServico(servico) === 'nao-aprovado') {
+    if (aprovacao === 'nao-aprovado') {
       totalNaoAprovados += servico.valor
       qtdNaoAprovados += 1
     }
