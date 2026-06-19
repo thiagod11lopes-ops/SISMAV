@@ -26,12 +26,11 @@
 }
 
 .manutencao-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
   gap: 1rem;
   margin-bottom: 1.25rem;
-  flex-wrap: wrap;
 }
 
 .manutencao-top .sub-tabs {
@@ -41,10 +40,19 @@
 }
 
 .manutencao-top__actions {
-  flex: 1 1 700px;
-  min-width: 700px;
   display: flex;
   justify-content: flex-end;
+  min-width: 0;
+}
+
+@media (max-width: 1280px) {
+  .manutencao-top {
+    grid-template-columns: 1fr;
+  }
+
+  .manutencao-top__actions {
+    justify-content: stretch;
+  }
 }
 
 .manutencao-top__actions .manutencao-toolbar {

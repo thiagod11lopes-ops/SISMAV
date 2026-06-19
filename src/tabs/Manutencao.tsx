@@ -38,7 +38,9 @@ import { AvisoFainasPendentesHoje } from './manutencao/AvisoFainasPendentesHoje'
 import { ManutencaoFilters } from './manutencao/ManutencaoFilters'
 import { FaturamentoResumoTotais } from './manutencao/FaturamentoResumoTotais'
 import { useFainasPendentesHoje } from './manutencao/useFainasPendentesHoje'
+import { ManutencaoStatusResumo } from './manutencao/ManutencaoStatusResumo'
 import { ManutencaoToolbar } from './manutencao/ManutencaoToolbar'
+import { filtrosEstaoVazios } from './manutencao/statusResumoUtils'
 import { carregarServicos, salvarServicos } from './manutencao/servicosStorage'
 import { ServicosTabelas } from './manutencao/ServicosTabelas'
 import { ViaturasOficinaModal } from './manutencao/ViaturasOficinaModal'
@@ -780,6 +782,16 @@ export function Manutencao() {
     return buscarServicos(porFiltros, buscaAplicada)
   }, [servicos, filtrosAplicados, buscaAplicada])
 
+  const escopoResumoGeral = useMemo(
+    () => filtrosEstaoVazios(filtrosAplicados, buscaAplicada),
+    [filtrosAplicados, buscaAplicada],
+  )
+
+  const servicosParaResumo = useMemo(
+    () => (escopoResumoGeral ? servicos : servicosFiltrados),
+    [escopoResumoGeral, servicos, servicosFiltrados],
+  )
+
   const opcoesFaturamento = useMemo(
     () => montarOpcoesFaturamento(servicos),
     [servicos],
@@ -942,6 +954,11 @@ export function Manutencao() {
           onTabChange={setActiveSubTab}
           ariaLabel="Subabas de manutenção"
           panelIdPrefix="manutencao"
+        />
+        <ManutencaoStatusResumo
+          servicos={servicosParaResumo}
+          escopoGeral={escopoResumoGeral}
+          totalServicos={servicosParaResumo.length}
         />
         <div className="manutencao-top__actions">
           <ManutencaoToolbar
