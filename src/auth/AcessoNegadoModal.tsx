@@ -5,9 +5,16 @@ import './AcessoNegadoModal.css'
 interface AcessoNegadoModalProps {
   email: string
   onFechar: () => void
+  onTentarOutraConta: () => void
+  tentando: boolean
 }
 
-export function AcessoNegadoModal({ email, onFechar }: AcessoNegadoModalProps) {
+export function AcessoNegadoModal({
+  email,
+  onFechar,
+  onTentarOutraConta,
+  tentando,
+}: AcessoNegadoModalProps) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onFechar()
@@ -89,9 +96,10 @@ export function AcessoNegadoModal({ email, onFechar }: AcessoNegadoModalProps) {
         <button
           type="button"
           className="acesso-negado__btn"
-          onClick={onFechar}
+          onClick={onTentarOutraConta}
+          disabled={tentando}
         >
-          Tentar com outra conta
+          {tentando ? 'Abrindo seletor…' : 'Tentar com outra conta'}
         </button>
       </section>
     </div>

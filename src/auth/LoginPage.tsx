@@ -32,10 +32,16 @@ function GoogleIcon() {
 }
 
 export function LoginPage() {
-  const { signInWithGoogle, authEnabled, acessoNegado, limparAcessoNegado } =
-    useAuth()
+  const {
+    signInWithGoogle,
+    authEnabled,
+    acessoNegado,
+    limparAcessoNegado,
+    tentarOutraConta,
+  } = useAuth()
   const [erro, setErro] = useState<string | null>(null)
   const [entrando, setEntrando] = useState(false)
+  const [tentandoOutraConta, setTentandoOutraConta] = useState(false)
 
   const handleLogin = async () => {
     setErro(null)
@@ -116,6 +122,21 @@ export function LoginPage() {
         <AcessoNegadoModal
           email={acessoNegado}
           onFechar={limparAcessoNegado}
+          onTentarOutraConta={async () => {
+            setTentandoOutraConta(true)
+            try {
+              await tentarOutraConta()
+            } catch (error) {
+              const mensagem =
+                error instanceof Error
+                  ? error.message
+                  : 'Não foi possível abrir o seletor de contas.'
+              setErro(mensagem)
+            } finally {
+              setTentandoOutraConta(false)
+            }
+          }}
+          tentando={tentandoOutraConta}
         />
       )}
     </div>

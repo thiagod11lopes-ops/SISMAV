@@ -25,11 +25,15 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   limparAcessoNegado: () => void
+  tentarOutraConta: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 const googleProvider = new GoogleAuthProvider()
+// Sempre exibe o seletor de contas do Google, evitando reutilizar
+// automaticamente a última conta (que pode estar bloqueada).
+googleProvider.setCustomParameters({ prompt: 'select_account' })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const authEnabled = isFirebaseConfigured()
@@ -89,6 +93,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const limparAcessoNegado = useCallback(() => setAcessoNegado(null), [])
 
+  const tentarOutraConta = useCallback(async () => {
+    const auth = getFirebaseAuth()
+    if (!auth) return
+
+    setAcessoNegado(null)
+    await signOut(auth)
+
+    try {
+      const resultado = await signInWithPopup(auth, googleProvider)
+      if (!emailTemAcesso(resultado.user.email)) {
+        setAcessoNegado(resultado.user.email ?? '')
+        setUser(null)
+        await signOut(auth)
+      }
+    } catch (error) {
+      const codigo =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code: unknown }).code)
+          : ''
+      if (
+        codigo !== 'auth/popup-closed-by-user' &&
+        codigo !== 'auth/cancelled-popup-request'
+      ) {
+        throw error
+      }
+    }
+  }, [])
+
   const value = useMemo(
     () => ({
       user,
@@ -98,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       logout,
       limparAcessoNegado,
+      tentarOutraConta,
     }),
     [
       user,
@@ -107,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle,
       logout,
       limparAcessoNegado,
+      tentarOutraConta,
     ],
   )
 
