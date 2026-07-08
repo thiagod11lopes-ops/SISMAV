@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from './AuthContext'
+import { AcessoNegadoModal } from './AcessoNegadoModal'
 import './LoginPage.css'
 
 function GoogleIcon() {
@@ -31,7 +32,8 @@ function GoogleIcon() {
 }
 
 export function LoginPage() {
-  const { signInWithGoogle, authEnabled } = useAuth()
+  const { signInWithGoogle, authEnabled, acessoNegado, limparAcessoNegado } =
+    useAuth()
   const [erro, setErro] = useState<string | null>(null)
   const [entrando, setEntrando] = useState(false)
 
@@ -42,11 +44,23 @@ export function LoginPage() {
     try {
       await signInWithGoogle()
     } catch (error) {
-      const mensagem =
-        error instanceof Error
-          ? error.message
-          : 'Não foi possível entrar com o Google.'
-      setErro(mensagem)
+      const codigo =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code: unknown }).code)
+          : ''
+
+      if (
+        codigo === 'auth/popup-closed-by-user' ||
+        codigo === 'auth/cancelled-popup-request'
+      ) {
+        setErro(null)
+      } else {
+        const mensagem =
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível entrar com o Google.'
+        setErro(mensagem)
+      }
     } finally {
       setEntrando(false)
     }
@@ -97,6 +111,13 @@ export function LoginPage() {
           </p>
         )}
       </section>
+
+      {acessoNegado !== null && (
+        <AcessoNegadoModal
+          email={acessoNegado}
+          onFechar={limparAcessoNegado}
+        />
+      )}
     </div>
   )
 }

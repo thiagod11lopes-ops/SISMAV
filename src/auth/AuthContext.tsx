@@ -15,13 +15,16 @@ import {
   type User,
 } from 'firebase/auth'
 import { getFirebaseAuth, isFirebaseConfigured } from '../firebase/config'
+import { emailTemAcesso } from './authConfig'
 
 interface AuthContextValue {
   user: User | null
   loading: boolean
   authEnabled: boolean
+  acessoNegado: string | null
   signInWithGoogle: () => Promise<void>
   logout: () => Promise<void>
+  limparAcessoNegado: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -32,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const authEnabled = isFirebaseConfigured()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(authEnabled)
+  const [acessoNegado, setAcessoNegado] = useState<string | null>(null)
 
   useEffect(() => {
     if (!authEnabled) {
@@ -46,6 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser && !emailTemAcesso(firebaseUser.email)) {
+        setAcessoNegado(firebaseUser.email ?? '')
+        setUser(null)
+        setLoading(false)
+        void signOut(auth)
+        return
+      }
+
       setUser(firebaseUser)
       setLoading(false)
     })
@@ -59,7 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Firebase não configurado. Preencha o arquivo .env.')
     }
 
-    await signInWithPopup(auth, googleProvider)
+    setAcessoNegado(null)
+    const resultado = await signInWithPopup(auth, googleProvider)
+
+    if (!emailTemAcesso(resultado.user.email)) {
+      setAcessoNegado(resultado.user.email ?? '')
+      setUser(null)
+      await signOut(auth)
+    }
   }, [])
 
   const logout = useCallback(async () => {
@@ -68,15 +87,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth)
   }, [])
 
+  const limparAcessoNegado = useCallback(() => setAcessoNegado(null), [])
+
   const value = useMemo(
     () => ({
       user,
       loading,
       authEnabled,
+      acessoNegado,
       signInWithGoogle,
       logout,
+      limparAcessoNegado,
     }),
-    [user, loading, authEnabled, signInWithGoogle, logout],
+    [
+      user,
+      loading,
+      authEnabled,
+      acessoNegado,
+      signInWithGoogle,
+      logout,
+      limparAcessoNegado,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
