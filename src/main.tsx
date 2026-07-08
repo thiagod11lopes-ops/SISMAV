@@ -5,6 +5,8 @@ import { BackupAutomaticoGate } from './configuracoes/BackupAutomaticoGate'
 import { garantirFinanceiroDoBackup } from './tabs/financeiro/financeiroSeedMigration'
 import { garantirViaturasIniciais } from './tabs/viaturas/viaturasSeedMigration'
 import { ThemeProvider } from './theme/ThemeContext'
+import { AuthProvider } from './auth/AuthContext'
+import { AuthGate } from './auth/AuthGate'
 import './index.css'
 import './styles/modern-ui.css'
 import App from './App.tsx'
@@ -16,9 +18,13 @@ garantirViaturasIniciais()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      <BackupAutomaticoGate>
-        <App />
-      </BackupAutomaticoGate>
+      <AuthProvider>
+        <AuthGate>
+          <BackupAutomaticoGate>
+            <App />
+          </BackupAutomaticoGate>
+        </AuthGate>
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>,
 )
